@@ -13,7 +13,7 @@
           "name": "uStepper",
           "architecture": "avr",
           "version": "1.0.0",
-          "category": "uStepper",
+          "category": "Contributed",
           "help": {
             "online": ""
           },
