@@ -15,4 +15,4 @@ For now, only a single example sketch showing uSteppers functionalities is avail
 
 We are working on our own libraries, but since the hardware is readyalmost two months early we are releasing this preliminary sketch to give our backers something to plat with.
 
-For more information on the uStepper, visit www.ustepper.com
+For more information visit www.ustepper.com
