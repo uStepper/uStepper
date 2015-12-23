@@ -19,8 +19,8 @@
           },
           "url": "https://github.com/uStepper/uStepper/releases/download/1.0.0/uStepper_hardware.zip",
           "archiveFileName": "uStepper_hardware.zip",
-          "checksum": "SHA-256:56a1bec8465a4a3431337c33a5e483cb3ca2b75cbe615829e64de770816c9556",
-          "size": "4228",
+          "checksum": "SHA-256:d238e2545ddba5926971753b68e24f19f3328b02ebae818fb76ccaba11a0d3d2",
+          "size": "3202",
           "boards": [
             {"name": "uStepper"}
           ],
