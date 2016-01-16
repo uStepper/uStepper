@@ -9,7 +9,4 @@ To add hardware support for uStepper in the Arduino IDE (1.6x) do the following:
 
 You have now added uStepper hardware support and should be able to select uStepper under tools -> boards.
 
-For now, only a single example sketch showing uSteppers functionalities is available under the preliminary software branch:
-https://github.com/uStepper/uStepper/tree/preliminary-software
-
-For more information visit www.ustepper.com
+For more information, visit www.ustepper.com
