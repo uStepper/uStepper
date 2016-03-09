@@ -1,5 +1,5 @@
-uStepper Robot Arm
-Instructions and files are a work in progress, meaning that files might change. The Robot Arm has however been printed and built as can be seen from the assembly instructions.
+#uStepper Robot Arm
+Instructions and files are a work in progress, meaning that files might change. The Robot Arm has however been printed and built, as can be seen from the assembly instructions.
 
 For more information, visit www.ustepper.com
 
