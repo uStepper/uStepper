@@ -1,5 +1,5 @@
 # Example code
-Here you can find the example code used for the demos for the Kickstarter campaign. Since they were developed at an early stage we do not offer support on them.
+Here you can find the example code used for the demos on our Kickstarter campaign. Since they were developed at an early stage we do not offer support on them.
 They furthermore make use of the Accelstepper library: http://www.airspayce.com/mikem/arduino/AccelStepper/
 This library is not maintained or supported by uStepper. For our own supported library see: https://github.com/uStepper/uStepper/tree/master/Library
 
