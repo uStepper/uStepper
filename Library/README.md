@@ -8,10 +8,10 @@ To add the uStepper library do the following:
  - Navigate to where you downloaded uStepper.zip to and select
  
  
- # Documentation
- We have now added documentation for the uStepper library, you can find it here:
- http://ustepper.com/docs/html/index.html
- 
+## Documentation
+We have now added documentation for the uStepper library, you can find it here:
+http://ustepper.com/docs/html/index.html
+
 
 The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library.
 The library is supported in Arduino IDE 1.6.7.
