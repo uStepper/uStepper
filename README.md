@@ -9,6 +9,22 @@ To add hardware support for uStepper in the Arduino IDE (1.6x) do the following:
 
 You have now added uStepper hardware support and should be able to select uStepper under tools -> boards.
 
+To add the uStepper library do the following:
+ - Download this repository as a zip file
+ - Open the Arduino IDE
+ - Select sketch from the top menu
+ - Select include library
+ - Select add .ZIP library
+ - Navigate to where you downloaded the zip file to and select
+ 
+ 
+## Documentation
+We have now added documentation for the uStepper library, you can find it here:
+http://ustepper.com/docs/html/index.html
+
+The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library.
+The library is supported in Arduino IDE 1.6.7.
+
 For more information, visit www.ustepper.com
 
 ### Closed loop
