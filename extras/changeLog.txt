@@ -1,0 +1,15 @@
+Changelog - uStepper library
+----------------------------
+
+0.1.0:
+	- Initial release!
+
+0.2.0:
+	- Complete rewrite of the stepper algorithm in assembler
+	- Changed from fixed point to floating point variables, due to the need for more precision
+	- Removed the getSpeed() method, as it didn't work, and therefore it would make more sense to remove it
+	  and re-add it when i get the time to fix it
+	- Added a few doxygen comments
+	- Added a new method (getStepsSinceReset()), which returns all steps performed since reset of the uStepper.
+	  positive values corresponds to steps in clockwise direction, while negative values corresponds to steps
+	  in counterclockwise direction.

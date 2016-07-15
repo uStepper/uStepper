@@ -1,0 +1,46 @@
+#######################################
+# Syntax Coloring Map For AccelStepper
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+uStepper	KEYWORD1
+uStepperTemp KEYWORD1
+uStepperEncoder KEYWORD1
+i2cMaster	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+getTemp	KEYWORD2
+getAngle	KEYWORD2
+getSpeed	KEYWORD2
+getStrength	KEYWORD2
+getAgc	KEYWORD2
+detectMagnet	KEYWORD2
+getAngleMoved	KEYWORD2
+setHome	KEYWORD2
+setMaxAcceleration	KEYWORD2
+getMaxAcceleration	KEYWORD2
+setMaxVelocity	KEYWORD2
+getMaxVelocity	KEYWORD2
+runContinous	KEYWORD2
+moveSteps	KEYWORD2
+hardStop	KEYWORD2
+softStop	KEYWORD2
+setup	KEYWORD2
+getCurrentDirection	KEYWORD2	
+getMotorState KEYWORD2
+getStepsSinceReset KEYWORD2
+readByte	KEYWORD2
+read		KEYWORD2
+start 		KEYWORD2
+restart 	KEYWORD2
+writeByte  	KEYWORD2
+write 		KEYWORD2
+stop 	KEYWORD2
+getStatus 	KEYWORD2
+begin 	KEYWORD2
