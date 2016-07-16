@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
 *		Version:    0.3.0                                           						*
-*      	date: 		May 27th, 2016	                                    					*
+*      	date: 		May 7th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -209,14 +209,49 @@
 *
 *
 */
+#ifdef DROPIN
+extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal));
+extern "C" void INT0_vect(void) __attribute__ ((signal));
+#else
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-
+#endif
 /**
 *	\brief 
 *
 *
 */
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+
+class float2
+{
+	public:
+		float2(void);
+		float getFloatValue(void);
+		uint64_t getRawValue(void);
+		void setValue(float val);
+		float2 & operator=(const float &value);
+		bool operator==(const float2 &value);
+		bool operator!=(const float2 &value);
+		bool operator>=(const float2 &value);
+		bool operator<=(const float2 &value);
+		bool operator<=(const float &value);
+		bool operator<(const float2 &value);
+		bool operator>(const float2 &value);
+		float2 & operator*=(const float2 &value);
+		float2 & operator-=(const float2 &value);
+		float2 & operator+=(const float2 &value);
+		float2 & operator+=(const float &value);
+		float2 & operator/=(const float2 &value);
+		const float2 operator+(const float2 &value);
+		const float2 operator-(const float2 &value);
+		const float2 operator*(const float2 &value);
+		const float2 operator/(const float2 &value);
+		uint64_t value;
+
+	private:
+		friend void TIMER2_COMPA_vect(void) __attribute__ ((signal));
+		
+};
 
 /**
 *	\brief Prototype of class for the temperature sensor 
@@ -382,43 +417,46 @@ class uStepper
 private:
 	//Address offset: 0	
 	uint16_t cruiseDelay;			/**< This variable is used by the stepper acceleration algorithm to set the delay between step pulses when running at the set cruise speed */
-	//Address offset: 2	
-	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
-	//Address offset: 6
-	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
+	//Address offset: 2
+	float2 multiplier;				/**< This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. */			
 	//Address offset: 10
-	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
-	//Address offset: 12
-	float multiplier;				/**< This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. */			
-	//Address offset: 16
-	float exactDelayDecel;			/**< This variable is */
-	//Address offset: 20
 	uint8_t state;					/**< This variable is used by the stepper algorithm to keep track of which part of the acceleration profile the motor is currently operating at. */					
-	//Address offset: 21
+	//Address offset: 11
 	uint32_t accelSteps;			/**< This variable keeps track of how many steps to perform in the acceleration phase of the profile. */			
-	//Address offset: 25
+	//Address offset: 15
 	uint32_t decelSteps;			/**< This variable keeps track of how many steps to perform in the deceleration phase of the profile. */	
-	//Address offset: 29
+	//Address offset: 19
 	uint32_t initialDecelSteps;		/**< This variable keeps track of how many steps to perform in the initial deceleration phase of the profile. */		
-	//Address offset: 33
+	//Address offset: 23
 	uint32_t cruiseSteps;			/**< This variable keeps track of how many steps to perform in the cruise phase of the profile. */	
-	//Address offset: 37
+	//Address offset: 27
 	uint32_t currentStep;			/**< This variable keeps track of the current step number in the current move of a predefined number of steps. */ 
-	//Address offset: 41
+	//Address offset: 31
 	uint32_t totalSteps;			/**< This variable keeps track of the total number of steps to be performed in the current move of a predefined number of steps. */
-	//Address offset: 45
+	//Address offset: 35
 	bool continous;					/**< This variable tells the algorithm whether the motor should rotated continuous or only a limited number of steps. If set to 1, the motor will rotate continous. */
-	//Address offset: 46
+	//Address offset: 36
 	bool hold;						/**< This variable tells the algorithm if it should block the motor by keeping the motor coils excited after the commanded number of steps have been carried out, or if it should release the motor coil, allowing the shaft to be rotated freely. */
-	//Address offset: 47
+	//Address offset: 37
 	bool direction;					/**< This variable tells the algorithm the direction of rotation for the commanded move. */
-	//Address offset: 48
+	//Address offset: 38
 	int64_t stepsSinceReset;		/**< This variable contains an open-loop number of steps moved from the position the motor had when powered on (or reset). a negative value represents a rotation in the counter clock wise direction and a positive value corresponds to a rotation in the clock wise direction. */
+	//Address offset: 46
+	float2 exactDelay;				/**< This variable contains the exact delay (in number of interrupts) before the next step is applied. This variable is used in the calculations of the next step delay. */				
+	//Address offset: 54	
+	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
 	//Address offset: 56
-	float exactDelay;				/**< This variable contains the exact delay (in number of interrupts) before the next step is applied. This variable is used in the calculations of the next step delay. */				
+	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
+	//Address offset: 60
+	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
 
+
+	#ifndef DROPIN
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-	
+	#endif
+	#ifdef DROPIN
+	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+	#endif
 
 	/**
 	*	\brief Starts timer for stepper algorithm
