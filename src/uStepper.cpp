@@ -77,19 +77,17 @@
 #include <Wire.h>
 #include <util/delay.h>
 #include <math.h>
-#define DROPIN
+
 uStepper *pointer;
 i2cMaster I2C;
 
-#ifdef DROPIN
 volatile int32_t stepCnt = 0, control = 0;
-#endif
 
 extern "C" {
 	#ifdef DROPIN
-	void INT0_vect(void)
+	void INT1_vect(void)
 	{
-		if((PIND & (0x08)))			//CCW
+		if((PIND & (0x20)))			//CCW
 		{
 			if(control == 0)
 			{
@@ -109,11 +107,23 @@ extern "C" {
 
 		if(control == 0)			//If no steps are lost, redirect step pulses		
 		{
-			PORTD |= (1 << 4);
-			delayMicroseconds(2);
-			PORTD &= ~(1 << 4);	
+			PORTD |= (1 << 4);		//generate step pulse
+			delayMicroseconds(1);	//wait a small time
+			PORTD &= ~(1 << 4);		//pull step pin low again
 		}
 
+	}
+
+	void INT0_vect(void)
+	{
+		if(PIND & 0x08)
+		{
+			PORTB |= (1 << 0);
+		}
+		else
+		{
+			PORTB &= ~(1 << 0);
+		}
 	}
 	#endif
 
@@ -152,11 +162,12 @@ extern "C" {
 	
 	void TIMER1_COMPA_vect(void)
 	{
+		static uint8_t i = 0;
 		#ifdef DROPIN
 		float error;
 		#endif
 		float deltaAngle;
-		static float curAngle, oldAngle = 0.0, loops = 0.0;
+		static float curAngle, oldAngle = 0.0, loops = 0.0, deltaSpeedAngle = 0.0;
 	
 		sei();
 		if(I2C.getStatus() != I2CFREE)
@@ -176,11 +187,13 @@ extern "C" {
 		if(deltaAngle < -180.0)
 		{
 			loops -= 1.0;
+			deltaAngle += 360.0;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
 			loops += 1.0;
+			deltaAngle = 360.0 - deltaAngle;
 		}
 
 		pointer->encoder.angleMoved = curAngle + (360.0*loops);
@@ -208,8 +221,17 @@ extern "C" {
 			pointer->stopTimer();	
 		}
 		#endif
-
-		pointer->encoder.curSpeed = deltaAngle*ENCODERSPEEDCONSTANT;
+		if( i < 10)
+		{
+			i++;
+			deltaSpeedAngle += deltaAngle;
+		}
+		else
+		{
+			pointer->encoder.curSpeed = -(deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+			i = 0;
+			deltaSpeedAngle = 0.0;
+		}
 	}
 }
 
@@ -682,32 +704,34 @@ uint8_t uStepperEncoder::detectMagnet()
 
 uStepper::uStepper(void)
 {
+	#ifndef DROPIN
 	this->state = STOP;
 
 	this->setMaxAcceleration(1000.0);
 	this->setMaxVelocity(1000.0);
 
 	pointer = this;
-
-	pinMode(DIR, OUTPUT);
-	pinMode(STEP, OUTPUT);
-	pinMode(ENA, OUTPUT);	
+	#endif
+	DDRD |= (1 << 7);		//set direction pin to output
+	DDRD |= (1 << 4);		//set step pin to output
+	DDRB |= (1 << 0);		//set enable pin to output
 }
 
 uStepper::uStepper(float accel, float vel)
 {
+#ifndef DROPIN
 	this->state = STOP;
 
 	this->setMaxVelocity(vel);
 	this->setMaxAcceleration(accel);
 
 	pointer = this;
-
-	pinMode(DIR, OUTPUT);
-	pinMode(STEP, OUTPUT);
-	pinMode(ENA, OUTPUT);
+#endif
+	DDRD |= (1 << 7);		//set direction pin to output
+	DDRD |= (1 << 4);		//set step pin to output
+	DDRB |= (1 << 0);		//set enable pin to output
 }
-
+#ifndef DROPIN
 void uStepper::setMaxAcceleration(float accel)
 {
 	this->acceleration = accel;
@@ -729,7 +753,7 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	/*Serial.print(this->exactDelay.getFloatValue(),15);
+	Serial.print(this->exactDelay.getFloatValue(),15);
 	Serial.print("\t");
 	Serial.print((uint8_t)((this->exactDelay.value >> 48) & 0x00000000000000FF),HEX);
 	Serial.print(" ");
@@ -747,7 +771,7 @@ float uStepper::getMaxAcceleration(void)
 	Serial.print("\t");
 	Serial.print(this->delay);
 	Serial.print("\t");
-	Serial.println(this->totalSteps);*/
+	Serial.println(this->totalSteps);
 
 	return this->acceleration;
 }
@@ -843,8 +867,15 @@ void uStepper::runContinous(bool dir)
 
 	else																						//If motor is currently stopped (state = STOP)
 	{
-		this->state = ACCEL;																		//Start accelerating
-		digitalWrite(DIR, dir);																	//Set the motor direction pin to the desired setting
+		this->state = ACCEL;																	//Start accelerating
+		if(dir)																	//Set the motor direction pin to the desired setting
+		{
+			PORTD |= (1 << 7);
+		}
+		else
+		{
+			PORTD &= ~(1 << 7);
+		}
 		this->accelSteps = (velocity*velocity)/(2.0*acceleration);								//Number of steps to bring the motor to max speed (S = (V^2 - V0^2)/(2*a)))
 		
 		this->exactDelay.setValue(INTFREQ/sqrt(2.0*this->acceleration));	//number of interrupts before the first step should be performed.
@@ -971,7 +1002,14 @@ void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 	
 	else								//If motor is currently at full stop (state = STOP)
 	{
-		digitalWrite(DIR, dir);			//Set direction pin to desired direction
+		if(dir)																	//Set the motor direction pin to the desired setting
+		{
+			PORTD |= (1 << 7);
+		}
+		else
+		{
+			PORTD &= ~(1 << 7);
+		}
 		this->state = ACCEL;
 		this->accelSteps = (uint32_t)((this->velocity * this->velocity)/(2.0*this->acceleration));	//Number of steps to bring the motor to max speed (S = (V^2 - V0^2)/(2*a)))
 		this->initialDecelSteps = 0;		//No initial deceleration phase needed
@@ -1072,13 +1110,12 @@ void uStepper::softStop(bool holdMode)
 		}
 	}
 }
-
+#endif
 void uStepper::setup(void)
 {
 	#ifdef DROPIN
-	pinMode(2,INPUT);
-	EICRA = 0x03;		//int0 generates interrupt on rising edge
-	EIMSK = 0x01;		//enable int0 interrupt requests
+	EICRA = 0x0D;		//int0 generates interrupt on any change and int1 generates interrupt on rising edge
+	EIMSK = 0x03;		//enable int0 and int1 interrupt requests
 	#endif
 
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
@@ -1105,12 +1142,12 @@ void uStepper::stopTimer(void)
 
 void uStepper::enableMotor(void)
 {
-	digitalWrite(ENA, LOW);				//Enable motor driver
+	PORTB &= ~(1 << 0);				//Enable motor driver
 }
 
 void uStepper::disableMotor(void)
 {
-	digitalWrite(ENA, HIGH);			//Disable motor driver
+	PORTB |= (1 << 0);			//Disable motor driver
 }
 
 bool uStepper::getCurrentDirection(void)

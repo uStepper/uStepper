@@ -138,6 +138,7 @@
 #error !!This library only supports the ATmega328p MCU!!
 #endif
 
+#include "dropInConf.h"
 #include <inttypes.h>
 #include <avr/io.h>
 
@@ -160,7 +161,7 @@
 #define MAGNITUDE 0x1B			/**< Address of the register, in the encoder chip, containing the 8 least significant bits of magnetic field strength measured by the encoder chip */
 
 #define ENCODERINTFREQ 244.3	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
-#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/360.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
+#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
 
 #define R 4700.0 				/**< The NTC resistor used for measuring temperature, is placed in series with a 4.7 kohm resistor. This is used to calculate the temperature */
 
@@ -212,6 +213,7 @@
 #ifdef DROPIN
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal));
 extern "C" void INT0_vect(void) __attribute__ ((signal));
+extern "C" void INT1_vect(void) __attribute__ ((signal));
 #else
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
 #endif
