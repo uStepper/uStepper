@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.3.0                                           						*
-*      	date: 		May 7th, 2016	                                    					*
+*		Version:    0.4.0                                           						*
+*      	date: 		July 18th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -138,7 +138,7 @@
 #error !!This library only supports the ATmega328p MCU!!
 #endif
 
-#include "dropInConf.h"
+#include "conf.h"
 #include <inttypes.h>
 #include <avr/io.h>
 
@@ -205,11 +205,6 @@
 #define B 0.000237488365866  /**< See description of A */
 #define C 0.000000083423218  /**< See description of A */
 
-/**
-*	\brief 
-*
-*
-*/
 #ifdef DROPIN
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal));
 extern "C" void INT0_vect(void) __attribute__ ((signal));
@@ -217,11 +212,7 @@ extern "C" void INT1_vect(void) __attribute__ ((signal));
 #else
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
 #endif
-/**
-*	\brief 
-*
-*
-*/
+
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal));
 
 class float2

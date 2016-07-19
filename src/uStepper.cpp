@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    0.3.0                                             						*
-*      	date: 		May 7th, 2016	                                    					*
+*		Version:    0.4.0                                             						*
+*      	date: 		July 18th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -42,12 +42,6 @@
 *		}																					*
 *																							*
 *	After this, the library is ready to control the motor!									*
-*																							*
-*********************************************************************************************
-*								TO DO:														*
-*	- Implement Doxygen comments															*
-*	- Review comments																		*
-*	- Implement a function to read the actual speed of the motor, using the encoder			*
 *																							*
 *********************************************************************************************
 *	(C) 2016																				*
@@ -643,7 +637,6 @@ void uStepperEncoder::setHome(void)
 	this->oldAngle = 0.0;
 	this->angleMoved = 0.0;
 	this->angleMoved = 0.0;
-
 }
 
 float uStepperEncoder::getAngle()
@@ -752,7 +745,7 @@ void uStepper::setMaxAcceleration(float accel)
 }
 
 float uStepper::getMaxAcceleration(void)
-{
+{/*
 	Serial.print(this->exactDelay.getFloatValue(),15);
 	Serial.print("\t");
 	Serial.print((uint8_t)((this->exactDelay.value >> 48) & 0x00000000000000FF),HEX);
@@ -771,7 +764,7 @@ float uStepper::getMaxAcceleration(void)
 	Serial.print("\t");
 	Serial.print(this->delay);
 	Serial.print("\t");
-	Serial.println(this->totalSteps);
+	Serial.println(this->totalSteps);*/
 
 	return this->acceleration;
 }

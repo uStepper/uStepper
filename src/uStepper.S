@@ -1,7 +1,7 @@
 /********************************************************************************************
 *    	File: 		uStepper.S 																*
-*		Version:    0.3.0                                             						*
-*      	date: 		May 7th, 2016                                    						*
+*		Version:    0.4.0                                             						*
+*      	date: 		July 18th, 2016                                    						*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -26,11 +26,6 @@
 *																							*
 *	In order to ensure high performance, the algorithm is implented using 					*
 *	fixed point arithmetic instead of floating point arithmetic.							*
-*																							*
-*********************************************************************************************
-*								TO DO:														*
-*																							*
-*		- Remove the quick and dirty fix in the algorithm (line 614-625)		 			*
 *																							*
 *********************************************************************************************
 *	(C) 2016																				*
