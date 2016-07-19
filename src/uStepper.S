@@ -1292,13 +1292,7 @@ _pRadixDone:
 ;subtract 0.5 to exactDelay variable in order to round correctly!
 ;Usually one would add 0.5 instead of subtracting, however in our case we need to subtract 1 from the calculated delay
 ;meaning that the addition of 0.5 turns into a subtraction of 0.5
-/*
-ldi r16,0x10
-std z+DELAY,r16
-ldi r16,0x10
-std z+DELAY+1,r16
-rjmp _end
-*/
+
 subi r16,0x7F
 sec
 ror r23
@@ -1377,11 +1371,6 @@ sbci r20,0
 
 std z+DELAY,r19
 std z+DELAY+1,r20
-std z+31,r19
-std z+32,r20
-clr r20
-std z+33,r20
-std z+34,r20
 rjmp _end	
 
 _cruiseAlgorithm:

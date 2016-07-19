@@ -136,7 +136,7 @@ extern "C" {
 		if(control != 0.0)
 		{
 			PORTD |= (1 << 4);
-			delayMicroseconds(2);
+			delayMicroseconds(1);
 			PORTD &= ~(1 << 4);	
 			if(control < 0.0)
 			{
