@@ -156,14 +156,15 @@ extern "C" {
 	
 	void TIMER1_COMPA_vect(void)
 	{
+		asm volatile("sbi 0x05,5 \n\t");
 		static uint8_t i = 0;
 
 		#ifdef DROPIN
 			float error;
 		#endif
 
-		float deltaAngle;
-		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0;
+		float deltaAngle, newSpeed;
+		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
 		static int32_t loops;
 	
 		sei();
@@ -227,10 +228,14 @@ extern "C" {
 		}
 		else
 		{
-			pointer->encoder.curSpeed = -(deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+			newSpeed = -(deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+			newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
+			oldSpeed = newSpeed;
+			pointer->encoder.curSpeed = newSpeed;
 			i = 0;
 			deltaSpeedAngle = 0.0;
 		}
+		asm volatile("cbi 0x05,5 \n\t");
 	}
 }
 
@@ -622,7 +627,7 @@ void uStepperEncoder::setup(void)
 {
 	TCCR1A = 0;
 	TCNT1 = 0;
-	OCR1A = 65535;
+	OCR1A = 16000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
 	TCCR1B = (1 << WGM12) | (1 << CS10);
