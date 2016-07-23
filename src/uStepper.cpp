@@ -157,11 +157,14 @@ extern "C" {
 	void TIMER1_COMPA_vect(void)
 	{
 		static uint8_t i = 0;
+
 		#ifdef DROPIN
-		float error;
+			float error;
 		#endif
+
 		float deltaAngle;
-		static float curAngle, oldAngle = 0.0, loops = 0.0, deltaSpeedAngle = 0.0;
+		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0;
+		static int32_t loops;
 	
 		sei();
 		if(I2C.getStatus() != I2CFREE)
@@ -170,6 +173,7 @@ extern "C" {
 		}
 
 		curAngle = pointer->encoder.getAngle() - pointer->encoder.encoderOffset;
+		
 		if(curAngle < 0.0)
 		{
 			curAngle += 360.0;
@@ -180,22 +184,22 @@ extern "C" {
 		//count number of revolutions, on angle overflow
 		if(deltaAngle < -180.0)
 		{
-			loops -= 1.0;
+			loops--;
 			deltaAngle += 360.0;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
-			loops += 1.0;
+			loops++;
 			deltaAngle = 360.0 - deltaAngle;
 		}
 
-		pointer->encoder.angleMoved = curAngle + (360.0*loops);
+		pointer->encoder.angleMoved = curAngle + (360.0*(float)loops);
 		oldAngle = curAngle;
 		
 		#ifdef DROPIN
 		cli();
-		error = stepCnt;
+			error = stepCnt;
 		sei();
 		if((error = (0.1125*error) - pointer->encoder.angleMoved) > 0.1125)	//driver is configured to 16 microstepping, therefore 1 step = 0.1125 degrees.
 		{
@@ -215,6 +219,7 @@ extern "C" {
 			pointer->stopTimer();	
 		}
 		#endif
+
 		if( i < 10)
 		{
 			i++;
@@ -747,6 +752,8 @@ void uStepper::setMaxAcceleration(float accel)
 float uStepper::getMaxAcceleration(void)
 {/*
 	Serial.print(this->exactDelay.getFloatValue(),15);
+	Serial.print("\t");
+	Serial.print(this->delay);
 	Serial.print("\t");
 	Serial.print((uint8_t)((this->exactDelay.value >> 48) & 0x00000000000000FF),HEX);
 	Serial.print(" ");

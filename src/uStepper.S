@@ -1303,6 +1303,15 @@ inc r16
 cpi r16,0x11
 brsh _storeDelayLimitInRam
 
+_storeDelay3:
+cpi r16,0x04
+brsh _storeDelayCmp
+mov r18,r23
+clr r19
+clr r20
+rjmp _storeDelayFinishShift
+
+_storeDelayCmp:
 cpi r16,0x10
 brlo _storeDelayCmp12
 mov r20,r23
@@ -1362,6 +1371,7 @@ _storeDelayLimitInRam:
 ldi r20,0xFF
 ldi r19,0xFF
 ldi r18,0xFF
+
 ;Store integer part of rounded exactDelay variable in delay variable
 _storeDelayInRam:
 
