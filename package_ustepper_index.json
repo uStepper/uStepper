@@ -17,7 +17,7 @@
           "help": {
             "online": ""
           },
-          "url": "https://github.com/uStepper/uStepper/master/Hardware/uStepper_hardware.zip",
+          "url": "https://github.com/uStepper/uStepper/tree/master/Hardware/uStepper_hardware.zip",
           "archiveFileName": "uStepper_hardware.zip",
           "checksum": "SHA-256:e5c877df7bc6d492379ebfef7601527bfe65d710b0c2e44aead0621b1d369b4a",
           "size": "4277",
