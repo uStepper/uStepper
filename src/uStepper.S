@@ -91,10 +91,7 @@ _AccelerationAlgorithm:
 
 push r0
 push r1
-in r0,_SREG
-push r0
 push r15
-push r16
 push r17
 push r18
 push r19
@@ -102,11 +99,7 @@ push r20
 push r21
 push r22
 push r23
-push r30
-push r31
 
-lds r30,pointer				;Load Low nibble of object address into Z-register
-lds r31,pointer+1			;Load High nibble of object address into Z-register
 cbi 0x0B,4					;Pull step pin low, so we are ready to issue next step
 
 ldd r16,z+STATE				;Load state variable into r16
@@ -1440,8 +1433,6 @@ _end:
 ;We are done, and should restore general purpose registers from the stack, in order for the software to continue its operation properly!
 cbi 0x0B,4
 
-pop r31
-pop r30
 pop r23
 pop r22
 pop r21
@@ -1449,12 +1440,15 @@ pop r20
 pop r19
 pop r18
 pop r17
-pop r16
 pop r15
-pop r0
-out _SREG,r0
 pop r1
 pop r0
+pop r31
+pop r30
+pop r16
+out _SREG,r16
+pop r16
+
 
 ;Return from interrupt routine
 reti

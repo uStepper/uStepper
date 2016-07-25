@@ -78,7 +78,7 @@ i2cMaster I2C;
 volatile int32_t stepCnt = 0, control = 0;
 
 extern "C" {
-	#ifdef DROPIN
+
 	void INT1_vect(void)
 	{
 		if((PIND & (0x20)))			//CCW
@@ -110,7 +110,7 @@ extern "C" {
 
 	void INT0_vect(void)
 	{
-		if(PIND & 0x08)
+		if(PIND & 0x04)
 		{
 			PORTB |= (1 << 0);
 		}
@@ -119,50 +119,71 @@ extern "C" {
 			PORTB &= ~(1 << 0);
 		}
 	}
-	#endif
-
 
 	void TIMER2_COMPA_vect(void)
-	{
-		#ifdef DROPIN
+	{	
+		asm volatile("push r16 \n\t");
+		asm volatile("in r16,0x3F \n\t");
+		asm volatile("push r16 \n\t");
+		asm volatile("push r30 \n\t");
+		asm volatile("push r31 \n\t");
+		asm volatile("lds r30,pointer \n\t");
+		asm volatile("lds r31,pointer+1 \n\t");
+		asm volatile("ldd r16,z+56 \n\t");
+		asm volatile("sbrs r16,0 \n\t");
+		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
+		
+		asm volatile("push r0 \n\t");
+		asm volatile("push r1 \n\t");
+		asm volatile("push r24 \n\t");
+		asm volatile("push r25 \n\t");
+		asm volatile("push r26 \n\t");
+		asm volatile("push r27 \n\t");
+
 		static uint8_t i = 0;
 
-		if(i < 2)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
+		if(i < pointer->faultSpeed)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
 		{
 			i++;
-			return;
+			goto timer2Done;
 		}
 
-		if(control != 0.0)
+		if(control != 0)
 		{
 			PORTD |= (1 << 4);
 			delayMicroseconds(1);
 			PORTD &= ~(1 << 4);	
-			if(control < 0.0)
+			if(control < 0)
 			{
-				control += 1.0;
+				control += 1;
 			}
 
-			else if(control > 0.0)
+			else if(control > 0)
 			{
-				control -= 1.0;
+				control -= 1;
 			}
 			i = 0;
 		}
-		#else
-		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
-		#endif
+
+timer2Done:
+		asm volatile("pop r27 \n\t");
+		asm volatile("pop r26 \n\t");
+		asm volatile("pop r25 \n\t");
+		asm volatile("pop r24 \n\t");
+		asm volatile("pop r1 \n\t");
+		asm volatile("pop r0 \n\t");
+		asm volatile("pop r31 \n\t");
+		asm volatile("pop r30 \n\t");
+		asm volatile("pop r16 \n\t");
+		asm volatile("out 0x3F,r16 \n\t");
+		asm volatile("pop r16 \n\t");
+		asm volatile("reti \n\t");
 	}
 	
 	void TIMER1_COMPA_vect(void)
 	{
-		asm volatile("sbi 0x05,5 \n\t");
 		static uint8_t i = 0;
-
-		#ifdef DROPIN
-			float error;
-		#endif
-
+		float error;
 		float deltaAngle, newSpeed;
 		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
 		static int32_t loops;
@@ -174,7 +195,6 @@ extern "C" {
 		}
 
 		curAngle = pointer->encoder.getAngle() - pointer->encoder.encoderOffset;
-		
 		if(curAngle < 0.0)
 		{
 			curAngle += 360.0;
@@ -195,32 +215,6 @@ extern "C" {
 			deltaAngle = 360.0 - deltaAngle;
 		}
 
-		pointer->encoder.angleMoved = curAngle + (360.0*(float)loops);
-		oldAngle = curAngle;
-		
-		#ifdef DROPIN
-		cli();
-			error = stepCnt;
-		sei();
-		if((error = (0.1125*error) - pointer->encoder.angleMoved) > 0.1125)	//driver is configured to 16 microstepping, therefore 1 step = 0.1125 degrees.
-		{
-			control = error/0.1125;
-			PORTD &= ~(1 << 7);
-			pointer->startTimer();	
-		}
-		else if(error < -0.1125)
-		{
-			control = error/0.1125;
-			PORTD |= (1 << 7);
-			pointer->startTimer();	
-		}
-		else
-		{
-			control = 0.0;
-			pointer->stopTimer();	
-		}
-		#endif
-
 		if( i < 10)
 		{
 			i++;
@@ -235,7 +229,38 @@ extern "C" {
 			i = 0;
 			deltaSpeedAngle = 0.0;
 		}
-		asm volatile("cbi 0x05,5 \n\t");
+
+		pointer->encoder.angleMoved = curAngle + (360.0*(float)loops);
+		oldAngle = curAngle;
+		pointer->encoder.oldAngle = curAngle;
+
+		if(pointer->dropIn)
+		{
+			cli();
+				error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
+			sei();
+
+			if((error = (pointer->stepResolution*error) - pointer->encoder.angleMoved) > pointer->tolerance)	
+			{
+				PORTB &= ~(1 << 0);
+				control = (int32_t)(error/pointer->stepResolution);
+				PORTD &= ~(1 << 7);
+				pointer->startTimer();	
+			}
+			else if(error < -pointer->tolerance)
+			{
+				PORTB &= ~(1 << 0);
+				control = (int32_t)(error/pointer->stepResolution);
+				PORTD |= (1 << 7);
+				pointer->startTimer();	
+			}
+			else
+			{
+				PORTB |= (PIND & 0x04) >> 2;
+				control = 0;
+				pointer->stopTimer();	
+			}
+		}
 	}
 }
 
@@ -588,20 +613,27 @@ uStepperEncoder::uStepperEncoder(void)
 }
 
 float uStepperEncoder::getAngleMoved(void)
-{
+{/*
 	float deltaAngle, angle;
 
 	TIMSK1 &= ~(1 << OCIE1A);
 	
-	angle = fmod(this->getAngle() - this->encoderOffset + 360.0, 360.0);
+	angle = this->getAngle() - this->encoderOffset;
+	
+
+	if(angle < 0.0)
+	{
+		angle += 360.0;
+	}
+
 	deltaAngle = this->oldAngle - angle;
 
-	if(deltaAngle < -50.0)
+	if(deltaAngle < -180.0)
 	{
 		pointer->encoder.angleMoved += (deltaAngle + 360.0); 
 	}
 
-	else if(deltaAngle > 50.0)
+	else if(deltaAngle > 180.0)
 	{
 		pointer->encoder.angleMoved -= (360.0 - deltaAngle); 
 	}
@@ -613,7 +645,7 @@ float uStepperEncoder::getAngleMoved(void)
 
 	this->oldAngle = angle;
 	
-	TIMSK1 |= (1 << OCIE1A);
+	TIMSK1 |= (1 << OCIE1A);*/
 
 	return this->angleMoved;
 }
@@ -707,14 +739,14 @@ uint8_t uStepperEncoder::detectMagnet()
 
 uStepper::uStepper(void)
 {
-	#ifndef DROPIN
+
 	this->state = STOP;
 
 	this->setMaxAcceleration(1000.0);
 	this->setMaxVelocity(1000.0);
 
 	pointer = this;
-	#endif
+
 	DDRD |= (1 << 7);		//set direction pin to output
 	DDRD |= (1 << 4);		//set step pin to output
 	DDRB |= (1 << 0);		//set enable pin to output
@@ -722,19 +754,18 @@ uStepper::uStepper(void)
 
 uStepper::uStepper(float accel, float vel)
 {
-#ifndef DROPIN
 	this->state = STOP;
 
 	this->setMaxVelocity(vel);
 	this->setMaxAcceleration(accel);
 
 	pointer = this;
-#endif
+
 	DDRD |= (1 << 7);		//set direction pin to output
 	DDRD |= (1 << 4);		//set step pin to output
 	DDRB |= (1 << 0);		//set enable pin to output
 }
-#ifndef DROPIN
+
 void uStepper::setMaxAcceleration(float accel)
 {
 	this->acceleration = accel;
@@ -823,6 +854,11 @@ void uStepper::runContinous(bool dir)
 {
 	float curVel;
 
+	if(this->dropIn)
+	{
+		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
+	}
+
 	this->continous = 1;			//Set continous variable to 1, in order to let the interrupt routine now, that the motor should run continously
 	
 	this->stopTimer();				//Stop interrupt timer, so we don't fuck up stuff !
@@ -902,6 +938,11 @@ void uStepper::runContinous(bool dir)
 void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 {
 	float curVel;
+
+	if(this->dropIn)
+	{
+		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
+	}
 
 	this->stopTimer();					//Stop interrupt timer so we dont fuck stuff up !
 	steps--;
@@ -1049,6 +1090,11 @@ void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 
 void uStepper::hardStop(bool holdMode)
 {
+	if(this->dropIn)
+	{
+		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
+	}
+
 	this->stopTimer();			//Stop interrupt timer, since we shouldn't perform more steps
 	this->hold = holdMode;
 
@@ -1076,6 +1122,11 @@ void uStepper::hardStop(bool holdMode)
 void uStepper::softStop(bool holdMode)
 {
 	float curVel;
+
+	if(this->dropIn)
+	{
+		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
+	}
 
 	this->stopTimer();			//Stop interrupt timer, since we shouldn't perform more steps
 	this->hold = holdMode;		
@@ -1115,13 +1166,24 @@ void uStepper::softStop(bool holdMode)
 		}
 	}
 }
-#endif
-void uStepper::setup(void)
+
+void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint8_t faultTolerance)
 {
-	#ifdef DROPIN
-	EICRA = 0x0D;		//int0 generates interrupt on any change and int1 generates interrupt on rising edge
-	EIMSK = 0x03;		//enable int0 and int1 interrupt requests
-	#endif
+	this->dropIn = mode;
+	if(mode)
+	{
+		pinMode(2,INPUT);
+		pinMode(3,INPUT);
+		pinMode(4,INPUT);
+		digitalWrite(2,HIGH);
+		digitalWrite(3,HIGH);
+		digitalWrite(4,HIGH);
+		this->stepResolution = 360.0/((float)(200*microStepping));
+		this->tolerance = ((float)faultTolerance)*this->stepResolution;
+		this->faultSpeed = faultSpeed;
+		EICRA = 0x0D;		//int0 generates interrupt on any change and int1 generates interrupt on rising edge
+		EIMSK = 0x03;		//enable int0 and int1 interrupt requests
+	}
 
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
 	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));

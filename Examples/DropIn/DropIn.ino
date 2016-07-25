@@ -17,9 +17,13 @@ uStepper stepper;
 void setup(void)
 {
 	stepper.setup();
+	Serial.begin(115200);
 }
 
 void loop(void)
 {
-
+	Serial.print(stepper.encoder.getSpeed());
+	Serial.print("   ");
+	Serial.println(stepper.encoder.getAngleMoved());
+	delay(10);
 }

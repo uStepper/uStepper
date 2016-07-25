@@ -138,9 +138,17 @@
 #error !!This library only supports the ATmega328p MCU!!
 #endif
 
-#include "conf.h"
 #include <inttypes.h>
 #include <avr/io.h>
+
+#define FULL 1
+#define HALF 2
+#define QUARTER 4
+#define EIGHT 8
+#define SIXTEEN 16
+
+#define NORMAL 0
+#define DROPIN 1
 
 #define STOP 1					/**< Value to put in state variable in order to indicate that the motor should not be running */
 #define ACCEL 2					/**< Value to put in state variable in order to indicate that the motor should be accelerating */
@@ -205,17 +213,13 @@
 #define B 0.000237488365866  /**< See description of A */
 #define C 0.000000083423218  /**< See description of A */
 
-#define ALPHA 0.9
+#define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 
-#ifdef DROPIN
-extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal));
+
 extern "C" void INT0_vect(void) __attribute__ ((signal));
 extern "C" void INT1_vect(void) __attribute__ ((signal));
-#else
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-#endif
-
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal));
 
 class float2
@@ -442,17 +446,19 @@ private:
 	//Address offset: 54	
 	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
 	//Address offset: 56
+	bool dropIn;
+	//Address offset: 57
 	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
-	//Address offset: 60
+	//Address offset: 61
 	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
+	float tolerance;
+	uint16_t faultSpeed;
+	float stepResolution;
 
 
-	#ifndef DROPIN
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-	#endif
-	#ifdef DROPIN
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
-	#endif
+
 
 	/**
 	*	\brief Starts timer for stepper algorithm
@@ -632,7 +638,7 @@ public:
 	*	for some strange reason, resets a lot of the AVR registers just before entering the setup() function.
 	*
 	*/
-	void setup(void);
+	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 3000.0, uint8_t faultTolerance = 10);
 	
 
 	/**
