@@ -451,9 +451,9 @@ private:
 	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
 	//Address offset: 61
 	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
-	float tolerance;
-	uint16_t faultSpeed;
-	float stepResolution;
+	volatile uint16_t faultStepDelay;
+	volatile float tolerance;
+	volatile float stepResolution;
 
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
@@ -638,7 +638,7 @@ public:
 	*	for some strange reason, resets a lot of the AVR registers just before entering the setup() function.
 	*
 	*/
-	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 3000.0, uint8_t faultTolerance = 10);
+	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 300.0, uint8_t faultTolerance = 10);
 	
 
 	/**

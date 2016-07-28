@@ -18,9 +18,8 @@ uStepper stepper;
 
 void setup(void)
 {
+pinMode(11,OUTPUT);
 	stepper.setup(DROPIN,SIXTEEN,3000.0,10);			//Activate dropin, 1/16th microstepping, speed during fault: 3000 steps/s, # of missed steps allowed
-	Serial.begin(115200);
-}
 
 void loop(void)
 {

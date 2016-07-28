@@ -110,12 +110,15 @@ extern "C" {
 
 	void INT0_vect(void)
 	{
+
 		if(PIND & 0x04)
 		{
+			
 			PORTB |= (1 << 0);
 		}
 		else
 		{
+			
 			PORTB &= ~(1 << 0);
 		}
 	}
@@ -135,15 +138,39 @@ extern "C" {
 		
 		asm volatile("push r0 \n\t");
 		asm volatile("push r1 \n\t");
+		asm volatile("push r2 \n\t");
+		asm volatile("push r3 \n\t");
+		asm volatile("push r4 \n\t");
+		asm volatile("push r5 \n\t");
+		asm volatile("push r6 \n\t");
+		asm volatile("push r7 \n\t");
+		asm volatile("push r8 \n\t");
+		asm volatile("push r9 \n\t");
+		asm volatile("push r10 \n\t");
+		asm volatile("push r11 \n\t");
+		asm volatile("push r12 \n\t");
+		asm volatile("push r13 \n\t");
+		asm volatile("push r14 \n\t");
+		asm volatile("push r15 \n\t");
+		asm volatile("push r17 \n\t");
+		asm volatile("push r18 \n\t");
+		asm volatile("push r19 \n\t");
+		asm volatile("push r20 \n\t");
+		asm volatile("push r21 \n\t");
+		asm volatile("push r22 \n\t");
+		asm volatile("push r23 \n\t");
 		asm volatile("push r24 \n\t");
 		asm volatile("push r25 \n\t");
 		asm volatile("push r26 \n\t");
 		asm volatile("push r27 \n\t");
+		asm volatile("push r28 \n\t");
+		asm volatile("push r29 \n\t");
 
-		static uint8_t i = 0;
+		static uint16_t i = 0;
 
-		if(i < pointer->faultSpeed)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
+		if(i < pointer->faultStepDelay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
 		{
+
 			i++;
 			goto timer2Done;
 		}
@@ -166,10 +193,33 @@ extern "C" {
 		}
 
 timer2Done:
+		asm volatile("pop r29 \n\t");
+		asm volatile("pop r28 \n\t");
 		asm volatile("pop r27 \n\t");
 		asm volatile("pop r26 \n\t");
 		asm volatile("pop r25 \n\t");
 		asm volatile("pop r24 \n\t");
+		asm volatile("pop r23 \n\t");
+		asm volatile("pop r22 \n\t");
+		asm volatile("pop r21 \n\t");
+		asm volatile("pop r20 \n\t");
+		asm volatile("pop r19 \n\t");
+		asm volatile("pop r18 \n\t");
+		asm volatile("pop r17 \n\t");
+		asm volatile("pop r15 \n\t");
+		asm volatile("pop r14 \n\t");
+		asm volatile("pop r13 \n\t");
+		asm volatile("pop r12 \n\t");
+		asm volatile("pop r11 \n\t");
+		asm volatile("pop r10 \n\t");
+		asm volatile("pop r9 \n\t");
+		asm volatile("pop r8 \n\t");
+		asm volatile("pop r7 \n\t");
+		asm volatile("pop r6 \n\t");
+		asm volatile("pop r5 \n\t");
+		asm volatile("pop r4 \n\t");
+		asm volatile("pop r3 \n\t");
+		asm volatile("pop r2 \n\t");
 		asm volatile("pop r1 \n\t");
 		asm volatile("pop r0 \n\t");
 		asm volatile("pop r31 \n\t");
@@ -239,18 +289,17 @@ timer2Done:
 			cli();
 				error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
 			sei();
-
 			if((error = (pointer->stepResolution*error) - pointer->encoder.angleMoved) > pointer->tolerance)	
 			{
 				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
+				control = (int32_t)(error/pointer->stepResolution);//pointer->stepResolution);
 				PORTD &= ~(1 << 7);
 				pointer->startTimer();	
 			}
 			else if(error < -pointer->tolerance)
 			{
 				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
+				control = (int32_t)(error/pointer->stepResolution);//pointer->stepResolution);
 				PORTD |= (1 << 7);
 				pointer->startTimer();	
 			}
@@ -685,11 +734,11 @@ float uStepperEncoder::getAngle()
 {
 	float angle;
 	uint8_t data[2];
-
+	cli();
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	
 	angle = (float)((((uint16_t)data[0]) << 8 )| (uint16_t)data[1])*0.087890625;
-	
+	sei();
 	return angle;
 }
 
@@ -1180,7 +1229,7 @@ void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint8_t
 		digitalWrite(4,HIGH);
 		this->stepResolution = 360.0/((float)(200*microStepping));
 		this->tolerance = ((float)faultTolerance)*this->stepResolution;
-		this->faultSpeed = faultSpeed;
+		this->faultStepDelay = (uint16_t)((INTFREQ/faultSpeed) - 1);
 		EICRA = 0x0D;		//int0 generates interrupt on any change and int1 generates interrupt on rising edge
 		EIMSK = 0x03;		//enable int0 and int1 interrupt requests
 	}
