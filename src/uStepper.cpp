@@ -67,14 +67,12 @@
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 */
 #include <uStepper.h>
-#include <Arduino.h>
-#include <Wire.h>
-#include <util/delay.h>
-#include <math.h>
+
 
 uStepper *pointer;
 i2cMaster I2C;
 
+volatile uint16_t i = 0;
 volatile int32_t stepCnt = 0, control = 0;
 
 extern "C" {
@@ -166,17 +164,13 @@ extern "C" {
 		asm volatile("push r28 \n\t");
 		asm volatile("push r29 \n\t");
 
-		static uint16_t i = 0;
-
 		if(i < pointer->faultStepDelay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
 		{
 
 			i++;
-			goto timer2Done;
 		}
-
-		if(control != 0)
-		{
+		else
+		{	
 			PORTD |= (1 << 4);
 			delayMicroseconds(1);
 			PORTD &= ~(1 << 4);	
@@ -192,7 +186,6 @@ extern "C" {
 			i = 0;
 		}
 
-timer2Done:
 		asm volatile("pop r29 \n\t");
 		asm volatile("pop r28 \n\t");
 		asm volatile("pop r27 \n\t");
@@ -232,11 +225,10 @@ timer2Done:
 	
 	void TIMER1_COMPA_vect(void)
 	{
-		static uint8_t i = 0;
 		float error;
 		float deltaAngle, newSpeed;
 		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
-		static int32_t loops;
+		static uint8_t loops = 0;
 	
 		sei();
 		if(I2C.getStatus() != I2CFREE)
@@ -244,43 +236,42 @@ timer2Done:
 			return;
 		}
 
-		curAngle = pointer->encoder.getAngle() - pointer->encoder.encoderOffset;
+		curAngle = pointer->encoder.getAngle();
+		curAngle -= pointer->encoder.encoderOffset;
+
 		if(curAngle < 0.0)
 		{
 			curAngle += 360.0;
 		}
 
 		deltaAngle = (oldAngle - curAngle);
-
 		//count number of revolutions, on angle overflow
 		if(deltaAngle < -180.0)
 		{
-			loops--;
 			deltaAngle += 360.0;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
-			loops++;
 			deltaAngle = 360.0 - deltaAngle;
 		}
 
-		if( i < 10)
+		if( loops < 10)
 		{
-			i++;
+			loops++;
 			deltaSpeedAngle += deltaAngle;
 		}
 		else
 		{
-			newSpeed = -(deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+			newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
 			newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
 			oldSpeed = newSpeed;
 			pointer->encoder.curSpeed = newSpeed;
-			i = 0;
+			loops = 0;
 			deltaSpeedAngle = 0.0;
 		}
 
-		pointer->encoder.angleMoved = curAngle + (360.0*(float)loops);
+		pointer->encoder.angleMoved += deltaAngle;
 		oldAngle = curAngle;
 		pointer->encoder.oldAngle = curAngle;
 
@@ -289,17 +280,19 @@ timer2Done:
 			cli();
 				error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
 			sei();
-			if((error = (pointer->stepResolution*error) - pointer->encoder.angleMoved) > pointer->tolerance)	
+			error *= pointer->stepResolution;
+			error -= pointer->encoder.angleMoved;
+			if(error > pointer->tolerance)	
 			{
 				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);//pointer->stepResolution);
+				control = (int32_t)(error/pointer->stepResolution);
 				PORTD &= ~(1 << 7);
 				pointer->startTimer();	
 			}
 			else if(error < -pointer->tolerance)
 			{
 				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);//pointer->stepResolution);
+				control = (int32_t)(error/pointer->stepResolution);
 				PORTD |= (1 << 7);
 				pointer->startTimer();	
 			}
@@ -307,7 +300,7 @@ timer2Done:
 			{
 				PORTB |= (PIND & 0x04) >> 2;
 				control = 0;
-				pointer->stopTimer();	
+					
 			}
 		}
 	}
@@ -734,11 +727,11 @@ float uStepperEncoder::getAngle()
 {
 	float angle;
 	uint8_t data[2];
-	cli();
+
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	
 	angle = (float)((((uint16_t)data[0]) << 8 )| (uint16_t)data[1])*0.087890625;
-	sei();
+
 	return angle;
 }
 
@@ -821,6 +814,7 @@ void uStepper::setMaxAcceleration(float accel)
 
 	this->stopTimer();			//Stop timer so we dont fuck up stuff !
 	this->multiplier.setValue((this->acceleration/(INTFREQ*INTFREQ)));	//Recalculate multiplier variable, used by the acceleration algorithm since acceleration has changed!
+	
 	if(this->state != STOP)
 	{
 		if(this->continous == 1)	//If motor was running continously
@@ -857,7 +851,10 @@ float uStepper::getMaxAcceleration(void)
 	Serial.print(this->delay);
 	Serial.print("\t");
 	Serial.println(this->totalSteps);*/
-
+	/*cli();
+	float tmp=this->exactDelay.getFloatValue();
+	sei();
+	return tmp;*/
 	return this->acceleration;
 }
 
@@ -1238,7 +1235,7 @@ void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint8_t
 	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));
 	TCCR2B |= (1 << CS21);				//Enable timer with prescaler 8. interrupt base frequency ~ 7.8125kHz
 	TCCR2A |= (1 << WGM21);				//Switch timer 2 to CTC mode, to adjust interrupt frequency
-	OCR2A = 60;							//Change top value to 60 in order to obtain an interrupt frequency of 33.333kHz
+	OCR2A = 70;							//Change top value to 60 in order to obtain an interrupt frequency of 33.333kHz
 	this->encoder.setup();
 }
 

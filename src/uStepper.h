@@ -140,6 +140,7 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
+#include <Arduino.h>
 
 #define FULL 1
 #define HALF 2
@@ -155,7 +156,7 @@
 #define CRUISE 4				/**< Value to put in state variable in order to indicate that the motor should be decelerating */
 #define DECEL 8					/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
 #define INITDECEL 16			/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
-#define INTFREQ 32830.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
+#define INTFREQ 28200.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
 #define CW 0					/**< Value to put in direction variable in order for the stepper to turn clockwise */
 #define CCW 1					/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
 #define HARD 1					/**< Value to put in hold variable in order for the motor to block when it is not running */
@@ -169,7 +170,7 @@
 #define MAGNITUDE 0x1B			/**< Address of the register, in the encoder chip, containing the 8 least significant bits of magnetic field strength measured by the encoder chip */
 
 #define ENCODERINTFREQ 1000.0	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
-#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
+#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0/360.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
 
 #define R 4700.0 				/**< The NTC resistor used for measuring temperature, is placed in series with a 4.7 kohm resistor. This is used to calculate the temperature */
 

@@ -88,7 +88,6 @@ _AccelerationAlgorithm:
 .equ DELAY,54
 
 ;Push all registers used in this assembly code to stack, in order to not fuck up flow of code when leaving the interrupt routine (29 clk cycles total!)
-
 push r0
 push r1
 push r15
@@ -99,8 +98,6 @@ push r20
 push r21
 push r22
 push r23
-
-cbi 0x0B,4					;Pull step pin low, so we are ready to issue next step
 
 ldd r16,z+STATE				;Load state variable into r16
 sbrc r16,_STOPBIT			;Check if state is set to STOP
@@ -113,6 +110,8 @@ cpi r18,0					;Check if lower part of delay variable is equal to 0
 brne _notRdy				;If lower part of delay variable not equal to 0, we should decrement delay variable and leave routine
 
 sbi 0x0B,4					;Pull Step pin high, to issue a step
+
+
 rjmp _rdy
 
 _notRdy:					;Not ready to issue step
@@ -1431,7 +1430,6 @@ brne _continous 			;If motor is running in continous mode, we should not decreme
 
 _end:
 ;We are done, and should restore general purpose registers from the stack, in order for the software to continue its operation properly!
-cbi 0x0B,4
 
 pop r23
 pop r22
@@ -1448,7 +1446,7 @@ pop r30
 pop r16
 out _SREG,r16
 pop r16
-
+cbi 0x0B,4				;Pull step pin low, so we are ready to issue next step
 
 ;Return from interrupt routine
 reti
