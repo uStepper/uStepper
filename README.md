@@ -27,13 +27,18 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 
 ## Change Log
 0.4.0:
+
 - Added Drop-in feature to replace stepsticks with uStepper for error correction
 - Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance
 - Implemented an IIR filter on the speed measurement, to smooth this out a bit.
+
 0.3.0:
+
 - Added support for speed readout
 - Added support for measuring the shaft position with respect to a zero reference. (absolute within multiple revolutions)
+
 0.2.0:
+
 - Complete rewrite of the stepper algorithm in assembler
 - Changed from fixed point to floating point variables, due to the need for more precision
 - Removed the getSpeed() method, as it didn't work, and therefore it would make more sense to remove it
@@ -42,7 +47,9 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 - Added a new method (getStepsSinceReset()), which returns all steps performed since reset of the uStepper.
   positive values corresponds to steps in clockwise direction, while negative values corresponds to steps
   in counterclockwise direction.	
+
 0.1.0:	
+
 - Initial release
 
 ## Documentation
