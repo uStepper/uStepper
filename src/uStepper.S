@@ -55,7 +55,7 @@
 .global _AccelerationAlgorithm			;The label "_AccelerationAlgorithm" needs to be accessible globally, since it is called from uStepper.cpp
 
 .section .text							;Put the following code in program memory
-
+_AccelerationAlgorithm:
 ;Definitions, similar to #define in C
 .equ _STOP,1					
 .equ _ACCEL,2
@@ -86,7 +86,7 @@
 .equ STEPSSINCERESET,38
 .equ EXACTDELAY,46
 .equ DELAY,54
-//_AccelerationAlgorithm:
+
 ;Push all registers used in this assembly code to stack, in order to not fuck up flow of code when leaving the interrupt routine (29 clk cycles total!)
 push r0
 push r1
