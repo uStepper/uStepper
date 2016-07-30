@@ -67,7 +67,7 @@
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 */
 #include <uStepper.h>
-
+#include <math.h>
 
 uStepper *pointer;
 i2cMaster I2C;
@@ -84,17 +84,19 @@ extern "C" {
 			if(control == 0)
 			{
 				PORTD |= (1 << 7);	//Set dir to CCW
+				
 			}			
-			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
+			stepCnt++;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
 		else						//CW
 		{
 			if(control == 0)
 			{
+				
 				PORTD &= ~(1 << 7);	//Set dir to CW
 			}
 
-			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
+			stepCnt--;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
 
 		if(control == 0)			//If no steps are lost, redirect step pulses		
@@ -103,7 +105,6 @@ extern "C" {
 			delayMicroseconds(1);	//wait a small time
 			PORTD &= ~(1 << 4);		//pull step pin low again
 		}
-
 	}
 
 	void INT0_vect(void)
@@ -229,33 +230,34 @@ extern "C" {
 		float deltaAngle, newSpeed;
 		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
 		static uint8_t loops = 0;
-	
+		static float revolutions = 0.0;
+		uint8_t data[2];
+
 		sei();
 		if(I2C.getStatus() != I2CFREE)
 		{
 			return;
 		}
-
-		curAngle = pointer->encoder.getAngle();
+		I2C.read(ENCODERADDR, ANGLE, 2, data);
+		curAngle = (float)((((uint16_t)data[0]) << 8 )| (uint16_t)data[1])*0.087890625;
+		pointer->encoder.angle = curAngle;
 		curAngle -= pointer->encoder.encoderOffset;
 
-		if(curAngle < 0.0)
-		{
-			curAngle += 360.0;
-		}
+		curAngle = fmod(curAngle + 360.0, 360.0);
 
 		deltaAngle = (oldAngle - curAngle);
 		//count number of revolutions, on angle overflow
 		if(deltaAngle < -180.0)
 		{
-			deltaAngle += 360.0;
+			revolutions -= 1.0;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
-			deltaAngle = 360.0 - deltaAngle;
+			revolutions += 1.0;
 		}
-
+		Serial.println(stepCnt);
+		
 		if( loops < 10)
 		{
 			loops++;
@@ -271,7 +273,7 @@ extern "C" {
 			deltaSpeedAngle = 0.0;
 		}
 
-		pointer->encoder.angleMoved += deltaAngle;
+		pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
 		oldAngle = curAngle;
 		pointer->encoder.oldAngle = curAngle;
 
@@ -286,21 +288,23 @@ extern "C" {
 			{
 				PORTB &= ~(1 << 0);
 				control = (int32_t)(error/pointer->stepResolution);
-				PORTD &= ~(1 << 7);
+				
+				PORTD |= (1 << 7);
 				pointer->startTimer();	
 			}
 			else if(error < -pointer->tolerance)
 			{
 				PORTB &= ~(1 << 0);
 				control = (int32_t)(error/pointer->stepResolution);
-				PORTD |= (1 << 7);
+				PORTD &= ~(1 << 7);
+				
 				pointer->startTimer();	
 			}
 			else
 			{
 				PORTB |= (PIND & 0x04) >> 2;
 				control = 0;
-					
+				pointer->stopTimer();
 			}
 		}
 	}
@@ -725,14 +729,7 @@ void uStepperEncoder::setHome(void)
 
 float uStepperEncoder::getAngle()
 {
-	float angle;
-	uint8_t data[2];
-
-	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	
-	angle = (float)((((uint16_t)data[0]) << 8 )| (uint16_t)data[1])*0.087890625;
-
-	return angle;
+	return this->angle;
 }
 
 uint16_t uStepperEncoder::getStrength()

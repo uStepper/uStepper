@@ -402,6 +402,7 @@ private:
 
 	float encoderOffset;				/**< Angle of the shaft at the reference position. */
 	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
+	volatile float angle;
 	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 
 	volatile float angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
 };
