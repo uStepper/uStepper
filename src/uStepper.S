@@ -86,7 +86,7 @@ _AccelerationAlgorithm:
 .equ STEPSSINCERESET,38
 .equ EXACTDELAY,46
 .equ DELAY,54
-//_AccelerationAlgorithm:
+
 ;Push all registers used in this assembly code to stack, in order to not fuck up flow of code when leaving the interrupt routine (29 clk cycles total!)
 push r0
 push r1
