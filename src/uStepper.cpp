@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
 *		Version:    0.4.0                                             						*
-*      	date: 		July 18th, 2016	                                    					*
+*      	date: 		July 30th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -86,7 +86,7 @@ extern "C" {
 				PORTD |= (1 << 7);	//Set dir to CCW
 				
 			}			
-			stepCnt++;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
+			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
 		else						//CW
 		{
@@ -96,7 +96,7 @@ extern "C" {
 				PORTD &= ~(1 << 7);	//Set dir to CW
 			}
 
-			stepCnt--;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
+			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
 
 		if(control == 0)			//If no steps are lost, redirect step pulses		
