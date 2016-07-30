@@ -38,7 +38,8 @@
 *	should not be reconfigured.
 *
 *	Timer one is used for sampling the encoder in order to provide the ability to keep track of both the current speed and the
-*	angle moved since the board was reset (or a new home position was configured). 
+*	angle moved since the board was reset (or a new home position was configured). Also the drop-in features missed step detection and 
+*	correction is done in this timer. 
 *	
 *	Timer two is used to calculate the stepper acceleration algorithm.  
 *	\warning In order to get some features working, it was necessary to write functions to control the I2C hardware in the MCU, since 
@@ -58,6 +59,12 @@
 *	
 *	The library is tested with Arduino IDE 1.6.8
 *	
+*	\warning MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the uStepper, by default. This driver should be 
+*	downloaded and installed from FTDI's website:
+*	\warning http://www.ftdichip.com/Drivers/VCP.htm
+*	\warning             The uStepper should NOT be connected to the USB port while installing this driver !
+*	\warning This is not a problem for windows/linux users, as these drivers come with the arduino installation.
+*
 *	\par Theory
 *
 *	The acceleration profile implemented in this library is a second order profile, meaning that the stepper will accelerate with a constant acceleration, the velocity will follow
@@ -65,7 +72,6 @@
 *	As a result, the position of the stepper motor will have continous and differentiable first and second derivatives.
 *
 *	The second order acceleration profile can be illustrated as follows (<a rel="license" href="http://picprog.strongedge.net/step_prof/step-profile.html">Source</a>):
-
 *
 *	\image html dva.gif
 *
@@ -93,18 +99,22 @@
 * 	caused by the use of the code contained in this library ! 	
 *
 *	\par To do list
-*	- Fix bug in stepper algorithm
 *	- Clean out in unused variables
 *	- Update comments
+*	- Implement PID-controller into dropin feature
 *	- Implement multiaxis feature between multiple uSteppers
 *	- Add support for limit switches
+*	- Split the library into multiple files
 *
 *	\par Known Bugs
-*	\bug Stepper algorithm still has a bug, which makes the deceleration part perform strange under a small subset of max velocity/acceleration settings. This bug is due to lack of precision
-*	in the variables used for the algorithm, and will be fixed in a later version. However, the subset of settings is small, and therefore other tasks has been prioritized.
+*	- No known bugs
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 0.4.0:
+*	- Added Drop-in feature to replace stepsticks with uStepper for error correction
+*	- Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance
+*	- Implemented an IIR filter on the speed measurement, to smooth this out a bit.
 *	\version 0.3.0:
 *	- Added support for speed readout
 *	- Added support for measuring the shaft position with respect to a zero reference. (absolute within multiple revolutions)
@@ -640,7 +650,7 @@ public:
 	*	for some strange reason, resets a lot of the AVR registers just before entering the setup() function.
 	*
 	*/
-	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 300.0, uint8_t faultTolerance = 10);
+	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 3000.0, uint32_t faultTolerance = 20);
 	
 
 	/**

@@ -18,7 +18,7 @@ uStepper stepper;
 
 void setup(void)
 {
-	stepper.setup(DROPIN,SIXTEEN,3000.0,2);			//Activate dropin, 1/16th microstepping, speed during fault: 3000 steps/s, # of missed steps allowed
+	stepper.setup(DROPIN,SIXTEEN,3000.0,20);			//Activate dropin, 1/16th microstepping, speed during fault: 3000 steps/s, # of missed steps allowed
 }
 
 void loop(void)

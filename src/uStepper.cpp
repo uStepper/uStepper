@@ -250,13 +250,14 @@ extern "C" {
 		if(deltaAngle < -180.0)
 		{
 			revolutions -= 1.0;
+			deltaAngle += 360;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
 			revolutions += 1.0;
+			deltaAngle -= 360.0;
 		}
-		Serial.println(stepCnt);
 		
 		if( loops < 10)
 		{
@@ -413,7 +414,6 @@ float2 & float2::operator+=(const float2 &value)
 		if(*this <= temp)
 		{
 			cnt = (temp.value >> 48) - (this->value >> 48);
-			Serial.println(cnt);
 			if(cnt < 48)
 			{
 				tempExp = (temp.value >> 48);
@@ -423,8 +423,6 @@ float2 & float2::operator+=(const float2 &value)
 				this->value >>= cnt;
 
 				tempMant = (temp.value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-			Serial.println((uint32_t)(tempMant >> 32),HEX);
-			Serial.println((uint32_t)(this->value >> 32),HEX);
 				tempMant += this->value;
 
 				while(tempMant > 0x2000000000000)
@@ -446,7 +444,6 @@ float2 & float2::operator+=(const float2 &value)
 		{
 			cnt = (this->value >> 48) - (temp.value >> 48);
 
-			Serial.println(cnt);
 			if(cnt < 48)
 			{
 				tempExp = (this->value >> 48);
@@ -456,8 +453,6 @@ float2 & float2::operator+=(const float2 &value)
 				temp.value >>= cnt;
 
 				tempMant = (this->value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-			Serial.println((uint32_t)(tempMant >> 32),HEX);
-			Serial.println((uint32_t)(this->value >> 32),HEX);
 				tempMant += temp.value;
 
 				while(tempMant > 0x2000000000000)
@@ -1210,7 +1205,7 @@ void uStepper::softStop(bool holdMode)
 	}
 }
 
-void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint8_t faultTolerance)
+void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint32_t faultTolerance)
 {
 	this->dropIn = mode;
 	if(mode)

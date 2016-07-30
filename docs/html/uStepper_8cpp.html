@@ -4,7 +4,7 @@
 <meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.8.6"/>
-<title>uStepper: /home/thomas/Dropbox/Arduino/libraries/Git/src/uStepper.cpp File Reference</title>
+<title>uStepper: /home/thomas/Dropbox/Arduino/libraries/uStepper/src/uStepper.cpp File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -37,7 +37,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li class="current"><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -95,15 +94,18 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>Class implementations for the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> library.  
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &lt;<a class="el" href="uStepper_8h_source.html">uStepper.h</a>&gt;</code><br/>
-<code>#include &lt;Arduino.h&gt;</code><br/>
-<code>#include &lt;Wire.h&gt;</code><br/>
-<code>#include &lt;util/delay.h&gt;</code><br/>
 <code>#include &lt;math.h&gt;</code><br/>
 </div>
 <p><a href="uStepper_8cpp_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a2af7061cd3172b37a514a30194227c2c"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a2af7061cd3172b37a514a30194227c2c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>INT1_vect</b> (void)</td></tr>
+<tr class="separator:a2af7061cd3172b37a514a30194227c2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ccc2557f38817a0d7595d2a17e2c65d"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a4ccc2557f38817a0d7595d2a17e2c65d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>INT0_vect</b> (void)</td></tr>
+<tr class="separator:a4ccc2557f38817a0d7595d2a17e2c65d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad9fd91cfaa6ef6c37d3f4edb7c931a85"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ad9fd91cfaa6ef6c37d3f4edb7c931a85"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>TIMER2_COMPA_vect</b> (void)</td></tr>
 <tr class="separator:ad9fd91cfaa6ef6c37d3f4edb7c931a85"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -118,6 +120,9 @@ Variables</h2></td></tr>
 <tr class="separator:a43569fa2ae2aabb381b8ec9d97af5de2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3216dd3022dcb4a4e82d44fd41509e8e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classi2cMaster.html">i2cMaster</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8cpp.html#a3216dd3022dcb4a4e82d44fd41509e8e">I2C</a></td></tr>
 <tr class="separator:a3216dd3022dcb4a4e82d44fd41509e8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace83b2e6a682db0ead7e95654ea3c147"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ace83b2e6a682db0ead7e95654ea3c147"></a>
+volatile uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>i</b> = 0</td></tr>
+<tr class="separator:ace83b2e6a682db0ead7e95654ea3c147"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1043bd525fe1e6ea5702c92d3b92d060"><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a1043bd525fe1e6ea5702c92d3b92d060"></a>
 volatile int32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stepCnt</b> = 0</td></tr>
 <tr class="separator:a1043bd525fe1e6ea5702c92d3b92d060"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,7 +132,7 @@ volatile int32_t&#160;</td><td class="memItemRight" valign="bottom"><b>control</
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Class implementations for the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> library. </p>
-<p>This file contains the implementations of the classes defined in <a class="el" href="uStepper_8h.html" title="User configuration file. ">uStepper.h</a></p>
+<p>This file contains the implementations of the classes defined in <a class="el" href="uStepper_8h.html" title="Function prototypes and definitions for the uStepper library. ">uStepper.h</a></p>
 <dl class="section author"><dt>Author</dt><dd>Thomas Hørring Olsen (<a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s@u'+'st'+'epp'+'er'+'.co'+'m'; return false;">thoma<span style="display: none;">.nosp@m.</span>s@us<span style="display: none;">.nosp@m.</span>teppe<span style="display: none;">.nosp@m.</span>r.co<span style="display: none;">.nosp@m.</span>m</a>) </dd></dl>
 
 <p>Definition in file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
@@ -143,14 +148,14 @@ volatile int32_t&#160;</td><td class="memItemRight" valign="bottom"><b>control</
 </div><div class="memdoc">
 <p>Global definition of I2C object for use in arduino sketch </p>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00076">76</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00073">73</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jul 19 2016 07:56:07 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jul 30 2016 18:24:47 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
