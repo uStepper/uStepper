@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['i2cmaster',['i2cMaster',['../classi2cMaster.html',1,'']]]
+  ['float2',['float2',['../classfloat2.html',1,'']]]
 ];

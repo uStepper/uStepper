@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.3.0                                           						*
-*      	date: 		May 27th, 2016	                                    					*
+*		Version:    0.4.0                                           						*
+*      	date: 		July 30th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -38,7 +38,8 @@
 *	should not be reconfigured.
 *
 *	Timer one is used for sampling the encoder in order to provide the ability to keep track of both the current speed and the
-*	angle moved since the board was reset (or a new home position was configured). 
+*	angle moved since the board was reset (or a new home position was configured). Also the drop-in features missed step detection and 
+*	correction is done in this timer. 
 *	
 *	Timer two is used to calculate the stepper acceleration algorithm.  
 *	\warning In order to get some features working, it was necessary to write functions to control the I2C hardware in the MCU, since 
@@ -58,6 +59,12 @@
 *	
 *	The library is tested with Arduino IDE 1.6.8
 *	
+*	\warning MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the uStepper, by default. This driver should be 
+*	downloaded and installed from FTDI's website:
+*	\warning http://www.ftdichip.com/Drivers/VCP.htm
+*	\warning             The uStepper should NOT be connected to the USB port while installing this driver !
+*	\warning This is not a problem for windows/linux users, as these drivers come with the arduino installation.
+*
 *	\par Theory
 *
 *	The acceleration profile implemented in this library is a second order profile, meaning that the stepper will accelerate with a constant acceleration, the velocity will follow
@@ -65,7 +72,6 @@
 *	As a result, the position of the stepper motor will have continous and differentiable first and second derivatives.
 *
 *	The second order acceleration profile can be illustrated as follows (<a rel="license" href="http://picprog.strongedge.net/step_prof/step-profile.html">Source</a>):
-
 *
 *	\image html dva.gif
 *
@@ -93,18 +99,22 @@
 * 	caused by the use of the code contained in this library ! 	
 *
 *	\par To do list
-*	- Fix bug in stepper algorithm
 *	- Clean out in unused variables
 *	- Update comments
+*	- Implement PID-controller into dropin feature
 *	- Implement multiaxis feature between multiple uSteppers
 *	- Add support for limit switches
+*	- Split the library into multiple files
 *
 *	\par Known Bugs
-*	\bug Stepper algorithm still has a bug, which makes the deceleration part perform strange under a small subset of max velocity/acceleration settings. This bug is due to lack of precision
-*	in the variables used for the algorithm, and will be fixed in a later version. However, the subset of settings is small, and therefore other tasks has been prioritized.
+*	- No known bugs
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 0.4.0:
+*	- Added Drop-in feature to replace stepsticks with uStepper for error correction
+*	- Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance
+*	- Implemented an IIR filter on the speed measurement, to smooth this out a bit.
 *	\version 0.3.0:
 *	- Added support for speed readout
 *	- Added support for measuring the shaft position with respect to a zero reference. (absolute within multiple revolutions)
@@ -140,13 +150,23 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
+#include <Arduino.h>
+
+#define FULL 1
+#define HALF 2
+#define QUARTER 4
+#define EIGHT 8
+#define SIXTEEN 16
+
+#define NORMAL 0
+#define DROPIN 1
 
 #define STOP 1					/**< Value to put in state variable in order to indicate that the motor should not be running */
 #define ACCEL 2					/**< Value to put in state variable in order to indicate that the motor should be accelerating */
 #define CRUISE 4				/**< Value to put in state variable in order to indicate that the motor should be decelerating */
 #define DECEL 8					/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
 #define INITDECEL 16			/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
-#define INTFREQ 32830.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
+#define INTFREQ 28200.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
 #define CW 0					/**< Value to put in direction variable in order for the stepper to turn clockwise */
 #define CCW 1					/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
 #define HARD 1					/**< Value to put in hold variable in order for the motor to block when it is not running */
@@ -159,8 +179,8 @@
 #define AGC 0x1A				/**< Address of the register, in the encoder chip, containing information about the current gain value used in the encoder chip. This value should preferably be around 127 (Ideal case!) */
 #define MAGNITUDE 0x1B			/**< Address of the register, in the encoder chip, containing the 8 least significant bits of magnetic field strength measured by the encoder chip */
 
-#define ENCODERINTFREQ 244.3	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
-#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/360.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
+#define ENCODERINTFREQ 1000.0	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
+#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0/360.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
 
 #define R 4700.0 				/**< The NTC resistor used for measuring temperature, is placed in series with a 4.7 kohm resistor. This is used to calculate the temperature */
 
@@ -204,19 +224,45 @@
 #define B 0.000237488365866  /**< See description of A */
 #define C 0.000000083423218  /**< See description of A */
 
-/**
-*	\brief 
-*
-*
-*/
-extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
+#define ALPHA 0.85
+#define BETA (1.0 - ALPHA)
 
-/**
-*	\brief 
-*
-*
-*/
+
+extern "C" void INT0_vect(void) __attribute__ ((signal));
+extern "C" void INT1_vect(void) __attribute__ ((signal));
+extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+
+class float2
+{
+	public:
+		float2(void);
+		float getFloatValue(void);
+		uint64_t getRawValue(void);
+		void setValue(float val);
+		float2 & operator=(const float &value);
+		bool operator==(const float2 &value);
+		bool operator!=(const float2 &value);
+		bool operator>=(const float2 &value);
+		bool operator<=(const float2 &value);
+		bool operator<=(const float &value);
+		bool operator<(const float2 &value);
+		bool operator>(const float2 &value);
+		float2 & operator*=(const float2 &value);
+		float2 & operator-=(const float2 &value);
+		float2 & operator+=(const float2 &value);
+		float2 & operator+=(const float &value);
+		float2 & operator/=(const float2 &value);
+		const float2 operator+(const float2 &value);
+		const float2 operator-(const float2 &value);
+		const float2 operator*(const float2 &value);
+		const float2 operator/(const float2 &value);
+		uint64_t value;
+
+	private:
+		friend void TIMER2_COMPA_vect(void) __attribute__ ((signal));
+		
+};
 
 /**
 *	\brief Prototype of class for the temperature sensor 
@@ -366,6 +412,7 @@ private:
 
 	float encoderOffset;				/**< Angle of the shaft at the reference position. */
 	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
+	volatile float angle;
 	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 
 	volatile float angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
 };
@@ -382,43 +429,48 @@ class uStepper
 private:
 	//Address offset: 0	
 	uint16_t cruiseDelay;			/**< This variable is used by the stepper acceleration algorithm to set the delay between step pulses when running at the set cruise speed */
-	//Address offset: 2	
-	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
-	//Address offset: 6
-	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
+	//Address offset: 2
+	float2 multiplier;				/**< This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. */			
 	//Address offset: 10
-	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
-	//Address offset: 12
-	float multiplier;				/**< This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. */			
-	//Address offset: 16
-	float exactDelayDecel;			/**< This variable is */
-	//Address offset: 20
 	uint8_t state;					/**< This variable is used by the stepper algorithm to keep track of which part of the acceleration profile the motor is currently operating at. */					
-	//Address offset: 21
+	//Address offset: 11
 	uint32_t accelSteps;			/**< This variable keeps track of how many steps to perform in the acceleration phase of the profile. */			
-	//Address offset: 25
+	//Address offset: 15
 	uint32_t decelSteps;			/**< This variable keeps track of how many steps to perform in the deceleration phase of the profile. */	
-	//Address offset: 29
+	//Address offset: 19
 	uint32_t initialDecelSteps;		/**< This variable keeps track of how many steps to perform in the initial deceleration phase of the profile. */		
-	//Address offset: 33
+	//Address offset: 23
 	uint32_t cruiseSteps;			/**< This variable keeps track of how many steps to perform in the cruise phase of the profile. */	
-	//Address offset: 37
+	//Address offset: 27
 	uint32_t currentStep;			/**< This variable keeps track of the current step number in the current move of a predefined number of steps. */ 
-	//Address offset: 41
+	//Address offset: 31
 	uint32_t totalSteps;			/**< This variable keeps track of the total number of steps to be performed in the current move of a predefined number of steps. */
-	//Address offset: 45
+	//Address offset: 35
 	bool continous;					/**< This variable tells the algorithm whether the motor should rotated continuous or only a limited number of steps. If set to 1, the motor will rotate continous. */
-	//Address offset: 46
+	//Address offset: 36
 	bool hold;						/**< This variable tells the algorithm if it should block the motor by keeping the motor coils excited after the commanded number of steps have been carried out, or if it should release the motor coil, allowing the shaft to be rotated freely. */
-	//Address offset: 47
+	//Address offset: 37
 	bool direction;					/**< This variable tells the algorithm the direction of rotation for the commanded move. */
-	//Address offset: 48
+	//Address offset: 38
 	int64_t stepsSinceReset;		/**< This variable contains an open-loop number of steps moved from the position the motor had when powered on (or reset). a negative value represents a rotation in the counter clock wise direction and a positive value corresponds to a rotation in the clock wise direction. */
+	//Address offset: 46
+	float2 exactDelay;				/**< This variable contains the exact delay (in number of interrupts) before the next step is applied. This variable is used in the calculations of the next step delay. */				
+	//Address offset: 54	
+	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
 	//Address offset: 56
-	float exactDelay;				/**< This variable contains the exact delay (in number of interrupts) before the next step is applied. This variable is used in the calculations of the next step delay. */				
+	bool dropIn;
+	//Address offset: 57
+	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
+	//Address offset: 61
+	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
+	volatile uint16_t faultStepDelay;
+	volatile float tolerance;
+	volatile float stepResolution;
+
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-	
+	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+
 
 	/**
 	*	\brief Starts timer for stepper algorithm
@@ -598,7 +650,7 @@ public:
 	*	for some strange reason, resets a lot of the AVR registers just before entering the setup() function.
 	*
 	*/
-	void setup(void);
+	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 3000.0, uint32_t faultTolerance = 20);
 	
 
 	/**

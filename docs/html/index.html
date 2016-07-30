@@ -37,7 +37,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -87,7 +86,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Measure the current speed of the motor</li>
 </ul>
 <p>The library uses both timer one and timer two in order to function properly, meaning that unless the user of this library can accept the loss of some functionality, these two timers are unavailable and the registers associated with these timers should not be reconfigured.</p>
-<p>Timer one is used for sampling the encoder in order to provide the ability to keep track of both the current speed and the angle moved since the board was reset (or a new home position was configured).</p>
+<p>Timer one is used for sampling the encoder in order to provide the ability to keep track of both the current speed and the angle moved since the board was reset (or a new home position was configured). Also the drop-in features missed step detection and correction is done in this timer.</p>
 <p>Timer two is used to calculate the stepper acceleration algorithm. </p>
 <dl class="section warning"><dt>Warning</dt><dd>In order to get some features working, it was necessary to write functions to control the I2C hardware in the MCU, since the build in wire library of Arduino uses interrupt which doesn't play well when used inside a timer interrupt routine. Therefore if the user of this library needs to use the I2C bus, the user should use the functions defined in this library instead of wire library !</dd></dl>
 <dl class="section user"><dt>Installation</dt><dd>To install the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> library into the Arduino IDE, perform the following steps:</dd></dl>
@@ -101,6 +100,13 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library.</li>
 </ul>
 <p>The library is tested with Arduino IDE 1.6.8</p>
+<dl class="section warning"><dt>Warning</dt><dd>MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a>, by default. This driver should be downloaded and installed from FTDI's website: </dd>
+<dd>
+<a href="http://www.ftdichip.com/Drivers/VCP.htm">http://www.ftdichip.com/Drivers/VCP.htm</a> </dd>
+<dd>
+The <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> should NOT be connected to the USB port while installing this driver ! </dd>
+<dd>
+This is not a problem for windows/linux users, as these drivers come with the arduino installation.</dd></dl>
 <dl class="section user"><dt>Theory</dt><dd></dd></dl>
 <p>The acceleration profile implemented in this library is a second order profile, meaning that the stepper will accelerate with a constant acceleration, the velocity will follow a linear function and the position will look like an S-curve (it will follow a linear function at top speed and a second order function during acceleration and deceleration). As a result, the position of the stepper motor will have continous and differentiable first and second derivatives.</p>
 <p>The second order acceleration profile can be illustrated as follows (<a href="http://picprog.strongedge.net/step_prof/step-profile.html" rel="license">Source</a>):</p>
@@ -120,18 +126,28 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <p>The code contained in this file is released under a <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/" rel="license">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a></p>
 <p>The code in this library is provided without warranty of any kind - use at own risk! neither ON Development IVS nor the author, can be held responsible for any damage caused by the use of the code contained in this library !</p>
 <dl class="section user"><dt>To do list</dt><dd><ul>
-<li>Fix bug in stepper algorithm</li>
 <li>Clean out in unused variables</li>
 <li>Update comments</li>
+<li>Implement PID-controller into dropin feature</li>
 <li>Implement multiaxis feature between multiple uSteppers</li>
 <li>Add support for limit switches</li>
+<li>Split the library into multiple files</li>
 </ul>
 </dd></dl>
-<dl class="section user"><dt>Known Bugs</dt><dd></dd></dl>
-<dl class="bug"><dt><b><a class="el" href="bug.html#_bug000001">Bug:</a></b></dt><dd>Stepper algorithm still has a bug, which makes the deceleration part perform strange under a small subset of max velocity/acceleration settings. This bug is due to lack of precision in the variables used for the algorithm, and will be fixed in a later version. However, the subset of settings is small, and therefore other tasks has been prioritized.</dd></dl>
+<dl class="section user"><dt>Known Bugs</dt><dd><ul>
+<li>No known bugs</li>
+</ul>
+</dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Thomas Hørring Olsen (<a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s@u'+'st'+'epp'+'er'+'.co'+'m'; return false;">thoma<span style="display: none;">.nosp@m.</span>s@us<span style="display: none;">.nosp@m.</span>teppe<span style="display: none;">.nosp@m.</span>r.co<span style="display: none;">.nosp@m.</span>m</a>) </dd></dl>
 <dl class="section user"><dt>Change Log</dt><dd></dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.3.0:<ul>
+<dl class="section version"><dt>Version</dt><dd>0.4.0:<ul>
+<li>Added Drop-in feature to replace stepsticks with <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> for error correction</li>
+<li>Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance</li>
+<li>Implemented an IIR filter on the speed measurement, to smooth this out a bit. </li>
+</ul>
+</dd>
+<dd>
+0.3.0:<ul>
 <li>Added support for speed readout</li>
 <li>Added support for measuring the shaft position with respect to a zero reference. (absolute within multiple revolutions) </li>
 </ul>
@@ -153,7 +169,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri May 27 2016 20:04:48 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Jul 30 2016 18:24:47 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
