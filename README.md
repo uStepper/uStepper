@@ -1,4 +1,5 @@
 # uStepper
+
 To add hardware support for uStepper in the Arduino IDE (1.6x) do the following:
  - Open Arduino
  - Open preferences
@@ -17,7 +18,33 @@ To add the uStepper library do the following:
  - Select add .ZIP library
  - Navigate to where you downloaded the zip file to and select
  
- 
+MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the uStepper, by default. This driver should be downloaded and installed from FTDI's website:
+	
+	http://www.ftdichip.com/Drivers/VCP.htm
+
+The uStepper should NOT be connected to the USB port while installing this driver !
+This is not a problem for windows/linux users, as these drivers come with the arduino installation.
+
+## Change Log
+0.4.0:
+- Added Drop-in feature to replace stepsticks with uStepper for error correction
+- Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance
+- Implemented an IIR filter on the speed measurement, to smooth this out a bit.
+0.3.0:
+- Added support for speed readout
+- Added support for measuring the shaft position with respect to a zero reference. (absolute within multiple revolutions)
+0.2.0:
+- Complete rewrite of the stepper algorithm in assembler
+- Changed from fixed point to floating point variables, due to the need for more precision
+- Removed the getSpeed() method, as it didn't work, and therefore it would make more sense to remove it
+  and re-add it when i get the time to fix it
+- Added a few doxygen comments
+- Added a new method (getStepsSinceReset()), which returns all steps performed since reset of the uStepper.
+  positive values corresponds to steps in clockwise direction, while negative values corresponds to steps
+  in counterclockwise direction.	
+0.1.0:	
+- Initial release
+
 ## Documentation
 We have now added documentation for the uStepper library, you can find it here:
 http://ustepper.com/docs/html/index.html
