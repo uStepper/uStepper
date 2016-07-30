@@ -55,7 +55,7 @@
 .global _AccelerationAlgorithm			;The label "_AccelerationAlgorithm" needs to be accessible globally, since it is called from uStepper.cpp
 
 .section .text							;Put the following code in program memory
-
+_AccelerationAlgorithm:
 ;Definitions, similar to #define in C
 .equ _STOP,1					
 .equ _ACCEL,2
