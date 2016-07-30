@@ -10,6 +10,10 @@
 *	|	Dir      |	D4 		|
 *	|	GND      |	GND		|
 *	-------------------------	
+*
+*	When you connect your stepper motor and set the direction in the firmware of your controller, you should observe that the uStepper is running as expected! 
+*	If the motor is connected incorrect or the direction is inverted from the controller, the algorithm will make uStepper run in the wrong direction. 
+*	please make sure to check this.
 */
 
 #include <uStepper.h>
