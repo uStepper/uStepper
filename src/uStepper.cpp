@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    0.4.0                                             						*
-*      	date: 		July 30th, 2016	                                    					*
+*		Version:    0.4.1                                             						*
+*      	date: 		July 31th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -238,8 +238,9 @@ extern "C" {
 		{
 			return;
 		}
+
 		I2C.read(ENCODERADDR, ANGLE, 2, data);
-		curAngle = (float)((((uint16_t)data[0]) << 8 )| (uint16_t)data[1])*0.087890625;
+		curAngle = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
 		pointer->encoder.angle = curAngle;
 		curAngle -= pointer->encoder.encoderOffset;
 
@@ -698,13 +699,16 @@ float uStepperEncoder::getSpeed(void)
 
 void uStepperEncoder::setup(void)
 {
+	uint8_t data[2];
 	TCCR1A = 0;
 	TCNT1 = 0;
 	OCR1A = 16000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
 	TCCR1B = (1 << WGM12) | (1 << CS10);
-	this->encoderOffset = this->getAngle();
+	I2C.read(ENCODERADDR, ANGLE, 2, data);
+	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+	//this->encoderOffset = this->getAngle();
 
 	this->oldAngle = 0.0;
 	this->angleMoved = 0.0;

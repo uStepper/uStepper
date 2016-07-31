@@ -9,12 +9,15 @@
 uStepper	KEYWORD1
 uStepperTemp KEYWORD1
 uStepperEncoder KEYWORD1
+float2		KEYWORD1
 i2cMaster	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-
+getFloatValue KEYWORD2
+getRawValue  KEYWORD2
+setValue	 KEYWORD2
 getTemp	KEYWORD2
 getAngle	KEYWORD2
 getSpeed	KEYWORD2

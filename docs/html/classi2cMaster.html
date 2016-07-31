@@ -144,7 +144,7 @@ Private Attributes</h2></td></tr>
 <p>This class enables the use of the hardware TWI (I2C) interface in the AVR (master mode only), which is used for interfacing with the encoder. This class is needed in this library, as arduino's build in "wire" library uses interrupts to access the TWI interface, and since the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> library needs to use the TWI interface within a timer interrupt, this library cannot be used. As a result of this, the "wire" library, cannot be used in sketches using the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> library, as this will screw with the setups, and make the sketch hang in the timer interrupt routine. Instead, if the programmer of the sketch needs to interface with external I2C devices, this class should be used. This library contains a predefined object called "I2C", which should be used for these purposes.</p>
 <p>The functions "read()" and "write()", should be the only functions needed by most users of this library ! </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00709">709</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00713">713</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="a2d4c2077400ec94c157916804e9fdaae"></a>
 <div class="memitem">
@@ -163,7 +163,7 @@ Private Attributes</h2></td></tr>
 <p>Constructor. </p>
 <p>This is the constructor, used to instantiate an I2C object. Under normal circumstances, this should not be needed by the programmer of the arduino sketch, since this library already has a global object instantiation of this class, called "I2C". </p>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01426">1426</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01430">1430</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -185,7 +185,7 @@ Private Attributes</h2></td></tr>
 <p>Setup TWI (I2C) interface. </p>
 <p>This function sets up the TWI interface, and is automatically called in the instantiation of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> encoder object. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01418">1418</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01422">1422</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -220,7 +220,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01285">1285</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01289">1289</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -242,7 +242,7 @@ Private Attributes</h2></td></tr>
 <p>This function returns the status of the I2C bus.</p>
 <dl class="section return"><dt>Returns</dt><dd>Status of the I2C bus. Refer to defines for possible status </dd></dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01413">1413</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01417">1417</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -295,7 +295,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01297">1297</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01301">1301</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -333,7 +333,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01343">1343</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01347">1347</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -374,7 +374,7 @@ Private Attributes</h2></td></tr>
 <dd>
 0 - Connection failed </dd></dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01385">1385</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01389">1389</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -415,7 +415,7 @@ Private Attributes</h2></td></tr>
 <dd>
 0 - Connection failed </dd></dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01360">1360</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01364">1364</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -437,7 +437,7 @@ Private Attributes</h2></td></tr>
 <p>This function is used to close down the I2C connection, by sending a stop condition on the I2C bus.</p>
 <dl class="section return"><dt>Returns</dt><dd>1 - This is always returned Currently - in a later version, this should indicate that connection is successfully closed </dd></dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01399">1399</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01403">1403</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -490,7 +490,7 @@ Private Attributes</h2></td></tr>
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01323">1323</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01327">1327</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -520,7 +520,7 @@ Private Attributes</h2></td></tr>
 <dd>
 0 - transaction failed </dd></dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01390">1390</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01394">1394</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -544,7 +544,7 @@ Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 <p>Contains the status of the I2C bus </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00712">712</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00716">716</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -555,7 +555,7 @@ Private Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Jul 30 2016 18:24:47 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sun Jul 31 2016 22:59:13 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
