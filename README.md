@@ -26,6 +26,12 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+0.4.1:
+
+- Fixed bug with getAngleMoved() returning alternating values (offset by exactly 180 degrees) between resets.
+- Added keywords
+- Updated pin connection description for Drop-in example 
+
 0.4.0:
 
 - Added Drop-in feature to replace stepsticks with uStepper for error correction

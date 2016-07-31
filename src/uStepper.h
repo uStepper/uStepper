@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.4.0                                           						*
-*      	date: 		July 30th, 2016	                                    					*
+*		Version:    0.4.1                                           						*
+*      	date: 		July 31th, 2016	                                    					*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -111,6 +111,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 0.4.1:
+*	- Fixed bug with getAngleMoved() returning alternating values (offset by exactly 180 degrees) between resets.
+*	- Added keywords
+*	- Updated pin connection description for Drop-in example 
 *	\version 0.4.0:
 *	- Added Drop-in feature to replace stepsticks with uStepper for error correction
 *	- Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance
