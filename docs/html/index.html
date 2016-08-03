@@ -140,7 +140,13 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Thomas Hørring Olsen (<a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s@u'+'st'+'epp'+'er'+'.co'+'m'; return false;">thoma<span style="display: none;">.nosp@m.</span>s@us<span style="display: none;">.nosp@m.</span>teppe<span style="display: none;">.nosp@m.</span>r.co<span style="display: none;">.nosp@m.</span>m</a>) </dd></dl>
 <dl class="section user"><dt>Change Log</dt><dd></dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.4.1:<ul>
+<dl class="section version"><dt>Version</dt><dd>0.4.2:<ul>
+<li>Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.</li>
+<li>Fixed bug in runContinous(), where direction of the motor did not get updated if the function was called with the motor standing still. </li>
+</ul>
+</dd>
+<dd>
+0.4.1:<ul>
 <li>Fixed bug with getAngleMoved() returning alternating values (offset by exactly 180 degrees) between resets.</li>
 <li>Added keywords</li>
 <li>Updated pin connection description for Drop-in example </li>
@@ -176,7 +182,7 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sun Jul 31 2016 22:59:13 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Aug 3 2016 16:33:34 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
