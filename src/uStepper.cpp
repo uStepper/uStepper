@@ -708,7 +708,6 @@ void uStepperEncoder::setup(void)
 	TCCR1B = (1 << WGM12) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
-	//this->encoderOffset = this->getAngle();
 
 	this->oldAngle = 0.0;
 	this->angleMoved = 0.0;
@@ -719,11 +718,15 @@ void uStepperEncoder::setup(void)
 
 void uStepperEncoder::setHome(void)
 {
-	this->encoderOffset = this->getAngle();
+	cli();
+	uint8_t data[2];
+	I2C.read(ENCODERADDR, ANGLE, 2, data);
+	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
 
+	this->angle = 0.0;
 	this->oldAngle = 0.0;
 	this->angleMoved = 0.0;
-	this->angleMoved = 0.0;
+	sei();
 }
 
 float uStepperEncoder::getAngle()
