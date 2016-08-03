@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.4.1                                           						*
-*      	date: 		July 31th, 2016	                                    					*
+*		Version:    0.4.2                                           						*
+*      	date: 		August 3rd, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -111,6 +111,9 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 0.4.2:
+*	- Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.
+*	- Fixed bug in runContinous(), where direction of the motor did not get updated if the function was called with the motor standing still.
 *	\version 0.4.1:
 *	- Fixed bug with getAngleMoved() returning alternating values (offset by exactly 180 degrees) between resets.
 *	- Added keywords
