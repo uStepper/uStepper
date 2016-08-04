@@ -29,7 +29,7 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 
 0.4.3:
 
-- Fixed bug where initial deceleration phase (used when changing speed setting or changing directionwhile motor is moving), would never be entered, causing motor to accelerate
+- Fixed bug where initial deceleration phase (used when changing speed setting or changing direction while motor is moving), would never be entered, causing motor to accelerate
 
 0.4.2:
 - Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.

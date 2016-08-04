@@ -112,7 +112,7 @@
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
 *	\version 0.4.3:
-*	- Fixed bug where initial deceleration phase (used when changing speed setting or changing directionwhile motor is moving), would never be entered, causing motor to accelerate
+*	- Fixed bug where initial deceleration phase (used when changing speed setting or changing direction while motor is moving), would never be entered, causing motor to accelerate
 *	\version 0.4.2:
 *	- Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.
 *	- Fixed bug in runContinous(), where direction of the motor did not get updated if the function was called with the motor standing still.
