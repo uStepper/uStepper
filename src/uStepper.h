@@ -234,6 +234,9 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 
+#define PTERM 1.0
+#define ITERM 1.0
+#define DTERM 1.0 
 
 extern "C" void INT0_vect(void) __attribute__ ((signal));
 extern "C" void INT1_vect(void) __attribute__ ((signal));
@@ -473,11 +476,12 @@ private:
 	volatile uint16_t faultStepDelay;
 	volatile float tolerance;
 	volatile float stepResolution;
+	volatile uint8_t stepsInLoop;
 
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
-
+	friend void INT1_vect(void) __attribute__ ((signal));
 
 	/**
 	*	\brief Starts timer for stepper algorithm
@@ -516,6 +520,8 @@ private:
 	*
 	*/
 	void disableMotor(void);
+
+	void pidDropIn(float error, uint16_t stepSpeed);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */

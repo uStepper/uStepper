@@ -73,7 +73,8 @@ uStepper *pointer;
 i2cMaster I2C;
 
 volatile uint16_t i = 0;
-volatile int32_t stepCnt = 0, control = 0;
+volatile int32_t stepCnt = 0;
+volatile bool control = 0;
 
 extern "C" {
 
@@ -84,7 +85,11 @@ extern "C" {
 			if(control == 0)
 			{
 				PORTD |= (1 << 7);	//Set dir to CCW
-				
+
+				PORTD |= (1 << 4);		//generate step pulse
+				delayMicroseconds(1);	//wait a small time
+				PORTD &= ~(1 << 4);		//pull step pin low again
+				pointer->stepsSinceReset--;
 			}			
 			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
@@ -94,17 +99,16 @@ extern "C" {
 			{
 				
 				PORTD &= ~(1 << 7);	//Set dir to CW
+
+				PORTD |= (1 << 4);		//generate step pulse
+				delayMicroseconds(1);	//wait a small time
+				PORTD &= ~(1 << 4);		//pull step pin low again
+				pointer->stepsSinceReset++;
 			}
 
 			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
-
-		if(control == 0)			//If no steps are lost, redirect step pulses		
-		{
-			PORTD |= (1 << 4);		//generate step pulse
-			delayMicroseconds(1);	//wait a small time
-			PORTD &= ~(1 << 4);		//pull step pin low again
-		}
+		pointer->stepsInLoop++;
 	}
 
 	void INT0_vect(void)
@@ -165,9 +169,8 @@ extern "C" {
 		asm volatile("push r28 \n\t");
 		asm volatile("push r29 \n\t");
 
-		if(i < pointer->faultStepDelay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
+		if(i < pointer->delay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
 		{
-
 			i++;
 		}
 		else
@@ -175,16 +178,15 @@ extern "C" {
 			PORTD |= (1 << 4);
 			delayMicroseconds(1);
 			PORTD &= ~(1 << 4);	
-			if(control < 0)
-			{
-				control += 1;
-			}
-
-			else if(control > 0)
-			{
-				control -= 1;
-			}
 			i = 0;
+			if((PIND & (0x20)))
+			{
+				pointer->stepsSinceReset--;
+			}
+			else
+			{
+				pointer->stepsSinceReset++;
+			}
 		}
 
 		asm volatile("pop r29 \n\t");
@@ -229,7 +231,8 @@ extern "C" {
 		float error;
 		float deltaAngle, newSpeed;
 		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
-		static uint8_t loops = 0;
+		static uint8_t loops = 0, stepSpeedCnt = 0;
+		static float stepSpeed = 0;
 		static float revolutions = 0.0;
 		uint8_t data[2];
 
@@ -275,39 +278,32 @@ extern "C" {
 			deltaSpeedAngle = 0.0;
 		}
 
+		if(pointer->stepsInLoop)
+		{
+			stepSpeed = (float)pointer->stepsInLoop;
+			stepSpeed *= ENCODERINTFREQ/(float)stepSpeedCnt;
+			pointer->stepsInLoop = 0;
+			stepSpeedCnt = 0;
+		}
+		
+		else
+		{
+			stepSpeedCnt++;
+		}
+
 		pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
 		oldAngle = curAngle;
 		pointer->encoder.oldAngle = curAngle;
 
+		cli();
+			error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
+		sei();
+		error *= pointer->stepResolution;
+		error -= pointer->encoder.angleMoved;
+
 		if(pointer->dropIn)
 		{
-			cli();
-				error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
-			sei();
-			error *= pointer->stepResolution;
-			error -= pointer->encoder.angleMoved;
-			if(error > pointer->tolerance)	
-			{
-				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
-				
-				PORTD |= (1 << 7);
-				pointer->startTimer();	
-			}
-			else if(error < -pointer->tolerance)
-			{
-				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
-				PORTD &= ~(1 << 7);
-				
-				pointer->startTimer();	
-			}
-			else
-			{
-				PORTB |= (PIND & 0x04) >> 2;
-				control = 0;
-				pointer->stopTimer();
-			}
+			pointer->pidDropIn(error, (uint16_t)stepSpeed);
 		}
 	}
 }
@@ -1287,6 +1283,60 @@ int64_t uStepper::getStepsSinceReset(void)
 	else
 	{
 		return this->stepsSinceReset - this->currentStep;
+	}
+}
+
+void uStepper::pidDropIn(float error, uint16_t stepSpeed)
+{
+	static float oldError = 0.0;
+	int32_t appliedStepError;
+	float output = 0.0;
+	static float accumError = 0.0;
+
+	appliedStepError = stepCnt - (int32_t)pointer->stepsSinceReset;
+
+	error -= (float)appliedStepError;
+
+	if(!error)
+	{
+		control = 1;
+		accumError += (float)error*ITERM;
+		output = PTERM*error;
+		output += accumError;
+		output += DTERM*(error - oldError);
+		oldError = error;
+		if(error < 0)
+		{
+			PORTD |= (1 << 7);
+			stepSpeed -= (int16_t)output;
+			if(stepSpeed < 1050)
+			{
+				stepSpeed = 1050;
+			}
+			pointer->delay = (uint16_t)(INTFREQ/(float)stepSpeed);
+			pointer->startTimer();	
+		}
+		
+		else
+		{
+			PORTD &= ~(1 << 7);
+			stepSpeed -= (int16_t)output;
+			if(stepSpeed < 1050)
+			{
+				stepSpeed = 1050;
+			}
+			pointer->delay = (uint16_t)(INTFREQ/(float)stepSpeed);
+			pointer->startTimer();	
+		}
+		PORTB &= ~(1 << 0);
+	}
+
+	else
+	{
+		control = 0;
+		accumError = 0.0;
+		PORTB |= (PIND & 0x04) >> 2;
+		pointer->stopTimer();	
 	}
 }
 
