@@ -26,6 +26,15 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+
+0.4.3:
+
+- Fixed bug where initial deceleration phase (used when changing speed setting or changing directionwhile motor is moving), would never be entered, causing motor to accelerate
+
+0.4.2:
+- Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.
+- Fixed bug in runContinous(), where direction of the motor did not get updated if the function was called with the motor standing still.
+
 0.4.1:
 
 - Fixed bug with getAngleMoved() returning alternating values (offset by exactly 180 degrees) between resets.

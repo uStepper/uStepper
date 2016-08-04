@@ -1,7 +1,7 @@
 /********************************************************************************************
 *    	File: 		uStepper.S 																*
-*		Version:    0.4.2                                           						*
-*      	date: 		August 3rd, 2016	                                    				*
+*		Version:    0.4.3                                           						*
+*      	date: 		August 5th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -781,8 +781,10 @@ rjmp _pShiftFour2
 
 _pExpSame2:
 ldd r18,z+STATE				;Load the state variable
-sbrs r18,_DECELBIT 			;If we are currently in the acceleration phase, we should subtract P^3*m from the exactDelay variable
-rjmp _pSubtractMantissa2 	;If we are currently NOT in the acceleration phase, we should add P^3*m to the exactDelay variable
+sbrc r18,_ACCELBIT 			;Are we in the acceleration phase?
+rjmp _pSubtractMantissa2 	;If not, we should add P^3*m to the exactDelay variable
+
+;If we are currently in the acceleration phase, we should subtract P^3*m from the exactDelay variable
 
 cpi r16,0x00
 breq _pAddMantissa20
@@ -1034,8 +1036,8 @@ rjmp _pShiftFour1
 
 _pExpSame1:
 ldd r16,z+STATE				;Load the state variable
-sbrs r16,_DECELBIT 			;If we are currently in the acceleration phase, we should subtract P^3*m from the exactDelay variable
-rjmp _pSubtractMantissa1 	;If we are currently NOT in the acceleration phase, we should add P^3*m to the exactDelay variable
+sbrc r16,_ACCELBIT 			;Are we in the deceleration phase?
+rjmp _pSubtractMantissa1 	;If we are currently in the deceleration phase, we should add P^3*m to the exactDelay variable
 
 cpi r18,0x00
 breq _pAddMantissa10
@@ -1424,9 +1426,9 @@ brne _continous 			;If motor is running in continous mode, we should not decreme
 		
 		ldd r16,z+CRUISEDELAY			;Load lower part of cruiseDelay variable
 		ldd r17,z+CRUISEDELAY+1			;Load upper part of cruiseDelay variable
-		std z+DELAY,r16		;Store lower part of cruiseDelay into lower part of delay variable
-		std z+DELAY+1,r17		;Store upper part of cruiseDelay into upper part of delay variable 
-		rjmp _end			;We are done
+		std z+DELAY,r16					;Store lower part of cruiseDelay into lower part of delay variable
+		std z+DELAY+1,r17				;Store upper part of cruiseDelay into upper part of delay variable 
+		rjmp _end						;We are done
 
 _end:
 ;We are done, and should restore general purpose registers from the stack, in order for the software to continue its operation properly!
