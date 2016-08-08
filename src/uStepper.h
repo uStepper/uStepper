@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.4.2                                           						*
-*      	date: 		August 3rd, 2016	                                    				*
+*		Version:    0.4.4                                           						*
+*      	date: 		August 8th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -111,6 +111,11 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 0.4.4:
+*	- Added the attribute "used" to declarations of interrupt routines. This enables the library to be compiled in Arduino IDE 1.6.10 
+*	- Updated documentation of "uStepper::setup()"
+*	\version 0.4.3:
+*	- Fixed bug where initial deceleration phase (used when changing speed setting or changing direction while motor is moving), would never be entered, causing motor to accelerate
 *	\version 0.4.2:
 *	- Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.
 *	- Fixed bug in runContinous(), where direction of the motor did not get updated if the function was called with the motor standing still.
@@ -238,10 +243,10 @@
 #define ITERM 1.0
 #define DTERM 1.0 
 
-extern "C" void INT0_vect(void) __attribute__ ((signal));
-extern "C" void INT1_vect(void) __attribute__ ((signal));
-extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+extern "C" void INT0_vect(void) __attribute__ ((signal,used));
+extern "C" void INT1_vect(void) __attribute__ ((signal,used));
+extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
+extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
 class float2
 {
@@ -270,7 +275,7 @@ class float2
 		uint64_t value;
 
 	private:
-		friend void TIMER2_COMPA_vect(void) __attribute__ ((signal));
+		friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,used));
 		
 };
 
@@ -418,7 +423,7 @@ public:
 
 private:
 
-	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
 	float encoderOffset;				/**< Angle of the shaft at the reference position. */
 	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
@@ -479,9 +484,9 @@ private:
 	volatile uint8_t stepsInLoop;
 	volatile uint16_t counter;
 
-	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
-	friend void INT1_vect(void) __attribute__ ((signal));
+	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
+	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
+	friend void INT1_vect(void) __attribute__ ((signal,used));
 
 	/**
 	*	\brief Starts timer for stepper algorithm
@@ -661,6 +666,17 @@ public:
 	*	This function initializes the different parts of the uStepper object, and should be called in the setup() function of the 
 	*	arduino sketch. This function is needed as some things, like the timer can not be setup in the constructor, since arduino
 	*	for some strange reason, resets a lot of the AVR registers just before entering the setup() function.
+	*
+	*	\param mode - 	Default is normal mode. Pass the constant "DROPIN" to configure the uStepper to act as dropin compatible to the stepstick
+	*	\param microStepping -	When mode is set to "DROPIN", this parameter should be set to the current microstep setting. available arguments are:
+	*							FULL
+	*							HALF
+	*							QUARTER
+	*							EIGHT
+	*							SIXTEEN
+	*	\param faultSpeed -		This parameter defines the speed in steps/s at which the motor spins during fault scenarios.
+	*							This should be set to a speed higher than normal motor speed.
+	*	\param faultTolerance -	This parameter defines the allowed number of missed steps before the correction should kick in.
 	*
 	*/
 	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 3000.0, uint32_t faultTolerance = 20);

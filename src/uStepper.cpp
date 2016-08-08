@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    0.4.2                                           						*
-*      	date: 		August 3rd, 2016	                                    				*
+*		Version:    0.4.4             	                             						*
+*      	date: 		August 8th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -966,7 +966,9 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	Serial.print(this->delay);
+	/*Serial.print(this->exactDelay.getFloatValue(),15);
+	Serial.print("\t");
+	Serial.println(this->delay);
 	Serial.print("\t");
 	Serial.println((int32_t)this->stepsSinceReset);
 /*	Serial.print("\t");
@@ -1043,15 +1045,15 @@ void uStepper::runContinous(bool dir)
 	
 	this->stopTimer();				//Stop interrupt timer, so we don't fuck up stuff !
 	this->continous = 1;			//Set continous variable to 1, in order to let the interrupt routine now, that the motor should run continously
-	this->direction = dir;
+	
 	
 
 	if(state != STOP)										//if the motor is currently running and we want to move the opposite direction, we need to decelerate in order to change direction.
 	{
 		curVel = INTFREQ/this->exactDelay.getFloatValue();								//Use this to calculate current velocity
-
 		if(dir != digitalRead(DIR))							//If motor is currently running the opposite direction as desired
 		{
+			this->direction = dir;
 			this->state = INITDECEL;							//We should decelerate the motor to full stop before accelerating the speed in the opposite direction
 			this->initialDecelSteps = (uint32_t)(((curVel*curVel))/(2.0*this->acceleration));		//the amount of steps needed to bring the motor to full stop. (S = (V^2 - V0^2)/(2*-a)))
 			this->accelSteps = (uint32_t)((this->velocity*this->velocity)/(2.0*this->acceleration));			//Number of steps to bring the motor to max speed (S = (V^2 - V0^2)/(2*a)))
@@ -1091,6 +1093,7 @@ void uStepper::runContinous(bool dir)
 
 	else																						//If motor is currently stopped (state = STOP)
 	{
+		this->direction = dir;
 		this->state = ACCEL;																	//Start accelerating
 		if(dir)																	//Set the motor direction pin to the desired setting
 		{
