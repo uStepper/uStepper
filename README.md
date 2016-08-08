@@ -27,6 +27,11 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 
 ## Change Log
 
+0.4.4:
+
+- Added the attribute "used" to declarations of interrupt routines. This enables the library to be compiled in Arduino IDE 1.6.10
+- Updated documentation of "uStepper::setup()"
+
 0.4.3:
 
 - Fixed bug where initial deceleration phase (used when changing speed setting or changing direction while motor is moving), would never be entered, causing motor to accelerate
