@@ -186,7 +186,7 @@
 #define AGC 0x1A				/**< Address of the register, in the encoder chip, containing information about the current gain value used in the encoder chip. This value should preferably be around 127 (Ideal case!) */
 #define MAGNITUDE 0x1B			/**< Address of the register, in the encoder chip, containing the 8 least significant bits of magnetic field strength measured by the encoder chip */
 
-#define ENCODERINTFREQ 1000.0	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
+#define ENCODERINTFREQ 250.0	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
 #define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0/360.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
 
 #define R 4700.0 				/**< The NTC resistor used for measuring temperature, is placed in series with a 4.7 kohm resistor. This is used to calculate the temperature */
@@ -234,7 +234,7 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 
-#define PTERM 1.0
+#define PTERM 0.1
 #define ITERM 1.0
 #define DTERM 1.0 
 
@@ -477,7 +477,7 @@ private:
 	volatile float tolerance;
 	volatile float stepResolution;
 	volatile uint8_t stepsInLoop;
-
+	volatile uint16_t counter;
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
