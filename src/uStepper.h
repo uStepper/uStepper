@@ -237,10 +237,10 @@
 #define BETA (1.0 - ALPHA)
 
 
-extern "C" void INT0_vect(void) __attribute__ ((signal));
-extern "C" void INT1_vect(void) __attribute__ ((signal));
-extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+extern "C" void INT0_vect(void) __attribute__ ((signal,used));
+extern "C" void INT1_vect(void) __attribute__ ((signal,used));
+extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
+extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
 class float2
 {
@@ -269,7 +269,7 @@ class float2
 		uint64_t value;
 
 	private:
-		friend void TIMER2_COMPA_vect(void) __attribute__ ((signal));
+		friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,used));
 		
 };
 
@@ -417,7 +417,7 @@ public:
 
 private:
 
-	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
 	float encoderOffset;				/**< Angle of the shaft at the reference position. */
 	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
@@ -477,8 +477,8 @@ private:
 	volatile float stepResolution;
 
 
-	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked));
-	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal));
+	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
+	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
 
 	/**
