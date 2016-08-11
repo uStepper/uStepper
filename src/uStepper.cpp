@@ -700,12 +700,12 @@ float uStepperEncoder::getSpeed(void)
 void uStepperEncoder::setup(void)
 {
 	uint8_t data[2];
-	TCCR1A = 0;
 	TCNT1 = 0;
-	OCR1A = 16000;
+	ICR1 = 16000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
-	TCCR1B = (1 << WGM12) | (1 << CS10);
+	TCCR1A = (1 << WGM11);
+	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
 
@@ -864,9 +864,9 @@ void uStepper::setMaxVelocity(float vel)
 		this->velocity = 0.5005;			//Limit velocity in order to not overflow delay variable
 	}
 
-	else if(vel > 32000.0)
+	else if(vel > 28000.0)
 	{
-		this->velocity = 32000.0;			//limit velocity in order to not underflow delay variable
+		this->velocity = 28000.0;			//limit velocity in order to not underflow delay variable
 	}
 
 	else
@@ -1232,17 +1232,15 @@ void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint32_
 		EIMSK = 0x03;		//enable int0 and int1 interrupt requests
 	}
 
-	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
-	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));
-	TCCR2B |= (1 << CS21);				//Enable timer with prescaler 8. interrupt base frequency ~ 7.8125kHz
-	TCCR2A |= (1 << WGM21);				//Switch timer 2 to CTC mode, to adjust interrupt frequency
-	OCR2A = 70;							//Change top value to 60 in order to obtain an interrupt frequency of 33.333kHz
+	TCCR2B = (1 << CS21) | (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
+	TCCR2A = (1 << WGM21) | (1 << WGM20);				//Switch timer 2 to Fast PWM mode, to enable adjustment of interrupt frequency, while being able to use PWM
+	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
 	this->encoder.setup();
 }
 
 void uStepper::startTimer(void)
 {
-	TCNT2 = 0;							//Clear counter value, to make sure we get correct timing
+	while(TCNT2);						//Wait for timer to overflow, to ensure correct timing.
 	TIFR2 |= (1 << OCF2A);				//Clear compare match interrupt flag, if it is set.
 	TIMSK2 |= (1 << OCIE2A);			//Enable compare match interrupt
 
@@ -1289,6 +1287,44 @@ int64_t uStepper::getStepsSinceReset(void)
 	{
 		return this->stepsSinceReset - this->currentStep;
 	}
+}
+
+void uStepper::pwmD8(float duty)
+{
+	pinMode(8,OUTPUT);
+	TCCR1A |= (1 << COM1B1);
+
+	if(duty > 100.0)
+	{
+		duty = 100.0;
+	}
+	else if(duty < 0.0)
+	{
+		duty = 0.0;
+	}
+
+	duty *= 160.0;
+
+	OCR1B = (uint16_t)(duty + 0.5);
+}
+
+void uStepper::pwmD3(float duty)
+{
+	pinMode(3,OUTPUT);
+	TCCR2A |= (1 << COM2B1);
+
+	if(duty > 100.0)
+	{
+		duty = 100.0;
+	}
+	else if(duty < 0.0)
+	{
+		duty = 0.0;
+	}
+
+	duty *= 0.7;
+
+	OCR2B = (uint16_t)(duty + 0.5);
 }
 
 void i2cMaster::cmd(uint8_t cmd)

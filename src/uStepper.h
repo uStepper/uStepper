@@ -714,6 +714,28 @@ public:
 	*
 	*/
 	int64_t getStepsSinceReset(void);
+
+	/**
+	*	\brief Generate PWM signal on digital output 8
+	*
+	*	This function allows the user to generate PWM signal on digital output 8. 
+	*	The PWM signal has a fixed frequency of 1kHz, from 0% - 100% duty cycle, in steps of 0.00625% (resolution of 13.97 bits).
+	*
+	*	\param duty - Desired duty cycle of PWM signal. range: 0.0 to 100.0.
+	*
+	*/
+	void pwmD8(float duty);
+	
+	/**
+	*	\brief Generate PWM signal on digital output 3
+	*
+	*	This function allows the user to generate PWM signal on digital output 3. 
+	*	The PWM signal has a fixed frequency of 28.2kHz, from 0% - 100% duty cycle, in steps of 1.43% (resolution of 6.13 bits).
+	*
+	*	\param duty - Desired duty cycle of PWM signal. range: 0.0 to 100.0.
+	*
+	*/
+	void pwmD3(float duty);
 };
 
 /**
