@@ -23,18 +23,6 @@
           "size": "4277",
           "boards": [
             {"name": "uStepper"}
-          ],
-          "toolsDependencies": [
-            {
-              "packager": "arduino",
-              "name": "avr-gcc",
-              "version": "4.9.2-arduino5"
-            },
-            {
-              "packager": "arduino",
-              "name": "avrdude",
-              "version": "6.0.1-arduino5"
-            }
           ]
         }
       ]
