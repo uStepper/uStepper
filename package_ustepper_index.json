@@ -28,7 +28,7 @@
             {
               "packager": "arduino",
               "name": "avr-gcc",
-              "version": "4.9.2-arduino5"
+              "version": "4.8.1-arduino5"
             },
             {
               "packager": "arduino",
