@@ -16,16 +16,16 @@
 *	please make sure to check this.
 */
 
-//#include <uStepper.h>
+#include <uStepper.h>
 
 //uStepper stepper;
 
 void setup(void)
 {
+  Serial.begin(115200);
 	//stepper.setup(DROPIN,SIXTEEN,3000.0,20);			//Activate dropin, 1/16th microstepping, speed during fault: 3000 steps/s, # of missed steps allowed
 }
 
 void loop(void)
 {
-
 }
