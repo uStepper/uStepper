@@ -240,8 +240,8 @@
 #define BETA (1.0 - ALPHA)
 
 
-extern "C" void INT0_vect(void) __attribute__ ((signal,used));
-extern "C" void INT1_vect(void) __attribute__ ((signal,used));
+extern "C" void interrupt0(void);
+extern "C" void interrupt1(void);
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 

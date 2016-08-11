@@ -77,7 +77,7 @@ volatile int32_t stepCnt = 0, control = 0;
 
 extern "C" {
 
-	void INT1_vect(void)
+	void interrupt1(void)
 	{
 		if((PIND & (0x20)))			//CCW
 		{
@@ -107,7 +107,7 @@ extern "C" {
 		}
 	}
 
-	void INT0_vect(void)
+	void interrupt0(void)
 	{
 
 		if(PIND & 0x04)
@@ -1228,8 +1228,8 @@ void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint32_
 		this->stepResolution = 360.0/((float)(200*microStepping));
 		this->tolerance = ((float)faultTolerance)*this->stepResolution;
 		this->faultStepDelay = (uint16_t)((INTFREQ/faultSpeed) - 1);
-		EICRA = 0x0D;		//int0 generates interrupt on any change and int1 generates interrupt on rising edge
-		EIMSK = 0x03;		//enable int0 and int1 interrupt requests
+		attachInterrupt(digitalPinToInterrupt(2), interrupt0, CHANGE);
+		attachInterrupt(digitalPinToInterrupt(3), interrupt1, FALLING);
 	}
 
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
