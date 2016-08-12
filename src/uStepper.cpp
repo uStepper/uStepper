@@ -1473,7 +1473,7 @@ void uStepper::pidDropIn(float error)
 		stepSpeed = 1/stepTime;
 	sei();
 
-	if(error < -11.25)
+	if(error < -1.0)
 	{
 		error = -error;
 
@@ -1515,7 +1515,7 @@ void uStepper::pidDropIn(float error)
 		PORTB &= ~(1 << 0);
 
 	}
-	else if(error > 11.25)
+	else if(error > 1.0)
 	{
 		control = 1;
 		accumError += error*ITERM;
@@ -1557,10 +1557,14 @@ void uStepper::pidDropIn(float error)
 	
 	else
 	{
-		control = 0;
-		accumError = 0.0;
-		PORTB |= (PIND & 0x04) >> 2;
-		pointer->stopTimer();	
+		//if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
+		if((error < 0.1125) && (error > (-0.1125)))
+		{
+			control = 0;
+			accumError = 0.0;
+			PORTB |= (PIND & 0x04) >> 2;
+			pointer->stopTimer();
+		}	
 	}
 	
 }
