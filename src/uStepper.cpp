@@ -117,7 +117,6 @@ extern "C" {
 		}
 		else
 		{
-			
 			PORTB &= ~(1 << 0);
 		}
 	}
@@ -290,23 +289,24 @@ extern "C" {
 			{
 				PORTB &= ~(1 << 0);
 				control = (int32_t)(error/pointer->stepResolution);
-				
-				PORTD |= (1 << 7);
+				PORTD &= ~(1 << 7);
 				pointer->startTimer();	
 			}
 			else if(error < -pointer->tolerance)
 			{
 				PORTB &= ~(1 << 0);
 				control = (int32_t)(error/pointer->stepResolution);
-				PORTD &= ~(1 << 7);
-				
+				PORTD |= (1 << 7);
 				pointer->startTimer();	
 			}
 			else
 			{
-				PORTB |= (PIND & 0x04) >> 2;
-				control = 0;
-				pointer->stopTimer();
+				if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
+				{
+					PORTB |= (PIND & 0x04) >> 2;
+					control = 0;
+					pointer->stopTimer();
+				}
 			}
 		}
 	}
