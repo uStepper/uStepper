@@ -75,7 +75,7 @@ i2cMaster I2C;
 volatile uint16_t stepOverflow = 0;
 volatile int32_t stepCnt = 0;
 volatile bool control = 0;
-volatile float abe = 0.0, stepTime = 0.0;
+volatile float abe = 0.0, stepSpeed = 0.0;
 
 extern "C" {
 
@@ -90,11 +90,11 @@ extern "C" {
 		{
 			buff -= 49535;
 		}
-		stepTime = ((float)buff)*CLOCKPERIOD;
+		stepSpeed = ((float)buff)*F_CPU;
 		if(stepOverflow > 0)
 		{
-			stepTime += 0.001*((float)stepOverflow);
-			stepTime -= CLOCKPERIOD*((float)(16000 - (16000 - oldValue)));
+			stepSpeed -= 1000.0*((float)stepOverflow);
+			stepSpeed += F_CPU*((float)(16000 - (16000 - oldValue)));
 		}
 
 		oldValue = value;
@@ -127,7 +127,7 @@ extern "C" {
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");*/
-				pointer->stepsSinceReset--;;
+				pointer->stepsSinceReset--;
 				PORTD &= ~(1 << 4);		//pull step pin low again
 				//pointer->stepsSinceReset--;
 			}			
@@ -186,6 +186,7 @@ extern "C" {
 
 	void TIMER2_COMPA_vect(void)
 	{	
+		//asm volatile("sbi 0x05,5 \n\t");
 		asm volatile("push r16 \n\t");
 		asm volatile("in r16,0x3F \n\t");
 		asm volatile("push r16 \n\t");
@@ -382,30 +383,32 @@ extern "C" {
 		asm volatile("pop r30 \n\t");
 		asm volatile("pop r16 \n\t");
 		asm volatile("out 0x3F,r16 \n\t");
-		asm volatile("pop r16 \n\t");		
+		asm volatile("pop r16 \n\t");	
+		//asm volatile("cbi 0x05,5 \n\t");	
 		asm volatile("reti \n\t");
+
 	}
 
 	void TIMER1_COMPA_vect(void)
 	{
-				
+		asm volatile("sbi 0x05,5 \n\t");
 		float error;
 		float deltaAngle, newSpeed;
 		int32_t appliedStepError;
 		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
-		static uint8_t loops = 0, stepSpeedCnt = 1;
-		static float oldStepSpeed = 0.0;
-		static float revolutions = 0.0;
+		static uint8_t loops = 0;
+		static int32_t revolutions = 0;
 		uint8_t data[2];
-
+		
+		sei();
+		
 		stepOverflow++;
 		if(stepOverflow == 255)
 		{
-			stepTime = 1e8;
+			stepSpeed = 0.0;
 			stepOverflow = 0;
 		}
 
-		sei();
 		if(I2C.getStatus() != I2CFREE)
 		{
 			return;
@@ -422,18 +425,18 @@ extern "C" {
 		//count number of revolutions, on angle overflow
 		if(deltaAngle < -180.0)
 		{
-			revolutions -= 1.0;
-			deltaAngle += 360;
+			revolutions -= 1;
+			deltaAngle += 360.0;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
-			revolutions += 1.0;
+			revolutions += 1;
 			deltaAngle -= 360.0;
 		}
-		pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
+		pointer->encoder.angleMoved = curAngle + (360.0*(float)revolutions);
 		oldAngle = curAngle;
-		pointer->encoder.oldAngle = curAngle;
+		//pointer->encoder.oldAngle = curAngle;
 
 		cli();
 			error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
@@ -443,19 +446,22 @@ extern "C" {
 		error -= pointer->encoder.angleMoved;
 		//error -= (float)((int32_t)pointer->stepsSinceReset);
 		//abe = error;
-		if( loops < 10)
+		if(pointer->dropIn == NORMAL)
 		{
-			loops++;
-			deltaSpeedAngle += deltaAngle;
-		}
-		else
-		{
-			newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
-			newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
-			oldSpeed = newSpeed;
-			pointer->encoder.curSpeed = newSpeed;
-			loops = 0;
-			deltaSpeedAngle = 0.0;
+			if( loops < 10)
+			{
+				loops++;
+				deltaSpeedAngle += deltaAngle;
+			}
+			else
+			{
+				newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+				newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
+				oldSpeed = newSpeed;
+				pointer->encoder.curSpeed = newSpeed;
+				loops = 0;
+				deltaSpeedAngle = 0.0;
+			}
 		}
 
 		/*if(pointer->stepsInLoop > 10)
@@ -477,6 +483,7 @@ extern "C" {
 		{
 			pointer->pidDropIn(error);
 		}
+		asm volatile("cbi 0x05,5 \n\t");
 		
 	}
 }
@@ -871,7 +878,7 @@ void uStepperEncoder::setup(void)
 	uint8_t data[2];
 	TCCR1A = 0;
 	TCNT1 = 0;
-	OCR1A = 16000;
+	OCR1A = 32000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
 	TCCR1B = (1 << WGM12) | (1 << CS10);
@@ -1464,21 +1471,24 @@ int64_t uStepper::getStepsSinceReset(void)
 void uStepper::pidDropIn(float error)
 {
 	static float oldError = 0.0;
-	float stepSpeed;
+	//float stepSpeed;
+	float integral;
 	float output = 0.0;
 	static float accumError = 0.0;
 	float limit;
 	
-	cli();
-		stepSpeed = 1/stepTime;
-	sei();
+	/*cli();
+		stepSpeed = stepTime;
+	sei();*/
 
-	if(error < -1.0)
+	if(error < -1.5)
 	{
+		//abe = -1.0;
 		error = -error;
 
 		control = 1;
-		accumError += error*ITERM;
+		integral = error*ITERM;
+		accumError += integral;
 		output = 1.0;
 		output += PTERM*error;
 		output += accumError;
@@ -1504,7 +1514,7 @@ void uStepper::pidDropIn(float error)
 		else if(stepSpeed > limit)
 		{
 			stepSpeed = limit;
-			accumError -= error*ITERM;
+			accumError -= integral;
 		}
 		
 		cli();
@@ -1515,10 +1525,12 @@ void uStepper::pidDropIn(float error)
 		PORTB &= ~(1 << 0);
 
 	}
-	else if(error > 1.0)
+	else if(error > 1.5)
 	{
+		//abe = 1.0;
 		control = 1;
-		accumError += error*ITERM;
+		integral = error*ITERM;
+		accumError += integral;
 		output = 1.0;
 		output += PTERM*error;
 		output += accumError;
@@ -1544,7 +1556,7 @@ void uStepper::pidDropIn(float error)
 		else if(stepSpeed > limit)
 		{
 			stepSpeed = limit;
-			accumError -= error*ITERM;
+			accumError -= integral;
 		}
 		
 		cli();
@@ -1557,9 +1569,11 @@ void uStepper::pidDropIn(float error)
 	
 	else
 	{
+		//abe = 0.5;
 		//if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
-		if((error < 0.1125) && (error > (-0.1125)))
+		if((error < 0.3) && (error > (-0.3)))
 		{
+			//abe = 0.0;
 			control = 0;
 			accumError = 0.0;
 			PORTB |= (PIND & 0x04) >> 2;
