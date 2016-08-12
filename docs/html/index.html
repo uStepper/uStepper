@@ -99,7 +99,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <li>Navigate to where you downloaded uStepper.zip to and select</li>
 <li>The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library.</li>
 </ul>
-<p>The library is tested with Arduino IDE 1.6.8</p>
+<p>The library is tested with Arduino IDE 1.6.10</p>
 <dl class="section warning"><dt>Warning</dt><dd>MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a>, by default. This driver should be downloaded and installed from FTDI's website: </dd>
 <dd>
 <a href="http://www.ftdichip.com/Drivers/VCP.htm">http://www.ftdichip.com/Drivers/VCP.htm</a> </dd>
@@ -140,7 +140,14 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Thomas Hørring Olsen (<a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s@u'+'st'+'epp'+'er'+'.co'+'m'; return false;">thoma<span style="display: none;">.nosp@m.</span>s@us<span style="display: none;">.nosp@m.</span>teppe<span style="display: none;">.nosp@m.</span>r.co<span style="display: none;">.nosp@m.</span>m</a>) </dd></dl>
 <dl class="section user"><dt>Change Log</dt><dd></dd></dl>
-<dl class="section version"><dt>Version</dt><dd>0.4.4:<ul>
+<dl class="section version"><dt>Version</dt><dd>0.4.5:<ul>
+<li>Changed setup of Timer1 and Timer2, to allow for PWM generation on D3 and D8. See documentation of "pwmD3()" and "pwmD8()" functions in class "uStepper", for instructions.</li>
+<li>Changed setup of external interrupts for dropin feature, to be able to compile with arduino IDE 1.6.10.</li>
+<li>Updated board installation package to version 1.1.0, to be compliant with arduino IDE 1.6.10. Update <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> board using package manager in Arduino IDE ("Tools-&gt;Board-&gt;Board Manager", scroll down to the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> board and choose update or install). </li>
+</ul>
+</dd>
+<dd>
+0.4.4:<ul>
 <li>Added the attribute "used" to declarations of interrupt routines. This enables the library to be compiled in Arduino IDE 1.6.10</li>
 <li>Updated documentation of "uStepper::setup()" </li>
 </ul>
@@ -193,7 +200,7 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Aug 8 2016 19:36:12 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Thu Aug 11 2016 23:25:28 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.6
 </small></address>
