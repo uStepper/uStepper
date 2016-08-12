@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['write',['write',['../classi2cMaster.html#aebbb2715d84f89ea2d7b66d3d1ddc3e5',1,'i2cMaster']]],
-  ['writebyte',['writeByte',['../classi2cMaster.html#aff82a2330291c2940f41e8fd44f13cbf',1,'i2cMaster']]]
+  ['ustepper',['uStepper',['../classuStepper.html#a0a9ffcf75de9ed390585f0b0bde385fd',1,'uStepper::uStepper(float accel, float vel)'],['../classuStepper.html#a554b67202deeb611116ba62383ecb783',1,'uStepper::uStepper(void)']]],
+  ['ustepperencoder',['uStepperEncoder',['../classuStepperEncoder.html#ab9c80a99fca938eeb490e4ed8d109f04',1,'uStepperEncoder']]],
+  ['usteppertemp',['uStepperTemp',['../classuStepperTemp.html#ae22b3413a9c687e8832b62dd06d0e943',1,'uStepperTemp']]]
 ];

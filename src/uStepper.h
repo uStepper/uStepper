@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.4.4                                           						*
-*      	date: 		August 8th, 2016	                                    				*
+*		Version:    0.4.5                                           						*
+*      	date: 		August 11th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -57,7 +57,7 @@
 *	- Navigate to where you downloaded uStepper.zip to and select
 *	- The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library. 
 *	
-*	The library is tested with Arduino IDE 1.6.8
+*	The library is tested with Arduino IDE 1.6.10
 *	
 *	\warning MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the uStepper, by default. This driver should be 
 *	downloaded and installed from FTDI's website:
@@ -111,6 +111,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 0.4.5:
+*	- Changed setup of Timer1 and Timer2, to allow for PWM generation on D3 and D8. See documentation of "pwmD3()" and "pwmD8()" functions in class "uStepper", for instructions.
+*	- Changed setup of external interrupts for dropin feature, to be able to compile with arduino IDE 1.6.10.
+*	- Updated board installation package to version 1.1.0, to be compliant with arduino IDE 1.6.10. Update uStepper board using package manager in Arduino IDE ("Tools->Board->Board Manager", scroll down to the uStepper board and choose update or install).
 *	\version 0.4.4:
 *	- Added the attribute "used" to declarations of interrupt routines. This enables the library to be compiled in Arduino IDE 1.6.10 
 *	- Updated documentation of "uStepper::setup()"
@@ -240,8 +244,8 @@
 #define BETA (1.0 - ALPHA)
 
 
-extern "C" void INT0_vect(void) __attribute__ ((signal,used));
-extern "C" void INT1_vect(void) __attribute__ ((signal,used));
+extern "C" void interrupt0(void);
+extern "C" void interrupt1(void);
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
@@ -557,7 +561,7 @@ public:
 	*	The algorithm is a second order acceleration profile, meaning that the acceleration only assumes
 	*	three values; -a, 0 and a, with a being the acceleration set by this function.
 	*
-	*	\param Maximum acceleration in steps/s^2
+	*	\param accel - Maximum acceleration in steps/s^2
 	*
 	*/
 	void setMaxAcceleration(float accel);
@@ -581,7 +585,7 @@ public:
 	*	of the motor will gradually be ramped up to the value set by this function, by the stepper acceleration
 	*	profile implemented in this library.
 	*
-	*	\param Maximum rotational velocity of the motor in steps/s
+	*	\param vel - Maximum rotational velocity of the motor in steps/s
 	*
 	*/
 	void setMaxVelocity(float vel);
@@ -714,6 +718,28 @@ public:
 	*
 	*/
 	int64_t getStepsSinceReset(void);
+
+	/**
+	*	\brief Generate PWM signal on digital output 8
+	*
+	*	This function allows the user to generate PWM signal on digital output 8. 
+	*	The PWM signal has a fixed frequency of 1kHz, from 0% - 100% duty cycle, in steps of 0.00625% (resolution of 13.97 bits).
+	*
+	*	\param duty - Desired duty cycle of PWM signal. range: 0.0 to 100.0.
+	*
+	*/
+	void pwmD8(float duty);
+	
+	/**
+	*	\brief Generate PWM signal on digital output 3
+	*
+	*	This function allows the user to generate PWM signal on digital output 3. 
+	*	The PWM signal has a fixed frequency of 28.2kHz, from 0% - 100% duty cycle, in steps of 1.43% (resolution of 6.13 bits).
+	*
+	*	\param duty - Desired duty cycle of PWM signal. range: 0.0 to 100.0.
+	*
+	*/
+	void pwmD3(float duty);
 };
 
 /**
