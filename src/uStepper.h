@@ -164,6 +164,8 @@
 #include <avr/io.h>
 #include <Arduino.h>
 
+#define CLOCKPERIOD  1.0/F_CPU
+
 #define FULL 1
 #define HALF 2
 #define QUARTER 4
@@ -239,9 +241,10 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 
-#define PTERM 10.0
-#define ITERM 10.0
-#define DTERM 10.0 
+#define PTERM 0.01
+#define ITERM 0.002
+#define DTERM 0.0
+#define LIMITFACTOR 0.01/0.1125
 
 extern "C" void INT0_vect(void) __attribute__ ((signal,used));
 extern "C" void INT1_vect(void) __attribute__ ((signal,used));
@@ -526,7 +529,7 @@ private:
 	*/
 	void disableMotor(void);
 
-	void pidDropIn(float error, uint16_t stepSpeed);
+	void pidDropIn(float error);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */
