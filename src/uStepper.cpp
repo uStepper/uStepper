@@ -1444,7 +1444,6 @@ void uStepper::pidDropIn(float error, uint16_t stepSpeed)
 	
 	else
 	{
-		
 		control = 0;
 		accumError = 0.0;
 		PORTB |= (PIND & 0x04) >> 2;
