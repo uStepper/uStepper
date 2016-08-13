@@ -74,7 +74,7 @@ i2cMaster I2C;
 
 volatile uint16_t stepOverflow = 0;
 volatile int32_t stepCnt = 0;
-volatile bool control = 0;
+volatile int32_t control = 0;
 volatile float abe = 0.0, stepSpeed = 0.0;
 
 extern "C" {
@@ -275,6 +275,19 @@ extern "C" {
 			asm volatile("std z+39,r17 \n\t");*/
 			PORTD &= ~(1 << 4);
 			pointer->counter = 0;
+			if(control > 0)
+			{
+				control--;
+			}
+			else
+			{
+				control++;
+			}
+
+			if(!control)
+			{
+				pointer->stopTimer();
+			}
 			//abe = pointer->counter;
 
 /*
@@ -1481,12 +1494,13 @@ void uStepper::pidDropIn(float error)
 		stepSpeed = stepTime;
 	sei();*/
 
-	if(error < -1.5)
+	if(error < -0.1125)
 	{
 		//abe = -1.0;
+		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
 		error = -error;
 
-		control = 1;
+		
 		integral = error*ITERM;
 		accumError += integral;
 		output = 1.0;
@@ -1525,10 +1539,10 @@ void uStepper::pidDropIn(float error)
 		PORTB &= ~(1 << 0);
 
 	}
-	else if(error > 1.5)
+	else if(error > 0.1125)
 	{
 		//abe = 1.0;
-		control = 1;
+		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
 		integral = error*ITERM;
 		accumError += integral;
 		output = 1.0;
@@ -1571,14 +1585,15 @@ void uStepper::pidDropIn(float error)
 	{
 		//abe = 0.5;
 		//if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
-		if((error < 0.3) && (error > (-0.3)))
+		if((error < 0.08) && (error > (-0.08)))
 		{
 			//abe = 0.0;
 			control = 0;
 			accumError = 0.0;
 			PORTB |= (PIND & 0x04) >> 2;
 			pointer->stopTimer();
-		}	
+		}
+	}	
 	
 }
 
