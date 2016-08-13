@@ -72,14 +72,34 @@
 uStepper *pointer;
 i2cMaster I2C;
 
+volatile uint16_t stepOverflow = 0;
 volatile int32_t stepCnt = 0;
 volatile bool control = 0;
-volatile float abe = 0.0;
+volatile float abe = 0.0, stepSpeed = 0.0;
 
 extern "C" {
 
 	void INT1_vect(void)
 	{
+		uint16_t value = 0, buff;
+		static uint16_t oldValue = 0;
+
+		value = TCNT1;
+		buff = (value - oldValue);
+		if(buff > 16000)
+		{
+			buff -= 49535;
+		}
+		stepSpeed = ((float)buff)*F_CPU;
+		if(stepOverflow > 0)
+		{
+			stepSpeed -= 1000.0*((float)stepOverflow);
+			stepSpeed += F_CPU*((float)(16000 - (16000 - oldValue)));
+		}
+
+		oldValue = value;
+		stepOverflow = 0;
+
 		if((PIND & (0x20)))			//CCW
 		{
 			if(control == 0)
@@ -87,6 +107,7 @@ extern "C" {
 				PORTD |= (1 << 7);	//Set dir to CCW
 
 				PORTD |= (1 << 4);		//generate step pulse
+				/*asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
@@ -105,10 +126,10 @@ extern "C" {
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				PORTD &= ~(1 << 4);		//pull step pin low again
+				asm volatile("nop \n\t");*/
 				pointer->stepsSinceReset--;
+				PORTD &= ~(1 << 4);		//pull step pin low again
+				//pointer->stepsSinceReset--;
 			}			
 			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
@@ -120,6 +141,7 @@ extern "C" {
 				PORTD &= ~(1 << 7);	//Set dir to CW
 
 				PORTD |= (1 << 4);		//generate step pulse
+				/*asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
@@ -138,15 +160,14 @@ extern "C" {
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
 				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				PORTD &= ~(1 << 4);		//pull step pin low again
+				asm volatile("nop \n\t");*/
 				pointer->stepsSinceReset++;
+				PORTD &= ~(1 << 4);		//pull step pin low again
 			}
 
 			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
-		pointer->stepsInLoop++;
+		//pointer->stepsInLoop++;
 	}
 
 	void INT0_vect(void)
@@ -165,6 +186,7 @@ extern "C" {
 
 	void TIMER2_COMPA_vect(void)
 	{	
+		//asm volatile("sbi 0x05,5 \n\t");
 		asm volatile("push r16 \n\t");
 		asm volatile("in r16,0x3F \n\t");
 		asm volatile("push r16 \n\t");
@@ -176,11 +198,36 @@ extern "C" {
 		asm volatile("sbrs r16,0 \n\t");
 		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
 		
+		asm volatile("push r0 \n\t");
+		asm volatile("push r1 \n\t");
+		asm volatile("push r2 \n\t");
+		asm volatile("push r3 \n\t");
+		asm volatile("push r4 \n\t");
+		asm volatile("push r5 \n\t");
+		asm volatile("push r6 \n\t");
+		asm volatile("push r7 \n\t");
+		asm volatile("push r8 \n\t");
+		asm volatile("push r9 \n\t");
+		asm volatile("push r10 \n\t");
+		asm volatile("push r11 \n\t");
+		asm volatile("push r12 \n\t");
+		asm volatile("push r13 \n\t");
+		asm volatile("push r14 \n\t");
+		asm volatile("push r15 \n\t");
 		asm volatile("push r17 \n\t");
 		asm volatile("push r18 \n\t");
 		asm volatile("push r19 \n\t");
 		asm volatile("push r20 \n\t");
-
+		asm volatile("push r21 \n\t");
+		asm volatile("push r22 \n\t");
+		asm volatile("push r23 \n\t");
+		asm volatile("push r24 \n\t");
+		asm volatile("push r25 \n\t");
+		asm volatile("push r26 \n\t");
+		asm volatile("push r27 \n\t");
+		asm volatile("push r28 \n\t");
+		asm volatile("push r29 \n\t");
+/*
 		asm volatile("ldi r16,0x26 \n\t");
 		asm volatile("add r30,r16 \n\t");
 		asm volatile("clr r16 \n\t");
@@ -194,16 +241,16 @@ extern "C" {
 		asm volatile("cpse r16,r18 \n\t");
 		asm volatile("rjmp _notRdyTimer2 \n\t");
 		
-
-		/*if(i < pointer->delay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
+*/
+		if(pointer->counter < pointer->delay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
 		{
-			i++;
-
-		}*/
-		//else
-		//{	
-			asm volatile("sbi 0x0B,4 \n\t");				//PORTD |= (1 << 4);
-			asm volatile("sbi 0x05,5 \n\t");
+			pointer->counter++;
+		}
+		else
+		{	
+			PORTD |= (1 << 4);
+			/*asm volatile("sbi 0x0B,4 \n\t");				//PORTD |= (1 << 4);
+			asm volatile("sbi 0x05,5 \n\t");*/
 			asm volatile("nop \n\t");
 			asm volatile("nop \n\t");
 			asm volatile("nop \n\t");
@@ -220,16 +267,17 @@ extern "C" {
 			asm volatile("nop \n\t");
 			asm volatile("nop \n\t");
 			asm volatile("nop \n\t");
-			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");/*
 			asm volatile("cbi 0x0B,4 \n\t");				//PORTD &= ~(1 << 4);	
 			asm volatile("cbi 0x05,5 \n\t");
 			asm volatile("clr r17 \n\t");
 			asm volatile("std z+38,r17 \n\t");
-			asm volatile("std z+39,r17 \n\t");
-			//i = 0;
+			asm volatile("std z+39,r17 \n\t");*/
+			PORTD &= ~(1 << 4);
+			pointer->counter = 0;
 			//abe = pointer->counter;
 
-
+/*
 			asm volatile("ldd r16,z+0 \n\t");
 			asm volatile("ldd r17,z+1 \n\t");
 			asm volatile("ldd r18,z+2 \n\t");
@@ -277,7 +325,7 @@ extern "C" {
 			asm volatile("sbc r17,r20 \n\t");
 			asm volatile("sbc r18,r20 \n\t");
 			asm volatile("sbc r19,r20 \n\t");
-			asm volatile("rjmp _endStepTimer2 \n\t");
+			asm volatile("rjmp _endStepTimer2 \n\t");*/
 			/*if((PIND & (0x20)))
 			{
 				pointer->stepsSinceReset--;
@@ -286,8 +334,8 @@ extern "C" {
 			{
 				pointer->stepsSinceReset++;
 			}*/
-		//}
-		asm volatile("_notRdyTimer2: \n\t");
+		}
+		/*asm volatile("_notRdyTimer2: \n\t");
 		asm volatile("inc r18 \n\t");
 		asm volatile("clr r16 \n\t");
 		asm volatile("adc r19,r16 \n\t");
@@ -301,31 +349,66 @@ extern "C" {
 		asm volatile("std z+6,r18 \n\t");
 		asm volatile("std z+7,r19 \n\t");
 
-		asm volatile("_endTimer2: \n\t");
-
+		asm volatile("_endTimer2: \n\t");*/
+		asm volatile("pop r29 \n\t");
+		asm volatile("pop r28 \n\t");
+		asm volatile("pop r27 \n\t");
+		asm volatile("pop r26 \n\t");
+		asm volatile("pop r25 \n\t");
+		asm volatile("pop r24 \n\t");
+		asm volatile("pop r23 \n\t");
+		asm volatile("pop r22 \n\t");
+		asm volatile("pop r21 \n\t");
 		asm volatile("pop r20 \n\t");
 		asm volatile("pop r19 \n\t");
 		asm volatile("pop r18 \n\t");
 		asm volatile("pop r17 \n\t");
+		asm volatile("pop r15 \n\t");
+		asm volatile("pop r14 \n\t");
+		asm volatile("pop r13 \n\t");
+		asm volatile("pop r12 \n\t");
+		asm volatile("pop r11 \n\t");
+		asm volatile("pop r10 \n\t");
+		asm volatile("pop r9 \n\t");
+		asm volatile("pop r8 \n\t");
+		asm volatile("pop r7 \n\t");
+		asm volatile("pop r6 \n\t");
+		asm volatile("pop r5 \n\t");
+		asm volatile("pop r4 \n\t");
+		asm volatile("pop r3 \n\t");
+		asm volatile("pop r2 \n\t");
+		asm volatile("pop r1 \n\t");
+		asm volatile("pop r0 \n\t");
 		asm volatile("pop r31 \n\t");
 		asm volatile("pop r30 \n\t");
 		asm volatile("pop r16 \n\t");
 		asm volatile("out 0x3F,r16 \n\t");
-		asm volatile("pop r16 \n\t");		
+		asm volatile("pop r16 \n\t");	
+		//asm volatile("cbi 0x05,5 \n\t");	
 		asm volatile("reti \n\t");
+
 	}
+
 	void TIMER1_COMPA_vect(void)
 	{
-				
+		asm volatile("sbi 0x05,5 \n\t");
 		float error;
 		float deltaAngle, newSpeed;
+		int32_t appliedStepError;
 		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
-		static uint8_t loops = 0, stepSpeedCnt = 1;
-		static float stepSpeed = 0.0, oldStepSpeed = 0.0;
-		static float revolutions = 0.0;
+		static uint8_t loops = 0;
+		static int32_t revolutions = 0;
 		uint8_t data[2];
-
+		
 		sei();
+		
+		stepOverflow++;
+		if(stepOverflow == 255)
+		{
+			stepSpeed = 0.0;
+			stepOverflow = 0;
+		}
+
 		if(I2C.getStatus() != I2CFREE)
 		{
 			return;
@@ -342,18 +425,18 @@ extern "C" {
 		//count number of revolutions, on angle overflow
 		if(deltaAngle < -180.0)
 		{
-			revolutions -= 1.0;
-			deltaAngle += 360;
+			revolutions -= 1;
+			deltaAngle += 360.0;
 		}
 		
 		else if(deltaAngle > 180.0)
 		{
-			revolutions += 1.0;
+			revolutions += 1;
 			deltaAngle -= 360.0;
 		}
-		pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
+		pointer->encoder.angleMoved = curAngle + (360.0*(float)revolutions);
 		oldAngle = curAngle;
-		pointer->encoder.oldAngle = curAngle;
+		//pointer->encoder.oldAngle = curAngle;
 
 		cli();
 			error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
@@ -363,27 +446,30 @@ extern "C" {
 		error -= pointer->encoder.angleMoved;
 		//error -= (float)((int32_t)pointer->stepsSinceReset);
 		//abe = error;
-		if( loops < 10)
+		if(pointer->dropIn == NORMAL)
 		{
-			loops++;
-			deltaSpeedAngle += deltaAngle;
-		}
-		else
-		{
-			newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
-			newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
-			oldSpeed = newSpeed;
-			pointer->encoder.curSpeed = newSpeed;
-			loops = 0;
-			deltaSpeedAngle = 0.0;
+			if( loops < 10)
+			{
+				loops++;
+				deltaSpeedAngle += deltaAngle;
+			}
+			else
+			{
+				newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+				newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
+				oldSpeed = newSpeed;
+				pointer->encoder.curSpeed = newSpeed;
+				loops = 0;
+				deltaSpeedAngle = 0.0;
+			}
 		}
 
-		if(pointer->stepsInLoop > 10)
+		/*if(pointer->stepsInLoop > 10)
 		{
 			stepSpeed = (float)pointer->stepsInLoop;
 			stepSpeed *= ENCODERINTFREQ/(float)stepSpeedCnt;
-			stepSpeed = stepSpeed*BETA + ALPHA*oldStepSpeed;
-			oldStepSpeed = stepSpeed; 
+			//stepSpeed = stepSpeed*BETA + ALPHA*oldStepSpeed;
+			//oldStepSpeed = stepSpeed; 
 			pointer->stepsInLoop = 0;
 			stepSpeedCnt = 1;
 		}
@@ -392,12 +478,12 @@ extern "C" {
 		{
 			stepSpeedCnt++;
 		}
-
-
+*/
 		if(pointer->dropIn)
 		{
-			pointer->pidDropIn(error, (uint16_t)stepSpeed);
+			pointer->pidDropIn(error);
 		}
+		asm volatile("cbi 0x05,5 \n\t");
 		
 	}
 }
@@ -792,7 +878,7 @@ void uStepperEncoder::setup(void)
 	uint8_t data[2];
 	TCCR1A = 0;
 	TCNT1 = 0;
-	OCR1A = 16000;
+	OCR1A = 32000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
 	TCCR1B = (1 << WGM12) | (1 << CS10);
@@ -1382,60 +1468,99 @@ int64_t uStepper::getStepsSinceReset(void)
 	}
 }
 
-void uStepper::pidDropIn(float error, uint16_t stepSpeed)
+void uStepper::pidDropIn(float error)
 {
 	static float oldError = 0.0;
-	int32_t appliedStepError;
+	//float stepSpeed;
+	float integral;
 	float output = 0.0;
 	static float accumError = 0.0;
-	cli();
-	appliedStepError = stepCnt - (int32_t)pointer->stepsSinceReset;
-	sei();
-		abe = error;
-	//error -= (float)appliedStepError;
+	float limit;
+	
+	/*cli();
+		stepSpeed = stepTime;
+	sei();*/
 
-	if(error < -0.1125)
+	if(error < -1.5)
 	{
+		//abe = -1.0;
+		error = -error;
+
 		control = 1;
-		accumError += error*ITERM;
-		output = PTERM*error;
+		integral = error*ITERM;
+		accumError += integral;
+		output = 1.0;
+		output += PTERM*error;
 		output += accumError;
 		output += DTERM*(error - oldError);
-		oldError = error;
 
-		PORTD &= ~(1 << 7);
-		
-		stepSpeed -= (int16_t)output;
-		if(stepSpeed < 50)
+		limit = error*stepSpeed*LIMITFACTOR;
+		if(limit > 27000.0)
 		{
-			stepSpeed = 50;
+			limit = 27000.0;
 		}
 
+		oldError = error;
+
+		PORTD |= (1 << 7);
+		
+		stepSpeed *= output;
+
+		if(stepSpeed < 150.0)
+		{
+			stepSpeed = 150.0;
+		}
+
+		else if(stepSpeed > limit)
+		{
+			stepSpeed = limit;
+			accumError -= integral;
+		}
+		
 		cli();
-		pointer->delay = (uint16_t)(INTFREQ/(float)stepSpeed);
+			pointer->delay = (uint16_t)(INTFREQ/stepSpeed);
 		sei();
 
 		pointer->startTimer();	
 		PORTB &= ~(1 << 0);
+
 	}
-	else if(error > 0.1125)
+	else if(error > 1.5)
 	{
+		//abe = 1.0;
 		control = 1;
-		accumError += error*ITERM;
-		output = PTERM*error;
+		integral = error*ITERM;
+		accumError += integral;
+		output = 1.0;
+		output += PTERM*error;
 		output += accumError;
 		output += DTERM*(error - oldError);
+
+		limit = error*stepSpeed*LIMITFACTOR;
+		if(limit > 27000.0)
+		{
+			limit = 27000.0;
+		}
+
 		oldError = error;
 
-		PORTD |= (1 << 7);
-		stepSpeed -= (int16_t)output;
+		PORTD &= ~(1 << 7);
 		
-		if(stepSpeed < 150)
+		stepSpeed *= output;
+
+		if(stepSpeed < 150.0)
 		{
-			stepSpeed = 150;
+			stepSpeed = 150.0;
 		}
+
+		else if(stepSpeed > limit)
+		{
+			stepSpeed = limit;
+			accumError -= integral;
+		}
+		
 		cli();
-		//pointer->delay = (uint16_t)(INTFREQ/(float)stepSpeed);
+			pointer->delay = (uint16_t)(INTFREQ/stepSpeed);
 		sei();
 		pointer->startTimer();	
 		//abe = pointer->delay;
@@ -1444,12 +1569,16 @@ void uStepper::pidDropIn(float error, uint16_t stepSpeed)
 	
 	else
 	{
-		control = 0;
-		accumError = 0.0;
-		PORTB |= (PIND & 0x04) >> 2;
-		PORTB |= (1 << 0);
-		pointer->stopTimer();	
-	}
+		//abe = 0.5;
+		//if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
+		if((error < 0.3) && (error > (-0.3)))
+		{
+			//abe = 0.0;
+			control = 0;
+			accumError = 0.0;
+			PORTB |= (PIND & 0x04) >> 2;
+			pointer->stopTimer();
+		}	
 	
 }
 

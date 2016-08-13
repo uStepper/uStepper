@@ -164,6 +164,8 @@
 #include <avr/io.h>
 #include <Arduino.h>
 
+#define CLOCKPERIOD  1.0/F_CPU
+
 #define FULL 1
 #define HALF 2
 #define QUARTER 4
@@ -179,6 +181,7 @@
 #define DECEL 8					/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
 #define INITDECEL 16			/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
 #define INTFREQ 28200.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
+#define INTPERIOD 1.0/INTFREQ   /**< Period of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
 #define CW 0					/**< Value to put in direction variable in order for the stepper to turn clockwise */
 #define CCW 1					/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
 #define HARD 1					/**< Value to put in hold variable in order for the motor to block when it is not running */
@@ -239,9 +242,10 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 
-#define PTERM 10.0
-#define ITERM 10.0
-#define DTERM 10.0 
+#define PTERM 0.0005
+#define ITERM 0.00005
+#define DTERM 1.0
+#define LIMITFACTOR 0.003/0.1125
 
 extern "C" void INT0_vect(void) __attribute__ ((signal,used));
 extern "C" void INT1_vect(void) __attribute__ ((signal,used));
@@ -526,7 +530,7 @@ private:
 	*/
 	void disableMotor(void);
 
-	void pidDropIn(float error, uint16_t stepSpeed);
+	void pidDropIn(float error);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */
