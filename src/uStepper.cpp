@@ -81,21 +81,40 @@ extern "C" {
 
 	void INT1_vect(void)
 	{
+		static float stepSpeedOld = 0.0;
 		uint16_t value = 0, buff;
 		static uint16_t oldValue = 0;
 
 		value = TCNT1;
 		buff = (value - oldValue);
-		if(buff > 16000)
+		if(buff > 32000)
 		{
-			buff -= 49535;
+			buff -= 33535;
 		}
-		stepSpeed = ((float)buff)*F_CPU;
+		
+		stepSpeed = F_CPU/((float)buff);
+		
 		if(stepOverflow > 0)
 		{
-			stepSpeed -= 1000.0*((float)stepOverflow);
-			stepSpeed += F_CPU*((float)(16000 - (16000 - oldValue)));
+			stepSpeed -= 500.0*((float)stepOverflow);
+			stepSpeed += F_CPU/((float)(32000 - (32000 - oldValue)));
 		}
+		if(stepSpeed < 0.0)
+		{
+			stepSpeed = 0.0;
+		}
+		
+		if(stepSpeed > 20000.0)
+		{
+			stepSpeed = stepSpeedOld;
+		}
+		else
+		{
+			stepSpeed = 0.2*stepSpeed + 0.8*stepSpeedOld;
+			stepSpeedOld = stepSpeed;
+		}
+
+abe = stepSpeed;
 
 		oldValue = value;
 		stepOverflow = 0;
@@ -1484,17 +1503,18 @@ int64_t uStepper::getStepsSinceReset(void)
 void uStepper::pidDropIn(float error)
 {
 	static float oldError = 0.0;
-	//float stepSpeed;
+	float stepSpeed1, stepSpeedOld;
 	float integral;
 	float output = 0.0;
 	static float accumError = 0.0;
 	float limit;
+
 	
 	/*cli();
 		stepSpeed = stepTime;
 	sei();*/
-
-	if(error < -0.1125)
+	//abe = stepSpeed;
+	if(error < -2.0)
 	{
 		//abe = -1.0;
 		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
@@ -1518,8 +1538,9 @@ void uStepper::pidDropIn(float error)
 
 		PORTD |= (1 << 7);
 		
+		
 		stepSpeed *= output;
-
+		
 		if(stepSpeed < 150.0)
 		{
 			stepSpeed = 150.0;
@@ -1539,7 +1560,7 @@ void uStepper::pidDropIn(float error)
 		PORTB &= ~(1 << 0);
 
 	}
-	else if(error > 0.1125)
+	else if(error > 2.0)
 	{
 		//abe = 1.0;
 		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
@@ -1549,7 +1570,7 @@ void uStepper::pidDropIn(float error)
 		output += PTERM*error;
 		output += accumError;
 		output += DTERM*(error - oldError);
-
+		
 		limit = error*stepSpeed*LIMITFACTOR;
 		if(limit > 27000.0)
 		{
@@ -1585,7 +1606,7 @@ void uStepper::pidDropIn(float error)
 	{
 		//abe = 0.5;
 		//if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
-		if((error < 0.08) && (error > (-0.08)))
+		if((error < 0.1125) && (error > (-0.1125)))
 		{
 			//abe = 0.0;
 			control = 0;

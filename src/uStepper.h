@@ -243,9 +243,9 @@
 #define BETA (1.0 - ALPHA)
 
 #define PTERM 0.0001
-#define ITERM 0.001
-#define DTERM 0.0001
-#define LIMITFACTOR 0.01/0.1125
+#define ITERM 0.0001
+#define DTERM 0.01
+#define LIMITFACTOR 0.15/0.1125
 
 extern "C" void INT0_vect(void) __attribute__ ((signal,used));
 extern "C" void INT1_vect(void) __attribute__ ((signal,used));
