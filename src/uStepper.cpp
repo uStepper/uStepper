@@ -75,53 +75,7 @@ i2cMaster I2C;
 volatile uint16_t i = 0;
 volatile int32_t stepCnt = 0, control = 0;
 
-extern "C" {
-
-	void interrupt1(void)
-	{
-		if((PIND & (0x20)))			//CCW
-		{
-			if(control == 0)
-			{
-				PORTD |= (1 << 7);	//Set dir to CCW
-				
-			}			
-			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
-		}
-		else						//CW
-		{
-			if(control == 0)
-			{
-				
-				PORTD &= ~(1 << 7);	//Set dir to CW
-			}
-
-			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
-		}
-
-		if(control == 0)			//If no steps are lost, redirect step pulses		
-		{
-			PORTD |= (1 << 4);		//generate step pulse
-			delayMicroseconds(1);	//wait a small time
-			PORTD &= ~(1 << 4);		//pull step pin low again
-		}
-	}
-
-	void interrupt0(void)
-	{
-
-		if(PIND & 0x04)
-		{
-			
-			PORTB |= (1 << 0);
-		}
-		else
-		{
-			PORTB &= ~(1 << 0);
-		}
-	}
-
-	void TIMER2_COMPA_vect(void)
+void TIMER2_COMPA_vect(void)
 	{	
 		asm volatile("push r16 \n\t");
 		asm volatile("in r16,0x3F \n\t");
@@ -222,411 +176,140 @@ extern "C" {
 		asm volatile("pop r16 \n\t");
 		asm volatile("reti \n\t");
 	}
+
+void TIMER1_COMPA_vect(void)
+{
+	float error;
+	float deltaAngle, newSpeed;
+	static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
+	static uint8_t loops = 0;
+	static float revolutions = 0.0;
+	uint8_t data[2];
+
+	sei();
+	if(I2C.getStatus() != I2CFREE)
+	{
+		return;
+	}
+
+	I2C.read(ENCODERADDR, ANGLE, 2, data);
+	curAngle = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+	pointer->encoder.angle = curAngle;
+	curAngle -= pointer->encoder.encoderOffset;
+
+	curAngle = fmod(curAngle + 360.0, 360.0);
+
+	deltaAngle = (oldAngle - curAngle);
+	//count number of revolutions, on angle overflow
+	if(deltaAngle < -180.0)
+	{
+		revolutions -= 1.0;
+		deltaAngle += 360;
+	}
 	
-	void TIMER1_COMPA_vect(void)
+	else if(deltaAngle > 180.0)
 	{
-		float error;
-		float deltaAngle, newSpeed;
-		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
-		static uint8_t loops = 0;
-		static float revolutions = 0.0;
-		uint8_t data[2];
-
-		sei();
-		if(I2C.getStatus() != I2CFREE)
-		{
-			return;
-		}
-
-		I2C.read(ENCODERADDR, ANGLE, 2, data);
-		curAngle = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
-		pointer->encoder.angle = curAngle;
-		curAngle -= pointer->encoder.encoderOffset;
-
-		curAngle = fmod(curAngle + 360.0, 360.0);
-
-		deltaAngle = (oldAngle - curAngle);
-		//count number of revolutions, on angle overflow
-		if(deltaAngle < -180.0)
-		{
-			revolutions -= 1.0;
-			deltaAngle += 360;
-		}
-		
-		else if(deltaAngle > 180.0)
-		{
-			revolutions += 1.0;
-			deltaAngle -= 360.0;
-		}
-		
-		if( loops < 10)
-		{
-			loops++;
-			deltaSpeedAngle += deltaAngle;
-		}
-		else
-		{
-			newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
-			newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
-			oldSpeed = newSpeed;
-			pointer->encoder.curSpeed = newSpeed;
-			loops = 0;
-			deltaSpeedAngle = 0.0;
-		}
-
-		pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
-		oldAngle = curAngle;
-		pointer->encoder.oldAngle = curAngle;
-
-		if(pointer->dropIn)
-		{
-			cli();
-				error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
-			sei();
-			error *= pointer->stepResolution;
-			error -= pointer->encoder.angleMoved;
-			if(error > pointer->tolerance)	
-			{
-				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
-				PORTD &= ~(1 << 7);
-				pointer->startTimer();	
-			}
-			else if(error < -pointer->tolerance)
-			{
-				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
-				PORTD |= (1 << 7);
-				pointer->startTimer();	
-			}
-			else
-			{
-				if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
-				{
-					PORTB |= (PIND & 0x04) >> 2;
-					control = 0;
-					pointer->stopTimer();
-				}
-			}
-		}
+		revolutions += 1.0;
+		deltaAngle -= 360.0;
 	}
-}
-
-float2::float2(void)
-{
-
-}
-
-float float2::getFloatValue(void)
-{
-	union
+	
+	if( loops < 10)
 	{
-		float f;
-		uint32_t i;
-	} a;
-
-	a.i = (uint32_t)(this->value >> 25);
-
-	return a.f;
-}
-
-uint64_t float2::getRawValue(void)
-{
-	return this->value;
-}
-
-void float2::setValue(float val)
-{
-	union
-	{
-		float f;
-		uint32_t i;
-	} a;
-
-	a.f = val;
-
-	this->value = ((uint64_t)a.i) << 25;
-}
-
-bool float2::operator<=(const float &value)
-{
-	if(this->getFloatValue() > value)
-	{
-		return 0;
+		loops++;
+		deltaSpeedAngle += deltaAngle;
 	}
-
-	if(this->getFloatValue() == value)
-	{
-		if((this->value & 0x0000000000007FFF) > 0)
-		{
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-bool float2::operator<=(const float2 &value)
-{
-	if((this->value >> 56) > (value.value >> 56))				// sign bit of "this" bigger than sign bit of "value"?
-	{
-		return 1;												//"This" is negative while "value" is not. ==> "this" < "value"
-	}
-
-	if((this->value >> 56) == (value.value >> 56))				//Sign bit of "this" == sign bit of "value"?
-	{
-		if( (this->value >> 48) < (value.value >> 48) )			//Exponent of "this" < exponent of "value"?
-		{
-			return 1;											//==> "this" is smaller than "value"
-		}
-
-		if( (this->value >> 48) == (value.value >> 48) )		//Exponent of "this" == exponent of "value"?
-		{
-			if((this->value & 0x0000FFFFFFFFFFFF) <= (value.value & 0x0000FFFFFFFFFFFF))		//mantissa of "this" <= mantissa of "value"?
-			{
-				return 1;										//==> "this" <= "value"
-			}
-		}
-	}
-
-	return 0;													//"this" > "value"
-}
-
-float2 & float2::operator=(const float &value)
-{
-	this->setValue(value);
-
-	return *this;
-}
-
-float2 & float2::operator+=(const float &value)
-{
-
-}
-
-float2 & float2::operator+=(const float2 &value)
-{
-	float2 temp = value;
-	uint64_t tempMant, tempExp;
-	uint8_t cnt;	//how many times should we shift the mantissa of the smallest number to add the two mantissa's
-
-	if((this->value >> 56) == (temp.value >> 56))
-	{
-		if(*this <= temp)
-		{
-			cnt = (temp.value >> 48) - (this->value >> 48);
-			if(cnt < 48)
-			{
-				tempExp = (temp.value >> 48);
-
-				this->value &= 0x0000FFFFFFFFFFFF;
-				this->value |= 0x0001000000000000;
-				this->value >>= cnt;
-
-				tempMant = (temp.value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-				tempMant += this->value;
-
-				while(tempMant > 0x2000000000000)
-				{
-					tempMant >>= 1;
-					tempExp++;
-				}
-
-				tempMant &= 0x0000FFFFFFFFFFFF;
-				this->value = (tempExp << 48) | tempMant;
-			}
-			else
-			{
-				this->value = temp.value;
-			}
-		}
-
-		else
-		{
-			cnt = (this->value >> 48) - (temp.value >> 48);
-
-			if(cnt < 48)
-			{
-				tempExp = (this->value >> 48);
-
-				temp.value &= 0x0000FFFFFFFFFFFF;
-				temp.value |= 0x0001000000000000;
-				temp.value >>= cnt;
-
-				tempMant = (this->value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-				tempMant += temp.value;
-
-				while(tempMant > 0x2000000000000)
-				{
-					tempMant >>= 1;
-					tempExp++;
-				}
-
-				tempMant &= 0x0000FFFFFFFFFFFF;
-				this->value = (tempExp << 48) | tempMant;
-			}
-		}
-	}	
-
-	else if((this->value >> 56) == 1)
-	{
-		this->value &= 0x00FFFFFFFFFFFFFF;	//clear sign bit, to consider absolute value
-
-		if(*this <= temp)
-		{
-			cnt = (temp.value >> 48) - (this->value >> 48);
-
-			if(cnt < 48)
-			{
-				tempExp = (temp.value >> 48);
-
-				this->value &= 0x0000FFFFFFFFFFFF;
-				this->value |= 0x0001000000000000;
-				this->value >>= cnt;
-
-				tempMant = (temp.value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-
-				tempMant -= this->value;
-
-				if(tempMant > 0x8000000000000000)
-				{
-
-					tempMant &= 0x0000FFFFFFFFFFFF;
-					tempExp--;
-				}
-
-				while(tempMant < 0x1000000000000)
-				{
-					tempMant <<= 1;
-					tempExp--;
-				}
-
-				tempMant &= 0x0000FFFFFFFFFFFF;
-
-				this->value = (tempExp << 48) | tempMant;
-			}
-
-			else
-			{
-				this->value = temp.value;
-			}
-		}
-
-		else
-		{
-			cnt = (this->value >> 48) - (temp.value >> 48);
-			if(cnt < 48)
-			{
-				tempExp = (this->value >> 48);
-
-				temp.value &= 0x0000FFFFFFFFFFFF;
-				temp.value |= 0x0001000000000000;
-				temp.value >>= cnt;
-
-				tempMant = (this->value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-
-				tempMant -= temp.value;
-
-				if(tempMant > 0x8000000000000000)
-				{
-					tempMant &= 0x0000FFFFFFFFFFFF;
-					tempExp--;
-				}
-
-				while(tempMant < 0x1000000000000)
-				{
-					tempMant <<= 1;
-					tempExp--;
-				}
-
-				tempMant &= 0x0000FFFFFFFFFFFF;
-
-				this->value = (tempExp << 48) | tempMant;
-				this->value |= 0x0100000000000000;				
-			}
-		}
-	}
-
 	else
 	{
-		temp.value &= 0x00FFFFFFFFFFFFFF;	//clear sign bit, to consider absolute value
+		newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
+		newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
+		oldSpeed = newSpeed;
+		pointer->encoder.curSpeed = newSpeed;
+		loops = 0;
+		deltaSpeedAngle = 0.0;
+	}
 
-		if(temp <= *this)
+	pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
+	oldAngle = curAngle;
+	pointer->encoder.oldAngle = curAngle;
+
+	if(pointer->dropIn)
+	{
+		cli();
+			error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
+		sei();
+		error *= pointer->stepResolution;
+		error -= pointer->encoder.angleMoved;
+		if(error > pointer->tolerance)	
 		{
-			cnt = (this->value >> 48) - (temp.value >> 48);
-			if(cnt < 48)
-			{
-				tempExp = (this->value >> 48);
-
-				temp.value &= 0x0000FFFFFFFFFFFF;
-				temp.value |= 0x0001000000000000;
-				temp.value >>= cnt;
-
-				tempMant = (this->value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-
-				tempMant -= temp.value;
-
-				if(tempMant > 0x8000000000000000)
-				{
-					tempMant &= 0x0000FFFFFFFFFFFF;
-					tempExp--;
-				}
-
-				while(tempMant < 0x1000000000000)
-				{
-					tempMant <<= 1;
-					tempExp--;
-				}
-
-				tempMant &= 0x0000FFFFFFFFFFFF;
-
-				this->value = (tempExp << 48) | tempMant;
-			}
+			PORTB &= ~(1 << 0);
+			control = (int32_t)(error/pointer->stepResolution);
+			PORTD &= ~(1 << 7);
+			pointer->startTimer();	
 		}
-
+		else if(error < -pointer->tolerance)
+		{
+			PORTB &= ~(1 << 0);
+			control = (int32_t)(error/pointer->stepResolution);
+			PORTD |= (1 << 7);
+			pointer->startTimer();	
+		}
 		else
 		{
-			cnt = (temp.value >> 48) - (this->value >> 48);
-			if(cnt < 48)
+			if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
 			{
-				tempExp = (temp.value >> 48);
-
-				this->value &= 0x0000FFFFFFFFFFFF;
-				this->value |= 0x0001000000000000;
-				this->value >>= cnt;
-
-				tempMant = (temp.value & 0x0000FFFFFFFFFFFF) | 0x0001000000000000;
-
-				tempMant -= this->value;
-
-				if(tempMant > 0x8000000000000000)
-				{
-					tempMant &= 0x0000FFFFFFFFFFFF;
-					tempExp--;
-				}
-
-				while(tempMant < 0x1000000000000)
-				{
-					tempMant <<= 1;
-					tempExp--;
-				}
-
-				tempMant &= 0x0000FFFFFFFFFFFF;
-
-				this->value = (tempExp << 48) | tempMant;
-				this->value |= 0x0100000000000000;				
-			}
-
-			else
-			{
-				this->value = temp.value;
-				this->value |= 0x0100000000000000;
+				PORTB |= (PIND & 0x04) >> 2;
+				control = 0;
+				pointer->stopTimer();
 			}
 		}
 	}
+}
 
-	return *this;
+extern "C" {
 
+	void interrupt1(void)
+	{
+		if((PIND & (0x20)))			//CCW
+		{
+			if(control == 0)
+			{
+				PORTD |= (1 << 7);	//Set dir to CCW
+				
+			}			
+			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
+		}
+		else						//CW
+		{
+			if(control == 0)
+			{
+				
+				PORTD &= ~(1 << 7);	//Set dir to CW
+			}
+
+			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
+		}
+
+		if(control == 0)			//If no steps are lost, redirect step pulses		
+		{
+			PORTD |= (1 << 4);		//generate step pulse
+			delayMicroseconds(1);	//wait a small time
+			PORTD &= ~(1 << 4);		//pull step pin low again
+		}
+	}
+
+	void interrupt0(void)
+	{
+
+		if(PIND & 0x04)
+		{
+			
+			PORTB |= (1 << 0);
+		}
+		else
+		{
+			PORTB &= ~(1 << 0);
+		}
+	}
 }
 
 uStepperTemp::uStepperTemp(void)
@@ -647,135 +330,6 @@ float uStepperTemp::getTemp(void)
 	T = 1.0/T;
 
 	return T - 273.15;
-}
-
-uStepperEncoder::uStepperEncoder(void)
-{
-	I2C.begin();
-}
-
-float uStepperEncoder::getAngleMoved(void)
-{/*
-	float deltaAngle, angle;
-
-	TIMSK1 &= ~(1 << OCIE1A);
-	
-	angle = this->getAngle() - this->encoderOffset;
-	
-
-	if(angle < 0.0)
-	{
-		angle += 360.0;
-	}
-
-	deltaAngle = this->oldAngle - angle;
-
-	if(deltaAngle < -180.0)
-	{
-		pointer->encoder.angleMoved += (deltaAngle + 360.0); 
-	}
-
-	else if(deltaAngle > 180.0)
-	{
-		pointer->encoder.angleMoved -= (360.0 - deltaAngle); 
-	}
-
-	else
-	{
-		this->angleMoved += deltaAngle;
-	}
-
-	this->oldAngle = angle;
-	
-	TIMSK1 |= (1 << OCIE1A);*/
-
-	return this->angleMoved;
-}
-
-float uStepperEncoder::getSpeed(void)
-{
-	return this->curSpeed;
-}
-
-void uStepperEncoder::setup(void)
-{
-	uint8_t data[2];
-	TCNT1 = 0;
-	ICR1 = 16000;
-	TIFR1 = 0;
-	TIMSK1 = (1 << OCIE1A);
-	TCCR1A = (1 << WGM11);
-	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
-	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
-
-	this->oldAngle = 0.0;
-	this->angleMoved = 0.0;
-
-	sei();
-
-}
-
-void uStepperEncoder::setHome(void)
-{
-	cli();
-	uint8_t data[2];
-	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
-
-	this->angle = 0.0;
-	this->oldAngle = 0.0;
-	this->angleMoved = 0.0;
-	sei();
-}
-
-float uStepperEncoder::getAngle()
-{
-	return this->angle;
-}
-
-uint16_t uStepperEncoder::getStrength()
-{
-	uint8_t data[2];
-
-	I2C.read(ENCODERADDR, MAGNITUDE, 2, data);
-
-	return (((uint16_t)data[0]) << 8 )| (uint16_t)data[1];
-}
-
-uint8_t uStepperEncoder::getAgc()
-{
-	uint8_t data;
-
-	I2C.read(ENCODERADDR, MAGNITUDE, 1, &data);
-
-	return data;
-}
-
-uint8_t uStepperEncoder::detectMagnet()
-{
-	uint8_t data;
-
-	I2C.read(ENCODERADDR, AGC, 1, &data);
-
-	data &= 0x38;					//For some reason the encoder returns random values on reserved bits. Therefore we make sure reserved bits are cleared before checking the reply !
-
-	if(data == 0x08)
-	{
-		return 1;					//magnet too strong
-	}
-
-	else if(data == 0x10)
-	{
-		return 2;					//magnet too weak
-	}
-
-	else if(data == 0x20)
-	{
-		return 0;					//magnet detected and within limits
-	}
-
-	return 3;						//Something went horribly wrong !
 }
 
 uStepper::uStepper(void)
