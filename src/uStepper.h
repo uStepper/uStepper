@@ -163,6 +163,7 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <Arduino.h>
+#include <avr/wdt.h>
 
 #define CLOCKPERIOD  1.0/F_CPU
 
@@ -241,10 +242,16 @@
 
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
-
+/* X AXIS! */
 #define PTERM 0.0001
-#define ITERM 0.0001
-#define DTERM 0.01
+#define ITERM 0.000
+#define DTERM 0.000000
+
+/* Y AXIS!
+#define PTERM 0.00001
+#define ITERM 0.0000000
+#define DTERM 0.0000000
+*/
 #define LIMITFACTOR 0.15/0.1125
 
 extern "C" void INT0_vect(void) __attribute__ ((signal,used));

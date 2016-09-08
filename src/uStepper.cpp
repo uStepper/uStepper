@@ -118,7 +118,6 @@ abe = stepSpeed;
 
 		oldValue = value;
 		stepOverflow = 0;
-
 		if((PIND & (0x20)))			//CCW
 		{
 			if(control == 0)
@@ -126,29 +125,9 @@ abe = stepSpeed;
 				PORTD |= (1 << 7);	//Set dir to CCW
 
 				PORTD |= (1 << 4);		//generate step pulse
-				/*asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");*/
+
 				pointer->stepsSinceReset--;
 				PORTD &= ~(1 << 4);		//pull step pin low again
-				//pointer->stepsSinceReset--;
 			}			
 			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
@@ -160,33 +139,12 @@ abe = stepSpeed;
 				PORTD &= ~(1 << 7);	//Set dir to CW
 
 				PORTD |= (1 << 4);		//generate step pulse
-				/*asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");
-				asm volatile("nop \n\t");*/
 				pointer->stepsSinceReset++;
 				PORTD &= ~(1 << 4);		//pull step pin low again
 			}
 
 			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
-		//pointer->stepsInLoop++;
 	}
 
 	void INT0_vect(void)
@@ -423,7 +381,6 @@ abe = stepSpeed;
 
 	void TIMER1_COMPA_vect(void)
 	{
-		asm volatile("sbi 0x05,5 \n\t");
 		float error;
 		float deltaAngle, newSpeed;
 		int32_t appliedStepError;
@@ -513,10 +470,9 @@ abe = stepSpeed;
 */
 		if(pointer->dropIn)
 		{
-			pointer->pidDropIn(error);
-		}
-		asm volatile("cbi 0x05,5 \n\t");
-		
+			
+		pointer->pidDropIn(error);
+		}		
 	}
 }
 
@@ -1446,7 +1402,9 @@ void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint32_
 	TCCR2B |= (1 << CS21);				//Enable timer with prescaler 8. interrupt base frequency ~ 7.8125kHz
 	TCCR2A |= (1 << WGM21);				//Switch timer 2 to CTC mode, to adjust interrupt frequency
 	OCR2A = 70;							//Change top value to 60 in order to obtain an interrupt frequency of 33.333kHz
+	this->enableMotor();
 	this->encoder.setup();
+	
 }
 
 void uStepper::startTimer(void)
@@ -1508,13 +1466,13 @@ void uStepper::pidDropIn(float error)
 	float output = 0.0;
 	static float accumError = 0.0;
 	float limit;
-
+//ApplicationMonitor.IAmAlive();
 	
 	/*cli();
 		stepSpeed = stepTime;
 	sei();*/
 	//abe = stepSpeed;
-	if(error < -2.0)
+	if(error < -0.1125)
 	{
 		//abe = -1.0;
 		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
@@ -1560,7 +1518,7 @@ void uStepper::pidDropIn(float error)
 		PORTB &= ~(1 << 0);
 
 	}
-	else if(error > 2.0)
+	else if(error > 0.1125)
 	{
 		//abe = 1.0;
 		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
