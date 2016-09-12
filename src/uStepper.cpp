@@ -92,12 +92,12 @@ extern "C" {
 			buff -= 33535;
 		}
 		
-		stepSpeed = F_CPU/((float)buff);
+		stepSpeed = F_CPU/(((float)buff)*8.0);
 		
 		if(stepOverflow > 0)
 		{
-			stepSpeed -= 500.0*((float)stepOverflow);
-			stepSpeed += F_CPU/((float)(32000 - (32000 - oldValue)));
+			stepSpeed -= 500.0*0.125*((float)stepOverflow);
+			stepSpeed += F_CPU/(((float)(32000 - (32000 - oldValue)))*8.0);
 		}
 		if(stepSpeed < 0.0)
 		{
@@ -869,7 +869,8 @@ void uStepperEncoder::setup(void)
 	OCR1A = 32000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
-	TCCR1B = (1 << WGM12) | (1 << CS10);
+	//TCCR1B = (1 << WGM12) | (1 << CS10);
+	TCCR1B = (1 << WGM12) | (1 << CS11);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
 

@@ -243,9 +243,9 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 /* X AXIS! */
-#define PTERM 0.0001
-#define ITERM 0.000
-#define DTERM 0.000000
+#define PTERM 0.1
+#define ITERM 0.0001
+#define DTERM 0.0000001
 
 /* Y AXIS!
 #define PTERM 0.00001
