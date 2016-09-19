@@ -183,6 +183,7 @@
 #define INITDECEL 16			/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
 #define INTFREQ 28200.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
 #define INTPERIOD 1.0/INTFREQ   /**< Period of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
+#define INTPIDDELAYCONSTANT 1.0/(INTPERIOD*1000000.0) /**<	constant to calculate the amount of interrupts TIMER2 has to wait with generating new pulse, during PID error correction*/
 #define CW 0					/**< Value to put in direction variable in order for the stepper to turn clockwise */
 #define CCW 1					/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
 #define HARD 1					/**< Value to put in hold variable in order for the motor to block when it is not running */
@@ -243,16 +244,16 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 /* X AXIS! */
-#define PTERM 0.1
-#define ITERM 0.0001
-#define DTERM 0.0000001
+#define PTERM 0.000000
+#define ITERM 0.0000
+#define DTERM 0.000000
 
 /* Y AXIS!
 #define PTERM 0.00001
 #define ITERM 0.0000000
 #define DTERM 0.0000000
 */
-#define LIMITFACTOR 0.15/0.1125
+#define LIMITFACTOR 1/(0.15/0.1125)
 
 extern "C" void INT0_vect(void) __attribute__ ((signal,used));
 extern "C" void INT1_vect(void) __attribute__ ((signal,used));
@@ -436,11 +437,11 @@ private:
 
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
-	float encoderOffset;				/**< Angle of the shaft at the reference position. */
+	uint16_t encoderOffset;				/**< Angle of the shaft at the reference position. */
 	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
-	volatile float angle;
+	volatile uint16_t angle;
 	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 
-	volatile float angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
+	volatile int32_t angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
 };
 
 /**
@@ -537,7 +538,7 @@ private:
 	*/
 	void disableMotor(void);
 
-	void pidDropIn(float error);
+	void pidDropIn(uint32_t error, uint32_t speed);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */

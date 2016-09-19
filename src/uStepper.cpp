@@ -72,52 +72,35 @@
 uStepper *pointer;
 i2cMaster I2C;
 
-volatile uint16_t stepOverflow = 0;
+extern unsigned long timer0_overflow_count;
+volatile uint32_t stepOverflow = 0;
 volatile int32_t stepCnt = 0;
 volatile int32_t control = 0;
-volatile float abe = 0.0, stepSpeed = 0.0;
+volatile float abe = 0.0;
+volatile uint32_t speedValue[2] = {0};
+volatile uint16_t timerValue;
+volatile bool newPulse = 0;
 
 extern "C" {
 
 	void INT1_vect(void)
 	{
 		static float stepSpeedOld = 0.0;
-		uint16_t value = 0, buff;
-		static uint16_t oldValue = 0;
+		uint32_t value = 0;
+		uint32_t buff;
+		uint8_t timer0Cnt;
 
-		value = TCNT1;
-		buff = (value - oldValue);
-		if(buff > 32000)
+		speedValue[1] = speedValue[0];
+/*		buff = timer0_overflow_count;
+		timer0Cnt = TCNT0;
+		if ((TIFR0 & _BV(TOV0)) && (timer0Cnt < 255))
 		{
-			buff -= 33535;
+			buff++;
 		}
-		
-		stepSpeed = F_CPU/(((float)buff)*8.0);
-		
-		if(stepOverflow > 0)
-		{
-			stepSpeed -= 500.0*0.125*((float)stepOverflow);
-			stepSpeed += F_CPU/(((float)(32000 - (32000 - oldValue)))*8.0);
-		}
-		if(stepSpeed < 0.0)
-		{
-			stepSpeed = 0.0;
-		}
-		
-		if(stepSpeed > 20000.0)
-		{
-			stepSpeed = stepSpeedOld;
-		}
-		else
-		{
-			stepSpeed = 0.2*stepSpeed + 0.8*stepSpeedOld;
-			stepSpeedOld = stepSpeed;
-		}
+		speedValue[0] = ((timer0_overflow_count << 8) + timer0Cnt) << 2;
+*/
+		speedValue[0] = micros();
 
-abe = stepSpeed;
-
-		oldValue = value;
-		stepOverflow = 0;
 		if((PIND & (0x20)))			//CCW
 		{
 			if(control == 0)
@@ -163,7 +146,7 @@ abe = stepSpeed;
 
 	void TIMER2_COMPA_vect(void)
 	{	
-		//asm volatile("sbi 0x05,5 \n\t");
+		asm volatile("sbi 0x05,5 \n\t");
 		asm volatile("push r16 \n\t");
 		asm volatile("in r16,0x3F \n\t");
 		asm volatile("push r16 \n\t");
@@ -374,12 +357,67 @@ abe = stepSpeed;
 		asm volatile("pop r16 \n\t");
 		asm volatile("out 0x3F,r16 \n\t");
 		asm volatile("pop r16 \n\t");	
-		//asm volatile("cbi 0x05,5 \n\t");	
+		asm volatile("cbi 0x05,5 \n\t");	
 		asm volatile("reti \n\t");
 
 	}
 
 	void TIMER1_COMPA_vect(void)
+	{
+		//asm volatile("sbi 0x05,5 \n\t");	
+		uint8_t data[2];
+		uint16_t curAngle;
+		int16_t deltaAngle;
+		static uint16_t oldAngle = 0;
+		static int16_t revolutions = 0;
+		int32_t error;
+		uint32_t speed;
+
+		if(I2C.getStatus() != I2CFREE)
+		{
+			return;
+		}
+
+		I2C.read(ENCODERADDR, ANGLE, 2, data);
+
+		cli();
+			speed = speedValue[0] - speedValue[1];
+			error = stepCnt;
+		sei();
+		//abe = speed;
+		curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
+		pointer->encoder.angle = curAngle;
+		curAngle -= pointer->encoder.encoderOffset;
+		if(curAngle > 4095)
+		{
+			curAngle -= 0xF000;
+		}
+
+		deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+
+		if(deltaAngle < -2047)
+		{
+			revolutions--;
+			deltaAngle += 4095;
+		}
+		
+		else if(deltaAngle > 2047)
+		{
+			revolutions++;
+			deltaAngle -= 4095;
+		}
+
+		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
+		oldAngle = curAngle;
+		
+		error = (int32_t)(((float)pointer->encoder.angleMoved * 0.78125) - (float)error); 		//0.78125 er for 16 step, og skal justeres for andre settings
+		abe = (float)error;
+		pointer->pidDropIn(error, speed);
+
+		//asm volatile("cbi 0x05,5 \n\t");	
+	}
+
+	/*void TIMER1_COMPA_vect(void)
 	{
 		float error;
 		float deltaAngle, newSpeed;
@@ -468,12 +506,13 @@ abe = stepSpeed;
 			stepSpeedCnt++;
 		}
 */
+/*
 		if(pointer->dropIn)
 		{
 			
-		pointer->pidDropIn(error);
+		//pointer->pidDropIn(error);
 		}		
-	}
+	}*/
 }
 
 float2::float2(void)
@@ -819,41 +858,8 @@ uStepperEncoder::uStepperEncoder(void)
 }
 
 float uStepperEncoder::getAngleMoved(void)
-{/*
-	float deltaAngle, angle;
-
-	TIMSK1 &= ~(1 << OCIE1A);
-	
-	angle = this->getAngle() - this->encoderOffset;
-	
-
-	if(angle < 0.0)
-	{
-		angle += 360.0;
-	}
-
-	deltaAngle = this->oldAngle - angle;
-
-	if(deltaAngle < -180.0)
-	{
-		pointer->encoder.angleMoved += (deltaAngle + 360.0); 
-	}
-
-	else if(deltaAngle > 180.0)
-	{
-		pointer->encoder.angleMoved -= (360.0 - deltaAngle); 
-	}
-
-	else
-	{
-		this->angleMoved += deltaAngle;
-	}
-
-	this->oldAngle = angle;
-	
-	TIMSK1 |= (1 << OCIE1A);*/
-
-	return this->angleMoved;
+{
+	return (float)this->angleMoved*0.087890625;
 }
 
 float uStepperEncoder::getSpeed(void)
@@ -869,13 +875,12 @@ void uStepperEncoder::setup(void)
 	OCR1A = 32000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
-	//TCCR1B = (1 << WGM12) | (1 << CS10);
-	TCCR1B = (1 << WGM12) | (1 << CS11);
+	TCCR1B = (1 << WGM12) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 
-	this->oldAngle = 0.0;
-	this->angleMoved = 0.0;
+	this->oldAngle = 0;
+	this->angleMoved = 0;
 
 	sei();
 }
@@ -885,17 +890,17 @@ void uStepperEncoder::setHome(void)
 	cli();
 	uint8_t data[2];
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 
-	this->angle = 0.0;
-	this->oldAngle = 0.0;
-	this->angleMoved = 0.0;
+	this->angle = 0;
+	this->oldAngle = 0;
+	this->angleMoved = 0;
 	sei();
 }
 
 float uStepperEncoder::getAngle()
 {
-	return this->angle;
+	return (float)this->angle*0.087890625;
 }
 
 uint16_t uStepperEncoder::getStrength()
@@ -1459,122 +1464,100 @@ int64_t uStepper::getStepsSinceReset(void)
 	}
 }
 
-void uStepper::pidDropIn(float error)
+void uStepper::pidDropIn(uint32_t error, uint32_t speed)
 {
-	static float oldError = 0.0;
-	float stepSpeed1, stepSpeedOld;
+	static int32_t oldError = 0.0;
 	float integral;
 	float output = 0.0;
 	static float accumError = 0.0;
 	float limit;
-//ApplicationMonitor.IAmAlive();
 	
-	/*cli();
-		stepSpeed = stepTime;
-	sei();*/
-	//abe = stepSpeed;
-	if(error < -0.1125)
+	if(error < -1)
 	{
-		//abe = -1.0;
-		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
+		control = error;		// 1/0.1125 = 8.888888889, error angle to error steps
 		error = -error;
-
 		
-		integral = error*ITERM;
+		integral = (float)error*ITERM;
 		accumError += integral;
 		output = 1.0;
-		output += PTERM*error;
-		output += accumError;
-		output += DTERM*(error - oldError);
+		output -= PTERM*(float)error;
+		output -= accumError;
+		output -= DTERM*((float)error - (float)oldError);
 
-		limit = error*stepSpeed*LIMITFACTOR;
-		if(limit > 27000.0)
+		/*limit = (float)((speed*(int32_t)LIMITFACTOR)/error);
+		
+		if(limit < 36.0)
 		{
-			limit = 27000.0;
-		}
+			limit = 36.0;
+		}*/
 
 		oldError = error;
 
 		PORTD |= (1 << 7);
 		
-		
-		stepSpeed *= output;
-		
-		if(stepSpeed < 150.0)
-		{
-			stepSpeed = 150.0;
-		}
+		output *= (float)speed;
 
-		else if(stepSpeed > limit)
+		if(output < 36.0)
 		{
-			stepSpeed = limit;
+			output = 36.0;
 			accumError -= integral;
 		}
 		
 		cli();
-			pointer->delay = (uint16_t)(INTFREQ/stepSpeed);
+			pointer->delay = (uint16_t)(output*INTPIDDELAYCONSTANT);
 		sei();
 
 		pointer->startTimer();	
 		PORTB &= ~(1 << 0);
-
 	}
-	else if(error > 0.1125)
+	else if(error > 1)
 	{
-		//abe = 1.0;
-		control = (int32_t)(error*8.88889);		// 1/0.1125 = 8.888888889, error angle to error steps
-		integral = error*ITERM;
+		control = error;		// 1/0.1125 = 8.888888889, error angle to error steps
+		
+		integral = (float)error*ITERM;
 		accumError += integral;
 		output = 1.0;
-		output += PTERM*error;
-		output += accumError;
-		output += DTERM*(error - oldError);
+		output -= PTERM*(float)error;
+		output -= accumError;
+		output -= DTERM*((float)error - (float)oldError);
+
+		/*limit = (float)((speed*(int32_t)LIMITFACTOR)/error);
 		
-		limit = error*stepSpeed*LIMITFACTOR;
-		if(limit > 27000.0)
+		if(limit < 36.0)
 		{
-			limit = 27000.0;
-		}
+			limit = 36.0;
+		}*/
 
 		oldError = error;
 
 		PORTD &= ~(1 << 7);
 		
-		stepSpeed *= output;
+		output *= (float)speed;
 
-		if(stepSpeed < 150.0)
+		if(output < 36.0)
 		{
-			stepSpeed = 150.0;
-		}
-
-		else if(stepSpeed > limit)
-		{
-			stepSpeed = limit;
+			output = 36.0;
 			accumError -= integral;
 		}
-		
+
 		cli();
-			pointer->delay = (uint16_t)(INTFREQ/stepSpeed);
+			pointer->delay = (uint16_t)(output*INTPIDDELAYCONSTANT);
 		sei();
+
 		pointer->startTimer();	
-		//abe = pointer->delay;
 		PORTB &= ~(1 << 0);
 	}
 	
 	else
 	{
-		//abe = 0.5;
-		//if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
-		if((error < 0.1125) && (error > (-0.1125)))
+		if(error >= -1 && error <= -1)
 		{
-			//abe = 0.0;
 			control = 0;
 			accumError = 0.0;
 			PORTB |= (PIND & 0x04) >> 2;
 			pointer->stopTimer();
 		}
 	}	
-	
 }
 
 void i2cMaster::cmd(uint8_t cmd)
