@@ -183,7 +183,7 @@
 #define INITDECEL 16			/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
 #define INTFREQ 28200.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
 #define INTPERIOD 1.0/INTFREQ   /**< Period of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
-#define INTPIDDELAYCONSTANT 1.0/(INTPERIOD*1000000.0) /**<	constant to calculate the amount of interrupts TIMER2 has to wait with generating new pulse, during PID error correction*/
+#define INTPIDDELAYCONSTANT 0.028199994 /**<	constant to calculate the amount of interrupts TIMER2 has to wait with generating new pulse, during PID error correction*/
 #define CW 0					/**< Value to put in direction variable in order for the stepper to turn clockwise */
 #define CCW 1					/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
 #define HARD 1					/**< Value to put in hold variable in order for the motor to block when it is not running */
@@ -244,9 +244,9 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 /* X AXIS! */
-#define PTERM 0.000000
-#define ITERM 0.0000
-#define DTERM 0.000000
+#define PTERM 0.0001
+#define ITERM 0.000001
+#define DTERM 0.01
 
 /* Y AXIS!
 #define PTERM 0.00001
@@ -495,6 +495,9 @@ private:
 	volatile float stepResolution;
 	volatile uint8_t stepsInLoop;
 	volatile uint16_t counter;
+	volatile int32_t stepCnt;
+	volatile int32_t control;
+	volatile uint32_t speedValue[2];
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
@@ -538,7 +541,7 @@ private:
 	*/
 	void disableMotor(void);
 
-	void pidDropIn(uint32_t error, uint32_t speed);
+	void pidDropIn(float error, uint32_t speed);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */
