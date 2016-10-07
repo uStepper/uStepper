@@ -411,7 +411,7 @@ extern "C" {
 		curAngle -= pointer->encoder.encoderOffset;
 		if(curAngle > 4095)
 		{
-			curAngle -= 61440;
+			curAngle -= 61439;
 		}
 
 		deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
@@ -433,9 +433,9 @@ extern "C" {
 		
 		//abe = (float)pointer->encoder.angleMoved;
 
-		error = (((float)pointer->encoder.angleMoved * 0.781440781) - error); 		//0.78125 er for 16 step, og skal justeres for andre settings
+		error = (((float)pointer->encoder.angleMoved * 0.78125) - error); 		//0.78125 er for 16 step, og skal justeres for andre settings
 		abe = error;
-		//pointer->pidDropIn(error, speed);
+		pointer->pidDropIn(error, speed);
 	}
 }
 
@@ -794,12 +794,12 @@ float uStepperEncoder::getSpeed(void)
 void uStepperEncoder::setup(void)
 {
 	uint8_t data[2];
-	TCCR1A = 0;
 	TCNT1 = 0;
-	OCR1A = 32000;
+	ICR1 = 32000;
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
-	TCCR1B = (1 << WGM12) | (1 << CS10);
+	TCCR1A = (1 << WGM11);
+	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 
@@ -1388,6 +1388,25 @@ int64_t uStepper::getStepsSinceReset(void)
 	}
 }
 
+void uStepper::pwmD8(float duty)
+{
+	pinMode(8,OUTPUT);
+	TCCR1A |= (1 << COM1B1);
+
+	if(duty > 100.0)
+	{
+		duty = 100.0;
+	}
+	else if(duty < 0.0)
+	{
+		duty = 0.0;
+	}
+
+	duty *= 320.0;
+
+	OCR1B = (uint16_t)(duty + 0.5);
+}
+
 void uStepper::pidDropIn(float error, uint32_t speed)
 {
 	static float oldError = 0.0;
@@ -1396,7 +1415,7 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 	static float accumError = 0.0;
 	float limit;
 	//abe = error;
-	if(error < -10.0)
+	if(error < -1.0)
 	{
 		cli();
 		pointer->control = (int32_t)error;		// 1/0.1125 = 8.888888889, error angle to error steps
@@ -1435,7 +1454,7 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 		pointer->startTimer();	
 		PORTB &= ~(1 << 0);
 	}
-	else if(error > 10.0)
+	else if(error > 1.0)
 	{
 		pointer->control = (int32_t)error;		// 1/0.1125 = 8.888888889, error angle to error steps
 		

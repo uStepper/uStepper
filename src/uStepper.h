@@ -244,9 +244,9 @@
 #define ALPHA 0.85
 #define BETA (1.0 - ALPHA)
 /* X AXIS! */
-#define PTERM 0.0001
-#define ITERM 0.000001
-#define DTERM 0.01
+#define PTERM 0.00000000001
+#define ITERM 0.00000000001
+#define DTERM 0.00000000001
 
 /* Y AXIS!
 #define PTERM 0.00001
@@ -735,7 +735,11 @@ public:
 	*
 	*/
 	int64_t getStepsSinceReset(void);
+
+	void pwmD8(float duty);
 };
+
+
 
 /**
 *	\brief Prototype of class for accessing the TWI (I2C) interface of the AVR (master mode only). 
