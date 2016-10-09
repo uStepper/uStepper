@@ -72,8 +72,6 @@
 uStepper *pointer;
 i2cMaster I2C;
 
-volatile float abe = 0;
-
 extern "C" {
 
 	void INT1_vect(void)
@@ -91,7 +89,7 @@ extern "C" {
 
 				pointer->stepsSinceReset--;
 				PORTD &= ~(1 << 4);		//pull step pin low again
-			}			
+			}		
 			pointer->stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
 		else						//CW
@@ -105,8 +103,7 @@ extern "C" {
 				pointer->stepsSinceReset++;
 				PORTD &= ~(1 << 4);		//pull step pin low again
 			}
-
-			pointer->stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
+			pointer->stepCnt++;			//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
 	}
 
@@ -126,7 +123,6 @@ extern "C" {
 
 	void TIMER2_COMPA_vect(void)
 	{	
-		PORTD |= (1<<6);
 		asm volatile("push r16 \n\t");
 		asm volatile("in r16,0x3F \n\t");
 		asm volatile("push r16 \n\t");
@@ -242,10 +238,10 @@ extern "C" {
 		asm volatile("pop r16 \n\t");
 		asm volatile("out 0x3F,r16 \n\t");
 		asm volatile("pop r16 \n\t");	
-		//asm volatile("cbi 0x05,5 \n\t");
-		PORTD &= ~(1<<6);	
 		asm volatile("reti \n\t");
-	}/*
+	}
+
+	/*
 	void TIMER2_COMPA_vect(void)
 	{	
 		
@@ -379,31 +375,32 @@ extern "C" {
 		static uint16_t oldAngle = 0;
 		static int16_t revolutions = 0;
 		float error;
-		static uint32_t speed = 100000;
+		static uint32_t speed = 10000;
 		static uint32_t oldMicros = 0;
 
-
+		sei();
 		if(I2C.getStatus() != I2CFREE)
 		{
 			return;
 		}
-
+		
 		I2C.read(ENCODERADDR, ANGLE, 2, data);
-
 		cli();
+			error = (float)pointer->stepCnt;
+		
 			if(pointer->speedValue[0] == oldMicros)
 			{
-				speed += 500;
-				if(speed > 100000)
+				speed += 2000;
+				if(speed > 10000)
 				{
-					speed = 1000000;
+					speed = 10000;
 				}
 			}
 			else
 			{
 				speed = pointer->speedValue[0] - pointer->speedValue[1];
 			}
-			error = (float)pointer->stepCnt;
+			
 		sei();
 		
 		curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
@@ -411,7 +408,7 @@ extern "C" {
 		curAngle -= pointer->encoder.encoderOffset;
 		if(curAngle > 4095)
 		{
-			curAngle -= 61439;
+			curAngle -= 61440;
 		}
 
 		deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
@@ -430,11 +427,8 @@ extern "C" {
 
 		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
 		oldAngle = curAngle;
-		
-		//abe = (float)pointer->encoder.angleMoved;
 
-		error = (((float)pointer->encoder.angleMoved * 0.78125) - error); 		//0.78125 er for 16 step, og skal justeres for andre settings
-		abe = error;
+		error = (((float)pointer->encoder.angleMoved * pointer->stepConversion) - error); 
 		pointer->pidDropIn(error, speed);
 	}
 }
@@ -922,33 +916,6 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	Serial.print(this->counter);
-	Serial.print("\t");
-	Serial.print(this->delay);
-	Serial.print("\t");
-	Serial.println(abe);
-/*	Serial.print("\t");
-	Serial.print((uint8_t)((this->exactDelay.value >> 48) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 40) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 32) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 24) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 16) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 8) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value) & 0x00000000000000FF),HEX);
-	Serial.print("\t");
-	Serial.print(this->delay);
-	Serial.print("\t");
-	Serial.println(this->totalSteps);*/
-	/*cli();
-	float tmp=this->exactDelay.getFloatValue();
-	sei();
-	return tmp;*/
 	return this->acceleration;
 }
 
@@ -1309,22 +1276,36 @@ void uStepper::softStop(bool holdMode)
 	}
 }
 
-void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint32_t faultTolerance)
+void uStepper::setup(	bool mode, 
+						uint8_t microStepping, 
+						float faultTolerance,
+						float faultHysteresis, 
+						float pTerm, 
+						float iTerm, 
+						float dterm)
 {
 	this->dropIn = mode;
 	if(mode)
 	{
-		pinMode(2,INPUT);
+		//Set Enable, Step and Dir signal pins from 3dPrinter controller as inputs
+		pinMode(2,INPUT);		
 		pinMode(3,INPUT);
 		pinMode(4,INPUT);
+		//Enable internal pull-up resistors on the above pins
 		digitalWrite(2,HIGH);
 		digitalWrite(3,HIGH);
 		digitalWrite(4,HIGH);
-		this->stepResolution = 360.0/((float)(200*microStepping));
-		this->tolerance = ((float)faultTolerance)*this->stepResolution;
-		this->faultStepDelay = (uint16_t)((INTFREQ/faultSpeed) - 1);
-		EICRA = 0x0D;		//int0 generates interrupt on any change and int1 generates interrupt on rising edge
-		EIMSK = 0x03;		//enable int0 and int1 interrupt requests
+
+		this->stepConversion = ((float)(200*microStepping))/4096.0;	//Calculate conversion coefficient from raw encoder data, to actual moved steps
+		this->tolerance = faultTolerance;		//Number of steps missed before controller kicks in
+		this->hysteresis = faultHysteresis;
+		EICRA = 0x0D;					//int0 generates interrupt on any change and int1 generates interrupt on rising edge
+		EIMSK = 0x03;					//enable int0 and int1 interrupt requests
+		
+		//Scale supplied controller coefficents. This is done to enable the user to use easier to manage numbers for these coefficients.
+		this->pTerm = pTerm/10000.0;	  
+		this->iTerm = iTerm/10000.0;
+		this->dTerm = dTerm/10000.0;
 	}
 
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
@@ -1388,102 +1369,77 @@ int64_t uStepper::getStepsSinceReset(void)
 	}
 }
 
-void uStepper::pwmD8(float duty)
-{
-	pinMode(8,OUTPUT);
-	TCCR1A |= (1 << COM1B1);
-
-	if(duty > 100.0)
-	{
-		duty = 100.0;
-	}
-	else if(duty < 0.0)
-	{
-		duty = 0.0;
-	}
-
-	duty *= 320.0;
-
-	OCR1B = (uint16_t)(duty + 0.5);
-}
-
 void uStepper::pidDropIn(float error, uint32_t speed)
 {
 	static float oldError = 0.0;
 	float integral;
-	float output = 0.0;
+	float output = 1.0;
 	static float accumError = 0.0;
 	float limit;
-	//abe = error;
-	if(error < -1.0)
+
+	if(error < -pointer->tolerance)
 	{
-		cli();
-		pointer->control = (int32_t)error;		// 1/0.1125 = 8.888888889, error angle to error steps
+		cli(); //Do Atomic copy, in order to not fuck up variables
+			pointer->control = (int32_t)error;	//Move current error into control variable, for Timer2 and int0 routines to decide who should provide steps
 		sei();
-		error = -error;
+
+		error = -error;		//error variable should always be positive when calculating controller output
 	
-		integral = error*ITERM;
-		accumError += integral;
-		output = 1.0;
-		output -= PTERM*error;
+		integral = error*pointer->iTerm;	//Multiply current error by integral term
+		accumError += integral;				//And accumulate, to get integral action
+		
+		//The output of each PID part, should be subtracted from the output variable.
+		//This is true, since in case of no error the motor should run at a higher speed
+		//to catch up, and since the speed variable contains the number of microseconds
+		//between each step, the we need to multiply with a number < 1 to increase speed
+		output -= pointer->pTerm*error;		
 		output -= accumError;
-		output -= DTERM*(error - oldError);
+		output -= pointer->dTerm*(error - oldError);
 
-		if(output < 0.0)
-		{
-			output = 0.0;
-		}
+		oldError = error;		//Save current error for next sample, for use in differential part
 
-		oldError = error;
-
-		PORTD &= ~(1 << 7);
+		PORTD &= ~(1 << 7);		//change direction to CW
 		
-		output *= (float)speed;
+		output *= (float)speed;	//Calculate stepSpeed
 
-		if(output < 36.0)
+		if(output < 54.0)		//If stepSpeed is lower than possible
 		{
-			output = 36.0;
-			accumError -= integral;
+			output = 54.0;		//Set stepSpeed to lowest possible
+			accumError -= integral;	//and subtract current integral part from accumerror (anti-windup)
 		}
 		
-		cli();
-			pointer->delay = (uint16_t)(output*INTPIDDELAYCONSTANT);
-			//abe = (output*INTPIDDELAYCONSTANT);
+		cli();		//Atomic copy
+			pointer->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
 		sei();
 
-		pointer->startTimer();	
-		PORTB &= ~(1 << 0);
+		pointer->startTimer();		//Start Timer 2
+		PORTB &= ~(1 << 0);			//enable motor
 	}
-	else if(error > 1.0)
-	{
-		pointer->control = (int32_t)error;		// 1/0.1125 = 8.888888889, error angle to error steps
-		
-		integral = error*ITERM;
-		accumError += integral;
-		output = 1.0;
-		output -= PTERM*error;
-		output -= accumError;
-		output -= DTERM*(error - oldError);
 
-		if(output < 0.0)
-		{
-			output = 0.0;
-		}
+	else if(error > pointer->tolerance)
+	{
+		pointer->control = (int32_t)error;		
+		
+		integral = error*pointer->iTerm;
+		accumError += integral;
+
+		output -= pointer->pTerm*error;
+		output -= accumError;
+		output -= pointer->dTerm*(error - oldError);
 
 		oldError = error;
 		
-		PORTD |= (1 << 7);
+		PORTD |= (1 << 7);				//change direction to CCW
 		output *= (float)speed;
 		
-		if(output < 36.0)
+		if(output < 54.0)
 		{
-			output = 36.0;
+			output = 54.0;
 			accumError -= integral;
 		}
 		
 		cli();
-			pointer->delay = (uint16_t)(output*INTPIDDELAYCONSTANT);
-			//abe = (output*INTPIDDELAYCONSTANT);
+			pointer->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 		sei();
 
 		pointer->startTimer();	
@@ -1492,12 +1448,12 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 	
 	else
 	{
-		if(error >= -1.0 && error <= 1.0)
+		if(error >= -pointer->hysteresis && error <= pointer->hysteresis)	//If error is less than 1 step
 		{
-			pointer->control = 0;
-			accumError = 0.0;
-			PORTB |= (PIND & 0x04) >> 2;
-			pointer->stopTimer();
+			pointer->control = 0;			//Set control variable to 0, in order to make sure int0 routine generates step pulses
+			accumError = 0.0;				//Clear accumerror
+			PORTB |= (PIND & 0x04) >> 2;	//Set enable pin to whatever is demanded by the 3Dprinter controller
+			pointer->stopTimer();			//Stop timer 2
 		}
 	}	
 }
