@@ -191,6 +191,9 @@
 #define HARD 1							/**< Value to put in hold variable in order for the motor to block when it is not running */
 #define SOFT 0							/**< Value to put in hold variable in order for the motor to \b not block when it is not running */
 
+#define ENCODERINTFREQ 1000.0			/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
+#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0/4096.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
+
 #define ENCODERADDR 0x36				/**< I2C address of the encoder chip */
 
 #define ANGLE 0x0E						/**< Address of the register, in the encoder chip, containing the 8 least significant bits of the stepper shaft angle */

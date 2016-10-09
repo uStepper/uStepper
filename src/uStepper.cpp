@@ -371,6 +371,9 @@ extern "C" {
 		uint8_t data[2];
 		uint16_t curAngle;
 		int16_t deltaAngle;
+		float newSpeed;
+		static float deltaSpeedAngle = 0.0;
+		static uint8_t loops = 0;
 		static uint16_t oldAngle = 0;
 		static int16_t revolutions = 0;
 		float error;
@@ -422,6 +425,23 @@ extern "C" {
 		{
 			revolutions++;
 			deltaAngle -= 4096;
+		}
+
+		if( loops < 10)
+		{
+			loops++;
+			deltaSpeedAngle += (float)deltaAngle;
+		}
+		else
+		{
+			newSpeed = deltaSpeedAngle*ENCODERSPEEDCONSTANT;
+			if(pointer->dropIn)
+			{
+				newSpeed *= 0.5;
+			}
+			pointer->encoder.curSpeed = newSpeed;
+			loops = 0;
+			deltaSpeedAngle = 0.0;
 		}
 
 		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
