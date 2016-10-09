@@ -167,59 +167,59 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <Arduino.h>
+#include <avr/wdt.h>
 
-#define FULL 1
-#define HALF 2
-#define QUARTER 4
-#define EIGHT 8
-#define SIXTEEN 16
+#define FULL 1							/**< */
+#define HALF 2							/**< */
+#define QUARTER 4						/**< */
+#define EIGHT 8							/**< */
+#define SIXTEEN 16						/**< */	
 
-#define NORMAL 0
-#define DROPIN 1
+#define NORMAL 0						/**< */	
+#define DROPIN 1						/**< */
 
-#define STOP 1					/**< Value to put in state variable in order to indicate that the motor should not be running */
-#define ACCEL 2					/**< Value to put in state variable in order to indicate that the motor should be accelerating */
-#define CRUISE 4				/**< Value to put in state variable in order to indicate that the motor should be decelerating */
-#define DECEL 8					/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
-#define INITDECEL 16			/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
-#define INTFREQ 28200.0f        /**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
-#define CW 0					/**< Value to put in direction variable in order for the stepper to turn clockwise */
-#define CCW 1					/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
-#define HARD 1					/**< Value to put in hold variable in order for the motor to block when it is not running */
-#define SOFT 0					/**< Value to put in hold variable in order for the motor to \b not block when it is not running */
+#define STOP 1							/**< Value to put in state variable in order to indicate that the motor should not be running */
+#define ACCEL 2							/**< Value to put in state variable in order to indicate that the motor should be accelerating */
+#define CRUISE 4						/**< Value to put in state variable in order to indicate that the motor should be decelerating */
+#define DECEL 8							/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
+#define INITDECEL 16					/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
+#define INTFREQ 28200.0f       			/**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
 
-#define ENCODERADDR 0x36		/**< I2C address of the encoder chip */
+#define INTPIDDELAYCONSTANT 0.028199994 /**< constant to calculate the amount of interrupts TIMER2 has to wait with generating new pulse, during PID error correction*/
+#define CW 0							/**< Value to put in direction variable in order for the stepper to turn clockwise */
+#define CCW 1							/**< Value to put in direction variable in order for the stepper to turn counterclockwise */
+#define HARD 1							/**< Value to put in hold variable in order for the motor to block when it is not running */
+#define SOFT 0							/**< Value to put in hold variable in order for the motor to \b not block when it is not running */
 
-#define ANGLE 0x0E				/**< Address of the register, in the encoder chip, containing the 8 least significant bits of the stepper shaft angle */
-#define STATUS 0x0B				/**< Address of the register, in the encoder chip, containing information about whether a magnet has been detected or not */
-#define AGC 0x1A				/**< Address of the register, in the encoder chip, containing information about the current gain value used in the encoder chip. This value should preferably be around 127 (Ideal case!) */
-#define MAGNITUDE 0x1B			/**< Address of the register, in the encoder chip, containing the 8 least significant bits of magnetic field strength measured by the encoder chip */
+#define ENCODERADDR 0x36				/**< I2C address of the encoder chip */
 
-#define ENCODERINTFREQ 1000.0	/**< Frequency at which the encoder is sampled, for keeping track of angle moved and current speed */
-#define ENCODERSPEEDCONSTANT ENCODERINTFREQ/10.0/360.0	/**< Constant to convert angle difference between two interrupts to speed in revolutions per second */
+#define ANGLE 0x0E						/**< Address of the register, in the encoder chip, containing the 8 least significant bits of the stepper shaft angle */
+#define STATUS 0x0B						/**< Address of the register, in the encoder chip, containing information about whether a magnet has been detected or not */
+#define AGC 0x1A						/**< Address of the register, in the encoder chip, containing information about the current gain value used in the encoder chip. This value should preferably be around 127 (Ideal case!) */
+#define MAGNITUDE 0x1B					/**< Address of the register, in the encoder chip, containing the 8 least significant bits of magnetic field strength measured by the encoder chip */
 
-#define R 4700.0 				/**< The NTC resistor used for measuring temperature, is placed in series with a 4.7 kohm resistor. This is used to calculate the temperature */
+#define R 4700.0 						/**< The NTC resistor used for measuring temperature, is placed in series with a 4.7 kohm resistor. This is used to calculate the temperature */
 
-#define I2CFREE 0				/**< I2C bus is not currently in use */
+#define I2CFREE 0						/**< I2C bus is not currently in use */
 
-#define READ  1					/**< Value for RW bit in address field, to request a read */
+#define READ  1							/**< Value for RW bit in address field, to request a read */
 
-#define WRITE 0					/**< Value for RW bit in address field, to request a write */
+#define WRITE 0							/**< Value for RW bit in address field, to request a write */
 
-#define START  0x08				/**< start condition transmitted */
+#define START  0x08						/**< start condition transmitted */
 
-#define REPSTART 0x10			/**< repeated start condition transmitted */
+#define REPSTART 0x10					/**< repeated start condition transmitted */
 
-#define TXADDRACK  0x18			/**< slave address plus write bit transmitted, ACK received */
+#define TXADDRACK  0x18					/**< slave address plus write bit transmitted, ACK received */
 
-#define TXDATAACK 0x28			/**< data transmitted, ACK received */
+#define TXDATAACK 0x28					/**< data transmitted, ACK received */
 
-#define RXADDRACK 0x40			/**< slave address plus read bit transmitted, ACK received */
+#define RXADDRACK 0x40					/**< slave address plus read bit transmitted, ACK received */
 
-#define ACK 1					/**< value to indicate ACK for i2c transmission */
+#define ACK 1							/**< value to indicate ACK for i2c transmission */
 
-#define NACK 0					/**< value to indicate NACK for i2c transmission */
-
+#define NACK 0							/**< value to indicate NACK for i2c transmission */
+		
 /**
 *	Coefficients needed by the Steinhart-hart equation in order to find the temperature of the NTC (and hereby the temperature of the motor driver)
 *	from the current resistance of the NTC resistor. The coefficients are calculated for the following 3 operating points:
@@ -237,12 +237,8 @@
 */
 
 #define A 0.001295752996237  	
-#define B 0.000237488365866  /**< See description of A */
-#define C 0.000000083423218  /**< See description of A */
-
-#define ALPHA 0.85
-#define BETA (1.0 - ALPHA)
-
+#define B 0.000237488365866  			/**< See description of A */
+#define C 0.000000083423218  			/**< See description of A */
 
 extern "C" void interrupt0(void);
 extern "C" void interrupt1(void);
@@ -407,12 +403,13 @@ public:
 	float getAngleMoved(void);
 	
 	/**
-	*	\brief Setup the encoder
-	*	
-	*	This function initializes all the encoder features.
-	*
-	*/
-	void setup(void);
+	 * @brief      Setup the encoder
+	 *
+	 *             This function initializes all the encoder features.
+	 *
+	 * @param[in]  mode  Variable to indicate if the uStepper is in normal or drop-in mode
+	 */
+	void setup(uint8_t mode);
 	
 	/**
 	*	\brief Define new reference(home) position
@@ -426,11 +423,11 @@ private:
 
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
-	float encoderOffset;				/**< Angle of the shaft at the reference position. */
+	uint16_t encoderOffset;				/**< Angle of the shaft at the reference position. */
 	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
-	volatile float angle;
+	volatile uint16_t angle;
 	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 
-	volatile float angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
+	volatile int32_t angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
 };
 
 /**
@@ -444,7 +441,9 @@ class uStepper
 {
 private:
 	//Address offset: 0	
-	uint16_t cruiseDelay;			/**< This variable is used by the stepper acceleration algorithm to set the delay between step pulses when running at the set cruise speed */
+	uint16_t cruiseDelay;			/** < This variable is used by the stepper acceleration algorithm to
+	                     			 * set the delay between step pulses when running at the set cruise
+	                     			 * speed */
 	//Address offset: 2
 	float2 multiplier;				/**< This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. */			
 	//Address offset: 10
@@ -474,19 +473,25 @@ private:
 	//Address offset: 54	
 	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
 	//Address offset: 56
-	bool dropIn;
+	bool dropIn;					/**< This variable is used to indicate wether we are currently running in normal or dropin mode */
 	//Address offset: 57
 	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
 	//Address offset: 61
 	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
-	volatile uint16_t faultStepDelay;
-	volatile float tolerance;
-	volatile float stepResolution;
-
+	volatile float tolerance;		/**< This variable contains the number of missed steps allowed before the PID controller kicks in, if activated*/
+	volatile float hysteresis;		/**< This variable contains the error which the PID controller should have obtained in order to switch off*/
+	volatile float stepConversion;	/**< This variable contains the conversion coefficient from raw encoder data to number of steps*/
+	volatile uint16_t counter;		/**< This variable is used by Timer2 to check wether it is time to generate steps or not. only used if PID is activated*/
+	volatile int32_t stepCnt;		/**< This variable contains the number of steps commanded by external controller, in case of dropin feature*/
+	volatile int32_t control;		/**< This variable contains the number of steps we are off the setpoint, and is updated once every PID sample.*/
+	volatile uint32_t speedValue[2];/**< This variable contains the number of microseconds between last step pulse from external controller*/
+	float pTerm;					/**< This variable contains the proportional coefficient used by the PID*/
+	float iTerm;					/**< This variable contains the integral coefficient used by the PID*/
+	float dTerm;					/**< This variable contains the differential coefficient used by the PID*/
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
-
+	friend void interrupt1(void);
 
 	/**
 	*	\brief Starts timer for stepper algorithm
@@ -525,6 +530,14 @@ private:
 	*
 	*/
 	void disableMotor(void);
+
+	/**
+	 * @brief      This method handles the actual PID controller calculations, if enabled.
+	 *
+	 * @param[in]  error  Current error in number of steps
+	 * @param[in]  speed  Current speed, in microseconds between each step pulse
+	 */
+	void pidDropIn(float error, uint32_t speed);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */
@@ -659,36 +672,52 @@ public:
 	
 
 	/**
-	*	\brief Initializes the different parts of the uStepper object
-	*
-	*	This function initializes the different parts of the uStepper object, and should be called in the setup() function of the 
-	*	arduino sketch. This function is needed as some things, like the timer can not be setup in the constructor, since arduino
-	*	for some strange reason, resets a lot of the AVR registers just before entering the setup() function.
-	*
-	*	\param mode - 	Default is normal mode. Pass the constant "DROPIN" to configure the uStepper to act as dropin compatible to the stepstick
-	*	\param microStepping -	When mode is set to "DROPIN", this parameter should be set to the current microstep setting. available arguments are:
-	*							FULL
-	*							HALF
-	*							QUARTER
-	*							EIGHT
-	*							SIXTEEN
-	*	\param faultSpeed -		This parameter defines the speed in steps/s at which the motor spins during fault scenarios.
-	*							This should be set to a speed higher than normal motor speed.
-	*	\param faultTolerance -	This parameter defines the allowed number of missed steps before the correction should kick in.
-	*
-	*/
-	void setup(bool mode = NORMAL, uint8_t microStepping = SIXTEEN, float faultSpeed = 3000.0, uint32_t faultTolerance = 20);
-	
+	 * @brief      Initializes the different parts of the uStepper object
+	 *
+	 *             This function initializes the different parts of the uStepper
+	 *             object, and should be called in the setup() function of the
+	 *             arduino sketch. This function is needed as some things, like
+	 *             the timer can not be setup in the constructor, since arduino
+	 *             for some strange reason, resets a lot of the AVR registers
+	 *             just before entering the setup() function.
+	 *
+	 * @param      mode             Default is normal mode. Pass the constant
+	 *                              "DROPIN" to configure the uStepper to act as
+	 *                              dropin compatible to the stepstick
+	 * @param      microStepping    When mode is set to "DROPIN", this
+	 *                              parameter should be set to the current
+	 *                              microstep setting. available arguments are:
+	 *                              FULL HALF QUARTER EIGHT SIXTEEN
+	 * @param      faultTolerance   This parameter defines the allowed number
+	 *                              of missed steps before the correction should
+	 *                              kick in.
+	 * @param[in]  faultHysteresis  The number of missed steps allowed for the
+	 *                              PID to turn off
+	 * @param[in]  pTerm            The proportional coefficent of the PID
+	 *                              controller
+	 * @param[in]  iTerm            The integral coefficent of the PID
+	 *                              controller
+	 * @param[in]  dterm            The differential coefficent of the PID
+	 *                              controller
+	 */
+	void setup(	bool mode = NORMAL, 
+				uint8_t microStepping = SIXTEEN, 
+				float faultTolerance = 10.0,
+				float faultHysteresis = 5.0, 
+				float pTerm = 1.0, 
+				float iTerm = 0.02, 
+				float dterm = 0.006);	
 
 	/**
-	*	\brief Returns the direction the motor is currently configured to rotate
-	*
-	*	This function checks the last configured direction of rotation and returns this.
-	*
-	*	\return 0 - Counter clockwise
-	*	\return 1 - Clockwise
-	*
-	*/
+	 * @brief      Returns the direction the motor is currently configured to
+	 *             rotate
+	 *
+	 *             This function checks the last configured direction of
+	 *             rotation and returns this.
+	 *
+	 * @return     0 - Counter clockwise
+	 * @return     1 - Clockwise
+	 */
 	bool getCurrentDirection(void);
 	
 
@@ -741,6 +770,8 @@ public:
 	*/
 	void pwmD3(float duty);
 };
+
+
 
 /**
 *	\brief Prototype of class for accessing the TWI (I2C) interface of the AVR (master mode only). 

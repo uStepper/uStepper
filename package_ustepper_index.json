@@ -13,10 +13,7 @@
           "name": "uStepper",
           "architecture": "avr",
           "version": "1.0.0",
-          "category": "Contributed",
-          "help": {
-            "online": ""
-          },
+          "category": "Arduino",
           "url": "https://raw.githubusercontent.com/uStepper/uStepper/master/Hardware/uStepper_hardware.zip",
           "archiveFileName": "uStepper_hardware.zip",
           "checksum": "SHA-256:e5c877df7bc6d492379ebfef7601527bfe65d710b0c2e44aead0621b1d369b4a",
@@ -36,7 +33,49 @@
               "version": "6.0.1-arduino5"
             }
           ]
+        },
+        {
+          "name": "uStepper",
+          "architecture": "avr",
+          "version": "1.1.0",
+          "category": "Arduino",
+          "url": "https://raw.githubusercontent.com/uStepper/uStepper/master/Hardware/uStepper_hardware.zip",
+          "archiveFileName": "uStepper_hardware.zip",
+          "checksum": "SHA-256:e5c877df7bc6d492379ebfef7601527bfe65d710b0c2e44aead0621b1d369b4a",
+          "size": "4277",
+          "boards": [
+            {"name": "uStepper"}
+          ],
+          "toolsDependencies": [
+          ]
+        },
+        {
+          "name": "uStepper",
+          "architecture": "avr",
+          "version": "1.2.0",
+          "category": "Arduino",
+          "url": "https://raw.githubusercontent.com/uStepper/uStepper/master/Hardware/uStepper_hardware.zip",
+          "archiveFileName": "uStepper_hardware.zip",
+          "checksum": "SHA-256:e5c877df7bc6d492379ebfef7601527bfe65d710b0c2e44aead0621b1d369b4a",
+          "size": "4277",
+          "boards": [
+            {"name": "uStepper"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "avr-gcc",
+              "version": "4.9.2-atmel3.5.3-arduino2"
+            },
+            {
+              "packager": "arduino",
+              "name": "avrdude",
+              "version": "6.0.1-arduino5"
+            }
+          ]
         }
+      ],
+      "tools": [
       ]
     },
     {
