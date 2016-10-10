@@ -96,7 +96,7 @@ uStepperServo *uStepperServo::first;
 
 #define NO_ANGLE (0xff)
 
-uStepperServo::uStepperServo() : pin(0),angle(NO_ANGLE),pulse(0),min16(34),max16(150),next(0)
+uStepperServo::uStepperServo() : pin(0),angle(NO_ANGLE),pulse(0),min16(92),max16(150),next(0)
 {}
 
 void uStepperServo::setMinimumPulse(uint16_t t)
@@ -195,6 +195,8 @@ void uStepperServo::refresh()
     // Figure about 4uS/uStepperServo after them. This could be compensated, but I feel
     // it is within the margin of error of software uStepperServos that could catch
     // an extra interrupt handler at any time.
+    TCCR1B &= ~(1 << CS10); 
+    //cli();
     for ( i = 0; i < count; i++) digitalWrite( s[i]->pin, 1);
 
     uint8_t start = TCNT0;
@@ -206,15 +208,23 @@ void uStepperServo::refresh()
 	uint16_t go = start + s[i]->pulse;// current time + pulse length for specific servo
 
 	// loop until we reach or pass 'go' time
+    
 	for (;;) {
 	    now = TCNT0;
 	    if ( now < last) base += 256;//Timer 0 tops at 255, so add 256 on overflow
-	    last = now;//update overflow check variable
+	    last = now;//update overflow check variable 
+                  
+        if(base + now >= go - 16)
+        {
+            cli();
+        }
 
 	    if ( base+now > go) {
 		digitalWrite( s[i]->pin,0);
+        sei();
 		break;
 	    }
 	}
     }
+    TCCR1B |= (1 << CS10);
 }
