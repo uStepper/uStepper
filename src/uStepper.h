@@ -175,8 +175,9 @@
 #define EIGHT 8							/**< */
 #define SIXTEEN 16						/**< */	
 
-#define NORMAL 0						/**< */	
-#define DROPIN 1						/**< */
+#define NORMAL 	0						/**< */	
+#define DROPIN 	1						/**< */
+#define PID 	2						/**< */
 
 #define STOP 1							/**< Value to put in state variable in order to indicate that the motor should not be running */
 #define ACCEL 2							/**< Value to put in state variable in order to indicate that the motor should be accelerating */
@@ -184,6 +185,7 @@
 #define DECEL 8							/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
 #define INITDECEL 16					/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
 #define INTFREQ 28200.0f       			/**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
+#define INTPERIOD 1/INTFREQ				/**< */
 
 #define INTPIDDELAYCONSTANT 0.028199994 /**< constant to calculate the amount of interrupts TIMER2 has to wait with generating new pulse, during PID error correction*/
 #define CW 0							/**< Value to put in direction variable in order for the stepper to turn clockwise */
@@ -478,15 +480,25 @@ private:
 	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
 	//Address offset: 61
 	float acceleration;				/**< This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions setMaxAcceleration() and getMaxAcceleration() respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). */
+	//address offset: 65
 	volatile float tolerance;		/**< This variable contains the number of missed steps allowed before the PID controller kicks in, if activated*/
+	//address offset: 69
 	volatile float hysteresis;		/**< This variable contains the error which the PID controller should have obtained in order to switch off*/
+	//address offset: 73
 	volatile float stepConversion;	/**< This variable contains the conversion coefficient from raw encoder data to number of steps*/
+	//address offset: 77
 	volatile uint16_t counter;		/**< This variable is used by Timer2 to check wether it is time to generate steps or not. only used if PID is activated*/
+	//address offset: 79
 	volatile int32_t stepCnt;		/**< This variable contains the number of steps commanded by external controller, in case of dropin feature*/
+	//address offset: 83
 	volatile int32_t control;		/**< This variable contains the number of steps we are off the setpoint, and is updated once every PID sample.*/
+	//address offset: 87
 	volatile uint32_t speedValue[2];/**< This variable contains the number of microseconds between last step pulse from external controller*/
+	//address offset: 91
 	float pTerm;					/**< This variable contains the proportional coefficient used by the PID*/
+	//address offset: 95
 	float iTerm;					/**< This variable contains the integral coefficient used by the PID*/
+	//address offset: 99
 	float dTerm;					/**< This variable contains the differential coefficient used by the PID*/
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
