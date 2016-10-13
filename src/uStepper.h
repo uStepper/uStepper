@@ -329,6 +329,11 @@ private:
 class uStepperEncoder
 {
 public:
+	volatile int32_t angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
+	uint16_t encoderOffset;				/**< Angle of the shaft at the reference position. */
+	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
+	volatile uint16_t angle;
+	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 	
 	/**
 	*	\brief Constructor
 	*
@@ -424,12 +429,6 @@ public:
 private:
 
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
-
-	uint16_t encoderOffset;				/**< Angle of the shaft at the reference position. */
-	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
-	volatile uint16_t angle;
-	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 
-	volatile int32_t angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
 };
 
 /**
@@ -551,7 +550,9 @@ private:
 	 * @param[in]  error  Current error in number of steps
 	 * @param[in]  speed  Current speed, in microseconds between each step pulse
 	 */
-	void pidDropIn(float error, uint32_t speed);
+	void pidDropIn(void);
+
+	void pid(void);
 
 public:
 	uStepperTemp temp;				/**< Instantiate object for the temperature sensor */
@@ -716,11 +717,11 @@ public:
 	 */
 	void setup(	uint8_t mode = NORMAL, 
 				uint8_t microStepping = SIXTEEN, 
-				float faultTolerance = 20.0,
+				float faultTolerance = 10.0,
 				float faultHysteresis = 5.0, 
-				float pTerm = 1.0, 
-				float iTerm = 0.02, 
-				float dterm = 0.006);	
+				float pTerm = 0.0, 
+				float iTerm = 0.00, 
+				float dterm = 0.00);	
 
 	/**
 	 * @brief      Returns the direction the motor is currently configured to
