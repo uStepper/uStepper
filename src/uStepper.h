@@ -168,6 +168,7 @@
 #include <avr/io.h>
 #include <Arduino.h>
 #include <avr/wdt.h>
+#include <uStepperServo.h>
 
 #define FULL 1							/**< */
 #define HALF 2							/**< */
