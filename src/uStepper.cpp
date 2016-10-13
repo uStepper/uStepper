@@ -72,6 +72,8 @@
 uStepper *pointer;
 i2cMaster I2C;
 
+volatile float abe;
+
 extern "C" {
 
 	void interrupt1(void)
@@ -129,14 +131,15 @@ extern "C" {
 		asm volatile("push r31 \n\t");
 		asm volatile("lds r30,pointer \n\t");
 		asm volatile("lds r31,pointer+1 \n\t");
-		asm volatile("ldd r16,z+56 \n\t");
-		asm volatile("cpi r16,0x01 \n\t");
-		asm volatile("breq _pid \n\t");
 
 		asm volatile("ldi r16,83 \n\t");
 		asm volatile("add r30,r16 \n\t");
 		asm volatile("clr r16 \n\t");
 		asm volatile("adc r31,r16 \n\t");
+
+		asm volatile("ldd r16,z+20 \n\t");
+		asm volatile("cpi r16,0x01 \n\t");
+		asm volatile("breq _pid \n\t");
 
 		asm volatile("ldd r16,z+0 \n\t");
 		asm volatile("cpi r16,0x00 \n\t");
@@ -160,6 +163,7 @@ extern "C" {
 		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
 		
 		asm volatile("_pid: \n\t");
+		asm volatile("sbi 0x05,5 \n\t");
 		asm volatile("push r0 \n\t");
 		asm volatile("push r1 \n\t");
 		asm volatile("push r2 \n\t");
@@ -413,7 +417,8 @@ extern "C" {
 		I2C.read(ENCODERADDR, ANGLE, 2, data);
 		cli();
 			error = (float)pointer->stepCnt;
-			if(pointer->dropIn == DROPIN)
+			abe = (float)pointer->stepCnt;
+			if(pointer->mode == DROPIN)
 			{
 				if(pointer->speedValue[0] == oldMicros)
 				{
@@ -428,7 +433,7 @@ extern "C" {
 					speed = pointer->speedValue[0] - pointer->speedValue[1];
 				}
 			}
-			else if(pointer->dropIn == PID)	
+			else if(pointer->mode == PID)	
 			{
 				speed = (uint32_t)(pointer->exactDelay.getFloatValue() * INTPERIOD);
 			}
@@ -459,10 +464,11 @@ extern "C" {
 		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
 		oldAngle = curAngle;
 
-		if(pointer->dropIn)
-		{
+		if(pointer->mode)
+		{	
 			error = (((float)pointer->encoder.angleMoved * pointer->stepConversion) - error); 
-			//pointer->pidDropIn(error, speed);
+			abe = error;
+			pointer->pidDropIn(error, speed);
 		}
 	}
 }
@@ -1005,15 +1011,13 @@ void uStepper::runContinous(bool dir)
 {
 	float curVel;
 
-	if(this->dropIn == DROPIN)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
 	
 	this->stopTimer();				//Stop interrupt timer, so we don't fuck up stuff !
 	this->continous = 1;			//Set continous variable to 1, in order to let the interrupt routine now, that the motor should run continously
-	
-	
 
 	if(state != STOP)										//if the motor is currently running and we want to move the opposite direction, we need to decelerate in order to change direction.
 	{
@@ -1092,7 +1096,7 @@ void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 {
 	float curVel;
 
-	if(this->dropIn == DROPIN)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
@@ -1243,7 +1247,7 @@ void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 
 void uStepper::hardStop(bool holdMode)
 {
-	if(this->dropIn == DROPIN)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
@@ -1276,7 +1280,7 @@ void uStepper::softStop(bool holdMode)
 {
 	float curVel;
 
-	if(this->dropIn == DROPIN)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
@@ -1320,7 +1324,7 @@ void uStepper::softStop(bool holdMode)
 	}
 }
 
-void uStepper::setup(	bool mode, 
+void uStepper::setup(	uint8_t mode, 
 						uint8_t microStepping, 
 						float faultTolerance,
 						float faultHysteresis, 
@@ -1328,10 +1332,10 @@ void uStepper::setup(	bool mode,
 						float iTerm, 
 						float dterm)
 {
-	this->dropIn = mode;
-	if(mode)
+	this->mode = mode;
+	if(this->mode)
 	{
-		if(mode == DROPIN)
+		if(this->mode == DROPIN)
 		{
 			//Set Enable, Step and Dir signal pins from 3dPrinter controller as inputs
 			pinMode(2,INPUT);		
@@ -1456,7 +1460,7 @@ void uStepper::pwmD3(float duty)
 
 void uStepper::pidDropIn(float error, uint32_t speed)
 {
-	/*static float oldError = 0.0;
+	static float oldError = 0.0;
 	float integral;
 	float output = 1.0;
 	static float accumError = 0.0;
@@ -1494,18 +1498,20 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 		}
 		
 		cli();		//Atomic copy
-			//pointer->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
-			//pointer->delay = 4.0;
+			pointer->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
+			//pointer->delay = 20.0;
 		sei();
 
-		//pointer->startTimer();	
-			//PORTB &= ~(1 << 0);
+		pointer->startTimer();	
+		PORTB &= ~(1 << 0);
 	}
 
 	else if(error > pointer->tolerance)
 	{
+		cli(); //Do Atomic copy, in order to not fuck up variables
 		pointer->control = (int32_t)error;		
-		
+		sei();
+
 		integral = error*pointer->iTerm;
 		accumError += integral;
 
@@ -1525,29 +1531,29 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 		}
 		
 		cli();
-			//pointer->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-			//pointer->delay = 4.0;
+			pointer->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+			//pointer->delay = 20.0;
 		sei();
 
-		//pointer->startTimer();	
-		//PORTB &= ~(1 << 0);
+		pointer->startTimer();	
+		PORTB &= ~(1 << 0);
 	}
 	
 	else
 	{
 		if(error >= -pointer->hysteresis && error <= pointer->hysteresis)	//If error is less than 1 step
 		{
-			if(pointer->dropIn == PID)
+			if(pointer->mode == PID)
 			{
 				cli();
-				pointer->delay = (uint16_t)pointer->exactDelay.getFloatValue();
+				//pointer->delay = (uint16_t)pointer->exactDelay.getFloatValue();
 				if(pointer->hold || pointer->state)
 				{
-					//PORTB &= ~(1 << 0);
+					PORTB &= ~(1 << 0);
 				}
 				else 
 				{
-					//PORTB |= (1 << 0);
+					PORTB |= (1 << 0);
 				}
 
 				if(pointer->direction)
@@ -1561,19 +1567,19 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 				sei();
 
 			}
-			else if(pointer->dropIn == DROPIN)
+			else if(pointer->mode == DROPIN)
 			{
-				//PORTB |= (PIND & 0x04) >> 2;	//Set enable pin to whatever is demanded by the 3Dprinter controller
+				PORTB |= (PIND & 0x04) >> 2;	//Set enable pin to whatever is demanded by the 3Dprinter controller
 			}
 			pointer->control = 0;			//Set control variable to 0, in order to make sure int0 routine generates step pulses
 			accumError = 0.0;				//Clear accumerror
 			
-			if(pointer->dropIn == DROPIN)
+			if(pointer->mode == DROPIN || !pointer->state)
 			{
-				//pointer->stopTimer();			//Stop timer 2
+				pointer->stopTimer();			//Stop timer 2
 			}
 		}
-	}*/	
+	}	
 }
 
 void i2cMaster::cmd(uint8_t cmd)

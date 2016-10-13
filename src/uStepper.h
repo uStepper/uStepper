@@ -185,7 +185,7 @@
 #define DECEL 8							/**< Value to put in state variable in order to indicate that the motor should be cruising at constant speed with no acceleration */
 #define INITDECEL 16					/**< Value to put in state variable in order to indicate that the motor should be decelerating to full stop before changing direction */
 #define INTFREQ 28200.0f       			/**< Frequency of interrupt routine, in which the delays for the stepper algorithm is calculated */ 
-#define INTPERIOD 1/INTFREQ				/**< */
+#define INTPERIOD 1000000.0/INTFREQ		/**< */
 
 #define INTPIDDELAYCONSTANT 0.028199994 /**< constant to calculate the amount of interrupts TIMER2 has to wait with generating new pulse, during PID error correction*/
 #define CW 0							/**< Value to put in direction variable in order for the stepper to turn clockwise */
@@ -475,7 +475,7 @@ private:
 	//Address offset: 54	
 	uint16_t delay;					/**< This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. */
 	//Address offset: 56
-	bool dropIn;					/**< This variable is used to indicate wether we are currently running in normal or dropin mode */
+	bool dropIn;					/**< Not used anymore !*/
 	//Address offset: 57
 	float velocity;					/**< This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the setMaxVelocity() function, and get the current value with the getMaxVelocity() function. */
 	//Address offset: 61
@@ -500,6 +500,8 @@ private:
 	float iTerm;					/**< This variable contains the integral coefficient used by the PID*/
 	//address offset: 99
 	float dTerm;					/**< This variable contains the differential coefficient used by the PID*/
+	//address offset: 103
+	uint8_t mode;					/**< This variable is used to indicate which mode the uStepper is running in (Normal, dropin or pid) */
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
@@ -712,10 +714,10 @@ public:
 	 * @param[in]  dterm            The differential coefficent of the PID
 	 *                              controller
 	 */
-	void setup(	bool mode = NORMAL, 
+	void setup(	uint8_t mode = NORMAL, 
 				uint8_t microStepping = SIXTEEN, 
-				float faultTolerance = 10.0,
-				float faultHysteresis = 5.0, 
+				float faultTolerance = 2.0,
+				float faultHysteresis = 1.0, 
 				float pTerm = 1.0, 
 				float iTerm = 0.02, 
 				float dterm = 0.006);	
