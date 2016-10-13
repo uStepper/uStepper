@@ -716,8 +716,8 @@ public:
 	 */
 	void setup(	uint8_t mode = NORMAL, 
 				uint8_t microStepping = SIXTEEN, 
-				float faultTolerance = 2.0,
-				float faultHysteresis = 1.0, 
+				float faultTolerance = 10.0,
+				float faultHysteresis = 5.0, 
 				float pTerm = 1.0, 
 				float iTerm = 0.02, 
 				float dterm = 0.006);	
