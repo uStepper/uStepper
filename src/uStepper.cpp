@@ -417,7 +417,7 @@ extern "C" {
 		I2C.read(ENCODERADDR, ANGLE, 2, data);
 		cli();
 			error = (float)pointer->stepCnt;
-			abe = (float)pointer->stepCnt;
+			//abe = (float)pointer->stepCnt;
 			if(pointer->mode == DROPIN)
 			{
 				if(pointer->speedValue[0] == oldMicros)
@@ -467,7 +467,7 @@ extern "C" {
 		if(pointer->mode)
 		{	
 			error = (((float)pointer->encoder.angleMoved * pointer->stepConversion) - error); 
-			abe = error;
+			//abe = error;
 			pointer->pidDropIn(error, speed);
 		}
 	}
@@ -1567,7 +1567,7 @@ void uStepper::pidDropIn(float error, uint32_t speed)
 				sei();
 
 			}
-			else if(pointer->mode == DROPIN)
+			else
 			{
 				PORTB |= (PIND & 0x04) >> 2;	//Set enable pin to whatever is demanded by the 3Dprinter controller
 			}
