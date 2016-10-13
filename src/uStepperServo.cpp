@@ -1,7 +1,7 @@
 /********************************************************************************************
 *       File:       uStepperServo.cpp                                                       *
-*       Version:    0.5.0                                                                   *
-*       date:       October 9th, 2016                                                       *
+*       Version:    1.0.0                                                                  *
+*       date:       October 13th, 2016                                                       *
 *       Author:     Thomas Hørring Olsen                                                    *
 *                                                                                           *  
 *********************************************************************************************
@@ -98,7 +98,9 @@ uStepperServo *uStepperServo::first;
 #define NO_ANGLE (0xff)
 
 uStepperServo::uStepperServo() : pin(0),angle(NO_ANGLE),pulse(0),min16(92),max16(150),next(0)
-{}
+{
+
+}
 
 void uStepperServo::setMinimumPulse(uint16_t t)
 {
@@ -142,19 +144,6 @@ void uStepperServo::write(int angleArg)
     // That 64L on the end is the TCNT0 prescaler, it will need to change if the clock's prescaler changes,
     // but then there will likely be an overflow problem, so it will have to be handled by a human.
       pulse = (min16*16L*clockCyclesPerMicrosecond() + (max16-min16)*(16L*clockCyclesPerMicrosecond())*angle/180L)/64L;
-}
-
-uint8_t uStepperServo::read()
-{
-    return angle;
-}
-
-uint8_t uStepperServo::attached()
-{
-    for ( uStepperServo *p = first; p != 0; p = p->next ) {
-	if ( p == this) return 1;
-    }
-    return 0;
 }
 
 void uStepperServo::refresh()

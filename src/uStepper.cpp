@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    0.4.5             	                             						*
-*      	date: 		August 11th, 2016	                                    				*
+*		Version:    1.0.0             	                             						*
+*      	date: 		October 13th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -72,7 +72,7 @@
 #include <math.h>
 
 uStepper *pointer;
-uint32_t *p __attribute__((used));
+volatile int32_t *p __attribute__((used));
 
 i2cMaster I2C;
 
@@ -962,8 +962,7 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	return (float)this->mode;
-	//return this->acceleration;
+	return this->acceleration;
 }
 
 void uStepper::setMaxVelocity(float vel)
@@ -1349,6 +1348,7 @@ void uStepper::setup(	uint8_t mode,
 		this->stepConversion = ((float)(200*microStepping))/4096.0;	//Calculate conversion coefficient from raw encoder data, to actual moved steps
 		this->tolerance = faultTolerance;		//Number of steps missed before controller kicks in
 		this->hysteresis = faultHysteresis;
+		this->angleToStep = ((float)(200*microStepping))/360.0;	//Calculate conversion coefficient from angle to corresponding number of steps
 		
 		//Scale supplied controller coefficents. This is done to enable the user to use easier to manage numbers for these coefficients.
 		this->pTerm = pTerm/10000.0;	  
@@ -1453,6 +1453,16 @@ void uStepper::pwmD3(float duty)
 	duty *= 0.7;
 
 	OCR2B = (uint16_t)(duty + 0.5);
+}
+
+void uStepper::updateSetPoint(float setPoint)
+{
+	if(this->mode != DROPIN)
+	{
+		return;			//This function doesn't make sense in any other configuration than dropin
+	}
+
+	this->stepCnt = (int32_t)(setPoint*this->angleToStep);
 }
 
 void uStepper::pidDropIn(void)

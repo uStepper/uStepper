@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    0.4.5                                           						*
-*      	date: 		August 11th, 2016	                                    				*
+*		Version:    1.0.0                                           						*
+*      	date: 		October 13th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -49,13 +49,9 @@
 *	\par Installation
 *	To install the uStepper library into the Arduino IDE, perform the following steps:
 *
-*	- Download uStepper.zip
-*	- Open the Arduino IDE
-*	- Select sketch from the top menu
-*	- Select include library
-*	- Select add .ZIP library
-*	- Navigate to where you downloaded uStepper.zip to and select
-*	- The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library. 
+*	- Go to Sketch->Include Libraries->Manage Libraries... in the arduino IDE
+*	- Search for "uStepper", in the top right corner of the "Library Manager" window
+*	- Install uStepper library 
 *	
 *	The library is tested with Arduino IDE 1.6.10
 *	
@@ -111,6 +107,11 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 1.0.0:
+*	- Added PID functionality to drop-in Feature
+*	- Added PID functionality to regular movement functions
+*	- Added support for servo motors
+*	- Added two new examples
 *	\version 0.4.5:
 *	- Changed setup of Timer1 and Timer2, to allow for PWM generation on D3 and D8. See documentation of "pwmD3()" and "pwmD8()" functions in class "uStepper", for instructions.
 *	- Changed setup of external interrupts for dropin feature, to be able to compile with arduino IDE 1.6.10.
@@ -168,7 +169,6 @@
 #include <inttypes.h>
 #include <avr/io.h>
 #include <Arduino.h>
-#include <avr/wdt.h>
 #include <uStepperServo.h>
 
 #define FULL 1							/**< Full step definition*/
@@ -568,6 +568,10 @@ private:
 	             					 * running in (Normal, dropin or pid)
 	             					 */
 
+	float angleToStep;				/** < This variable converts an angle in degrees into a corresponding
+	                 				 * number of steps
+	                 				 */
+
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 	friend void interrupt1(void);
@@ -616,20 +620,20 @@ private:
 	void disableMotor(void);
 
 	/**
-	 * @brief      This method handles the actual PID controller calculations,
-	 *             if enabled.
-	 *
-	 * @param[in]  error  Current error in number of steps
-	 * @param[in]  speed  Current speed, in microseconds between each step pulse
+	 * @brief      This method handles the actual PID controller calculations
+	 *             for drop-in feature, if enabled.
 	 */
 	void pidDropIn(void);
 
+	/**
+	 * @brief      This method handles the actual PID controller calculations,
+	 *             if enabled. 
+	 */
 	void pid(void);
 
 public:
 	uStepperTemp temp;				/** < Instantiate object for the temperature sensor */
 	uStepperEncoder encoder;		/** < Instantiate object for the encoder */
-
 
 	/**
 	 * @brief      Constructor of uStepper class
@@ -789,11 +793,15 @@ public:
 	 *
 	 * @param[in]  mode             Default is normal mode. Pass the constant
 	 *                              "DROPIN" to configure the uStepper to act as
-	 *                              dropin compatible to the stepstick
-	 * @param[in]  microStepping    When mode is set to "DROPIN", this parameter
-	 *                              should be set to the current microstep
-	 *                              setting. available arguments are: FULL HALF
-	 *                              QUARTER EIGHT SIXTEEN
+	 *                              dropin compatible to the stepstick. Pass the
+	 *                              constant "PID", to enable PID feature for
+	 *                              regular movement functions, such as
+	 *                              moveSteps()
+	 * @param[in]  microStepping    When mode is set to anythings else than
+	 *                              "NORMAL", this parameter should be set to
+	 *                              the current microstep setting. available
+	 *                              arguments are: FULL HALF QUARTER EIGHT
+	 *                              SIXTEEN
 	 * @param[in]  faultTolerance   This parameter defines the allowed number of
 	 *                              missed steps before the correction should
 	 *                              kick in.
@@ -887,9 +895,18 @@ public:
 	 *                   100.0.
 	 */
 	void pwmD3(float duty);
+
+	/**
+	 * @brief      Updates setpoint for the motor
+	 *
+	 *             This method updates the setpoint for the motor. This function
+	 *             is used when it is desired to provide an absolute position
+	 *             for the motor, and should be used in the DROPIN mode
+	 *
+	 * @param[in]  setPoint  The setpoint in degrees
+	 */
+	void updateSetPoint(float setPoint);
 };
-
-
 
 /**
  * @brief      Prototype of class for accessing the TWI (I2C) interface of the
