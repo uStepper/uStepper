@@ -70,6 +70,8 @@
 #include <math.h>
 
 uStepper *pointer;
+uint32_t *p __attribute__((used));
+
 i2cMaster I2C;
 
 volatile float abe;
@@ -129,15 +131,10 @@ extern "C" {
 		asm volatile("push r16 \n\t");
 		asm volatile("push r30 \n\t");
 		asm volatile("push r31 \n\t");
-		asm volatile("lds r30,pointer \n\t");
-		asm volatile("lds r31,pointer+1 \n\t");
+		asm volatile("lds r30,p \n\t");
+		asm volatile("lds r31,p+1 \n\t");		
 
-		asm volatile("ldi r16,83 \n\t");
-		asm volatile("add r30,r16 \n\t");
-		asm volatile("clr r16 \n\t");
-		asm volatile("adc r31,r16 \n\t");
-
-		asm volatile("ldd r16,z+20 \n\t");
+		asm volatile("ldd r16,z+24 \n\t");
 		asm volatile("cpi r16,0x01 \n\t");
 		asm volatile("breq _pid \n\t");
 
@@ -899,6 +896,7 @@ uStepper::uStepper(void)
 	this->setMaxAcceleration(1000.0);
 	this->setMaxVelocity(1000.0);
 
+	p = &(this->control);
 	pointer = this;
 
 	DDRD |= (1 << 7);		//set direction pin to output
@@ -942,7 +940,7 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	return (float)this->stepCnt;
+	return (float)this->mode;
 	//return this->acceleration;
 }
 

@@ -493,13 +493,13 @@ private:
 	volatile int32_t control;		/**< This variable contains the number of steps we are off the setpoint, and is updated once every PID sample.*/
 	//address offset: 87
 	volatile uint32_t speedValue[2];/**< This variable contains the number of microseconds between last step pulse from external controller*/
-	//address offset: 91
-	float pTerm;					/**< This variable contains the proportional coefficient used by the PID*/
 	//address offset: 95
-	float iTerm;					/**< This variable contains the integral coefficient used by the PID*/
+	float pTerm;					/**< This variable contains the proportional coefficient used by the PID*/
 	//address offset: 99
-	float dTerm;					/**< This variable contains the differential coefficient used by the PID*/
+	float iTerm;					/**< This variable contains the integral coefficient used by the PID*/
 	//address offset: 103
+	float dTerm;					/**< This variable contains the differential coefficient used by the PID*/
+	//address offset: 107
 	uint8_t mode;					/**< This variable is used to indicate which mode the uStepper is running in (Normal, dropin or pid) */
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
@@ -719,9 +719,9 @@ public:
 				uint8_t microStepping = SIXTEEN, 
 				float faultTolerance = 10.0,
 				float faultHysteresis = 5.0, 
-				float pTerm = 0.0, 
-				float iTerm = 0.00, 
-				float dterm = 0.00);	
+				float pTerm = 1.0, 
+				float iTerm = 0.02, 
+				float dterm = 0.006);	
 
 	/**
 	 * @brief      Returns the direction the motor is currently configured to
