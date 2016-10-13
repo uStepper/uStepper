@@ -5,5 +5,7 @@ var searchData=
   ['delay',['delay',['../classuStepper.html#ade7b941e918d02f6dd4f8e0fbaf603a5',1,'uStepper']]],
   ['detectmagnet',['detectMagnet',['../classuStepperEncoder.html#a990203acc3069947412e0a9dd36bc988',1,'uStepperEncoder']]],
   ['direction',['direction',['../classuStepper.html#aa734971bf8fee35c4a919ee080f020a7',1,'uStepper']]],
-  ['disablemotor',['disableMotor',['../classuStepper.html#aba6edb2757fb57b204979a99fa0248d8',1,'uStepper']]]
+  ['disablemotor',['disableMotor',['../classuStepper.html#aba6edb2757fb57b204979a99fa0248d8',1,'uStepper']]],
+  ['dropin',['dropIn',['../classuStepper.html#a3377d9ca306f8c2237316b9b48fcadbe',1,'uStepper']]],
+  ['dterm',['dTerm',['../classuStepper.html#a3a4d34ff042b271736e171f59bd9b04f',1,'uStepper']]]
 ];

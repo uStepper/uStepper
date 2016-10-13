@@ -59,13 +59,15 @@
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
-/**	\file uStepper.cpp
-*	\brief Class implementations for the uStepper library
-*	
-*	This file contains the implementations of the classes defined in uStepper.h
-*	
-*	\author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/**
+ * @file uStepper.cpp
+ * @brief      Class implementations for the uStepper library
+ *
+ *             This file contains the implementations of the classes defined in
+ *             uStepper.h
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 #include <uStepper.h>
 #include <math.h>
 

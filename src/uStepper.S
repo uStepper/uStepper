@@ -43,14 +43,16 @@
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
-/**	\file uStepper.S
-*	\brief Stepper acceleration profile
-*	
-*	This file contains the assembly implementations of the stepper acceleration algorithm.
-*	The algorithm is implemented in assembly in order to get the best possible performance.
-*	
-*	\author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/**
+ * @file uStepper.S
+ * @brief      Stepper acceleration profile
+ *
+ *             This file contains the assembly implementations of the stepper
+ *             acceleration algorithm. The algorithm is implemented in assembly
+ *             in order to get the best possible performance.
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 
 .global _AccelerationAlgorithm			;The label "_AccelerationAlgorithm" needs to be accessible globally, since it is called from uStepper.cpp
 

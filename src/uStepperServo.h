@@ -19,14 +19,15 @@
 *   caused by the use of the code contained in this file !                                  *
 *                                                                                           *
 ********************************************************************************************/
-/** \file uStepperServo.h
-*   \brief Function prototypes and definitions for the uStepper Servo library
-*   
-*   This file contains class and function prototypes for the library, as well as 
-*   necessary constants and global variables.
-*   
-*   \author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/** @file uStepperServo.h
+ * @brief      Function prototypes and definitions for the uStepper Servo
+ *             library
+ *
+ *             This file contains class and function prototypes for the library,
+ *             as well as necessary constants and global variables.
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 
 #ifndef _USTEPPERSERVO_H
 #define _USTEPPERSERVO_H

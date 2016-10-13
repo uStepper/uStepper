@@ -3,7 +3,7 @@ var searchData=
   ['sethome',['setHome',['../classuStepperEncoder.html#abf3fc82540c092e8a6c68d4580bedbf9',1,'uStepperEncoder']]],
   ['setmaxacceleration',['setMaxAcceleration',['../classuStepper.html#a97998e6f4b3f6eac8226d4670548edf0',1,'uStepper']]],
   ['setmaxvelocity',['setMaxVelocity',['../classuStepper.html#a3058a91bbd7ee379127b8ff354d8cdff',1,'uStepper']]],
-  ['setup',['setup',['../classuStepperEncoder.html#a6d391ceaf50957f3d1ae8736a4c60d76',1,'uStepperEncoder::setup()'],['../classuStepper.html#a972acc9f6df3cbea8909f1ce7d3fa3d2',1,'uStepper::setup()']]],
+  ['setup',['setup',['../classuStepperEncoder.html#a75fd4d246e168c47c06f4e7ec8f124c4',1,'uStepperEncoder::setup()'],['../classuStepper.html#ab9279e2dc81b2348511172025ee7988d',1,'uStepper::setup()']]],
   ['softstop',['softStop',['../classuStepper.html#af5715f56bed814257f496150e032b41c',1,'uStepper']]],
   ['start',['start',['../classi2cMaster.html#a1f220aa9d4c43c6b6ff53395c76428af',1,'i2cMaster']]],
   ['starttimer',['startTimer',['../classuStepper.html#aa3a08ba0871ec3fd1f0deba270d9bacf',1,'uStepper']]],
