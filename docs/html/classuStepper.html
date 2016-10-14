@@ -107,7 +107,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af5715f56bed814257f496150e032b41c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#af5715f56bed814257f496150e032b41c">softStop</a> (bool holdMode)</td></tr>
 <tr class="memdesc:af5715f56bed814257f496150e032b41c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stop the motor with deceleration.  <a href="#af5715f56bed814257f496150e032b41c">More...</a><br /></td></tr>
 <tr class="separator:af5715f56bed814257f496150e032b41c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab9279e2dc81b2348511172025ee7988d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#ab9279e2dc81b2348511172025ee7988d">setup</a> (uint8_t <a class="el" href="classuStepper.html#a4f79bb7b361570660e2e7c808967c84e">mode</a>=NORMAL, uint8_t microStepping=SIXTEEN, float faultTolerance=10.0, float faultHysteresis=5.0, float <a class="el" href="classuStepper.html#ad62569034dbefba62f3e2c5d4e0a17c1">pTerm</a>=1.0, float <a class="el" href="classuStepper.html#a531a34b1df2a630226ce589630b2c32d">iTerm</a>=0.02, float dterm=0.006)</td></tr>
+<tr class="memitem:ab9279e2dc81b2348511172025ee7988d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#ab9279e2dc81b2348511172025ee7988d">setup</a> (uint8_t <a class="el" href="classuStepper.html#a4f79bb7b361570660e2e7c808967c84e">mode</a>=<a class="el" href="uStepper_8h.html#a1291f416b069313021b519eea62d5bf1">NORMAL</a>, uint8_t microStepping=<a class="el" href="uStepper_8h.html#abb254031f3aabcf1496d49bc967946e4">SIXTEEN</a>, float faultTolerance=10.0, float faultHysteresis=5.0, float <a class="el" href="classuStepper.html#ad62569034dbefba62f3e2c5d4e0a17c1">pTerm</a>=1.0, float <a class="el" href="classuStepper.html#a531a34b1df2a630226ce589630b2c32d">iTerm</a>=0.02, float dterm=0.006)</td></tr>
 <tr class="memdesc:ab9279e2dc81b2348511172025ee7988d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the different parts of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> object.  <a href="#ab9279e2dc81b2348511172025ee7988d">More...</a><br /></td></tr>
 <tr class="separator:ab9279e2dc81b2348511172025ee7988d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3df44604dec260335d84eded6aacfe91"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#a3df44604dec260335d84eded6aacfe91">getCurrentDirection</a> (void)</td></tr>
@@ -125,10 +125,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aaa7bc6fc0d337fb9c411a3b72a384f8e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#aaa7bc6fc0d337fb9c411a3b72a384f8e">pwmD3</a> (float duty)</td></tr>
 <tr class="memdesc:aaa7bc6fc0d337fb9c411a3b72a384f8e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate PWM signal on digital output 3.  <a href="#aaa7bc6fc0d337fb9c411a3b72a384f8e">More...</a><br /></td></tr>
 <tr class="separator:aaa7bc6fc0d337fb9c411a3b72a384f8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2b1e99de025bd1ccefb3bc7caef67ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#ab2b1e99de025bd1ccefb3bc7caef67ba">updateSetPoint</a> (float setPoint)</td></tr>
+<tr class="memdesc:ab2b1e99de025bd1ccefb3bc7caef67ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates setpoint for the motor.  <a href="#ab2b1e99de025bd1ccefb3bc7caef67ba">More...</a><br /></td></tr>
+<tr class="separator:ab2b1e99de025bd1ccefb3bc7caef67ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:af53550d64e7c738398256bc5f502795e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classuStepperTemp.html">uStepperTemp</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#af53550d64e7c738398256bc5f502795e">temp</a></td></tr>
+<tr class="memitem:af53550d64e7c738398256bc5f502795e"><td class="memItemLeft" align="right" valign="top"><a id="af53550d64e7c738398256bc5f502795e"></a>
+<a class="el" href="classuStepperTemp.html">uStepperTemp</a>&#160;</td><td class="memItemRight" valign="bottom"><b>temp</b></td></tr>
 <tr class="separator:af53550d64e7c738398256bc5f502795e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44dea3569998b908a326fbe6509417e9"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classuStepperEncoder.html">uStepperEncoder</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#a44dea3569998b908a326fbe6509417e9">encoder</a></td></tr>
 <tr class="separator:a44dea3569998b908a326fbe6509417e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,11 +151,13 @@ Private Member Functions</h2></td></tr>
 <tr class="memitem:aba6edb2757fb57b204979a99fa0248d8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#aba6edb2757fb57b204979a99fa0248d8">disableMotor</a> (void)</td></tr>
 <tr class="memdesc:aba6edb2757fb57b204979a99fa0248d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Disables the stepper driver output stage.  <a href="#aba6edb2757fb57b204979a99fa0248d8">More...</a><br /></td></tr>
 <tr class="separator:aba6edb2757fb57b204979a99fa0248d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f8f9eb1650ad26b76cd6c19b6f1e031"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#a7f8f9eb1650ad26b76cd6c19b6f1e031">pidDropIn</a> (void)</td></tr>
-<tr class="memdesc:a7f8f9eb1650ad26b76cd6c19b6f1e031"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method handles the actual PID controller calculations, if enabled.  <a href="#a7f8f9eb1650ad26b76cd6c19b6f1e031">More...</a><br /></td></tr>
+<tr class="memitem:a7f8f9eb1650ad26b76cd6c19b6f1e031"><td class="memItemLeft" align="right" valign="top"><a id="a7f8f9eb1650ad26b76cd6c19b6f1e031"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#a7f8f9eb1650ad26b76cd6c19b6f1e031">pidDropIn</a> (void)</td></tr>
+<tr class="memdesc:a7f8f9eb1650ad26b76cd6c19b6f1e031"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method handles the actual PID controller calculations for drop-in feature, if enabled. <br /></td></tr>
 <tr class="separator:a7f8f9eb1650ad26b76cd6c19b6f1e031"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adba55725e94e64f0b569b70a3a9cd6a5"><td class="memItemLeft" align="right" valign="top"><a id="adba55725e94e64f0b569b70a3a9cd6a5"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>pid</b> (void)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#adba55725e94e64f0b569b70a3a9cd6a5">pid</a> (void)</td></tr>
+<tr class="memdesc:adba55725e94e64f0b569b70a3a9cd6a5"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method handles the actual PID controller calculations, if enabled. <br /></td></tr>
 <tr class="separator:adba55725e94e64f0b569b70a3a9cd6a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
@@ -215,6 +221,8 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cruiseDelay</b></
 <tr class="separator:a3a4d34ff042b271736e171f59bd9b04f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f79bb7b361570660e2e7c808967c84e"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#a4f79bb7b361570660e2e7c808967c84e">mode</a></td></tr>
 <tr class="separator:a4f79bb7b361570660e2e7c808967c84e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e9d0937570a0b7699982ffc473daae3"><td class="memItemLeft" align="right" valign="top">float&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#a1e9d0937570a0b7699982ffc473daae3">angleToStep</a></td></tr>
+<tr class="separator:a1e9d0937570a0b7699982ffc473daae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -224,8 +232,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>naked</b></td></tr>
 <tr class="memitem:ae42ac974af50b5cbffacf3006fe8a812"><td class="memItemLeft" align="right" valign="top"><a id="ae42ac974af50b5cbffacf3006fe8a812"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 <tr class="separator:ae42ac974af50b5cbffacf3006fe8a812"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memItemLeft" align="right" valign="top"><a id="abbafa3bc17b23bf531c6feba4ee0778d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>TIMER2_COMPA_vect</b> (void) __attribute__((signal</td></tr>
+<tr class="memitem:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepper.html#abbafa3bc17b23bf531c6feba4ee0778d">TIMER2_COMPA_vect</a> (void) __attribute__((signal</td></tr>
 <tr class="separator:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8bc7a9f474f12ea128e6ea6fde8382a5"><td class="memItemLeft" align="right" valign="top"><a id="a8bc7a9f474f12ea128e6ea6fde8382a5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>TIMER1_COMPA_vect</b> (void) __attribute__((signal</td></tr>
@@ -238,7 +245,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt1</b> (void)
 <div class="textblock"><p>Prototype of class for accessing all features of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> in a single object. </p>
 <p>This class enables the user of the library to access all features of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> board, by use of a single object. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00445">445</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00459">459</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a0a9ffcf75de9ed390585f0b0bde385fd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0a9ffcf75de9ed390585f0b0bde385fd">&sect;&nbsp;</a></span>uStepper() <span class="overload">[1/2]</span></h2>
@@ -267,7 +274,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt1</b> (void)
 </div><div class="memdoc">
 
 <p>Constructor of <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> class. </p>
-<p>This is the constructor of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> class. This version of the constructor takes in two arguments, "accel" and "vel". These two arguments lets the programmer set the maximum acceleration and velocity, respectively, during instantiation of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> object.</p>
+<p>&lt; Instantiate object for the encoder This is the constructor of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> class. This version of the constructor takes in two arguments, "accel" and "vel". These two arguments lets the programmer set the maximum acceleration and velocity, respectively, during instantiation of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> object.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">accel</td><td>- Floating point representation of the maximum acceleration allowed in steps/s^2. </td></tr>
@@ -276,7 +283,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt1</b> (void)
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00927">927</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00926">926</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -299,7 +306,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt1</b> (void)
 <p>Constructor of <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> class. </p>
 <p>This is the constructor of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> class. This version of the constructor doesn't take any arguments, and instantiates an object with a maximum acceleration and velocity of 1000 steps/s^2 and 1000 steps/s, respectively. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00911">911</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00910">910</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -436,7 +443,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt1</b> (void)
 <p>This function returns the maximum rotational velocity the motor is allowed to run. In order to change this velocity, The function setMaximumVelocity() should be used.</p>
 <dl class="section return"><dt>Returns</dt><dd>maximum rotational velocity of the motor in steps/s. </dd></dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01000">1000</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00999">999</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -517,7 +524,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01243">1243</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01242">1242</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -564,44 +571,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01090">1090</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
-
-</div>
-</div>
-<a id="a7f8f9eb1650ad26b76cd6c19b6f1e031"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7f8f9eb1650ad26b76cd6c19b6f1e031">&sect;&nbsp;</a></span>pidDropIn()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void uStepper::pidDropIn </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">private</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>This method handles the actual PID controller calculations, if enabled. </p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">error</td><td>Current error in number of steps </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">speed</td><td>Current speed, in microseconds between each step pulse </td></tr>
-  </table>
-  </dd>
-</dl>
-
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01456">1456</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01089">1089</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -688,7 +658,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01005">1005</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01004">1004</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -746,7 +716,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00967">967</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00966">966</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -760,13 +730,13 @@ positive value - number of steps the motor should have rotated in the clockwise 
           <td class="memname">void uStepper::setup </td>
           <td>(</td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>mode</em> = <code>NORMAL</code>, </td>
+          <td class="paramname"><em>mode</em> = <code><a class="el" href="uStepper_8h.html#a1291f416b069313021b519eea62d5bf1">NORMAL</a></code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>microStepping</em> = <code>SIXTEEN</code>, </td>
+          <td class="paramname"><em>microStepping</em> = <code><a class="el" href="uStepper_8h.html#abb254031f3aabcf1496d49bc967946e4">SIXTEEN</a></code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -810,9 +780,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
 <p>This function initializes the different parts of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> object, and should be called in the <a class="el" href="classuStepper.html#ab9279e2dc81b2348511172025ee7988d" title="Initializes the different parts of the uStepper object. ">setup()</a> function of the arduino sketch. This function is needed as some things, like the timer can not be setup in the constructor, since arduino for some strange reason, resets a lot of the AVR registers just before entering the <a class="el" href="classuStepper.html#ab9279e2dc81b2348511172025ee7988d" title="Initializes the different parts of the uStepper object. ">setup()</a> function.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramdir"></td><td class="paramname">mode</td><td>Default is normal mode. Pass the constant "DROPIN" to configure the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> to act as dropin compatible to the stepstick </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">microStepping</td><td>When mode is set to "DROPIN", this parameter should be set to the current microstep setting. available arguments are: FULL HALF QUARTER EIGHT SIXTEEN </td></tr>
-    <tr><td class="paramdir"></td><td class="paramname">faultTolerance</td><td>This parameter defines the allowed number of missed steps before the correction should kick in. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">mode</td><td>Default is normal mode. Pass the constant "DROPIN" to configure the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> to act as dropin compatible to the stepstick. Pass the constant "PID", to enable PID feature for regular movement functions, such as <a class="el" href="classuStepper.html#a1fdc8d8673b58ac5dbd23652128d55c0" title="Make the motor perform a predefined number of steps. ">moveSteps()</a> </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">microStepping</td><td>When mode is set to anythings else than "NORMAL", this parameter should be set to the current microstep setting. available arguments are: FULL HALF QUARTER EIGHT SIXTEEN </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">faultTolerance</td><td>This parameter defines the allowed number of missed steps before the correction should kick in. </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">faultHysteresis</td><td>The number of missed steps allowed for the PID to turn off </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">pTerm</td><td>The proportional coefficent of the PID controller </td></tr>
     <tr><td class="paramdir">[in]</td><td class="paramname">iTerm</td><td>The integral coefficent of the PID controller </td></tr>
@@ -821,7 +791,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01322">1322</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01321">1321</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -850,7 +820,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </dd>
 </dl>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01274">1274</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01273">1273</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
@@ -916,6 +886,65 @@ positive value - number of steps the motor should have rotated in the clockwise 
 
 </div>
 </div>
+<a id="ab2b1e99de025bd1ccefb3bc7caef67ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2b1e99de025bd1ccefb3bc7caef67ba">&sect;&nbsp;</a></span>updateSetPoint()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void uStepper::updateSetPoint </td>
+          <td>(</td>
+          <td class="paramtype">float&#160;</td>
+          <td class="paramname"><em>setPoint</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Updates setpoint for the motor. </p>
+<p>This method updates the setpoint for the motor. This function is used when it is desired to provide an absolute position for the motor, and should be used in the DROPIN mode</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">setPoint</td><td>The setpoint in degrees </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l01456">1456</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Friends And Related Function Documentation</h2>
+<a id="abbafa3bc17b23bf531c6feba4ee0778d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbafa3bc17b23bf531c6feba4ee0778d">&sect;&nbsp;</a></span>TIMER2_COMPA_vect</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TIMER2_COMPA_vect </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>&lt; This variable converts an angle in degrees into a corresponding number of steps </p>
+
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00127">127</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+
+</div>
+</div>
 <h2 class="groupheader">Member Data Documentation</h2>
 <a id="ae238f130c9ad5ab60743d4fe9847da97"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae238f130c9ad5ab60743d4fe9847da97">&sect;&nbsp;</a></span>acceleration</h2>
@@ -936,9 +965,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions <a class="el" href="classuStepper.html#a97998e6f4b3f6eac8226d4670548edf0" title="Set the maximum acceleration of the stepper motor. ">setMaxAcceleration()</a> and <a class="el" href="classuStepper.html#a352e4b96324adfe1feb66ab4f88c3745" title="Get the value of the maximum motor acceleration. ">getMaxAcceleration()</a> respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be eith +/- this value (acceleration/deceleration)or zero (cruise). </p>
+<p>&lt; This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the <a class="el" href="classuStepper.html#a3058a91bbd7ee379127b8ff354d8cdff" title="Sets the maximum rotational velocity of the motor. ">setMaxVelocity()</a> function, and get the current value with the <a class="el" href="classuStepper.html#a1e88bdd345aba07f23409df7d7f93a89" title="Returns the maximum rotational velocity of the motor. ">getMaxVelocity()</a> function. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00485">485</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00530">530</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -961,9 +990,34 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable keeps track of how many steps to perform in the acceleration phase of the profile. </p>
+<p>&lt; This variable is used by the stepper algorithm to keep track of which part of the acceleration profile the motor is currently operating at. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00457">457</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00475">475</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="a1e9d0937570a0b7699982ffc473daae3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e9d0937570a0b7699982ffc473daae3">&sect;&nbsp;</a></span>angleToStep</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float uStepper::angleToStep</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>&lt; This variable is used to indicate which mode the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> is running in (Normal, dropin or pid) </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00570">570</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -986,9 +1040,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable tells the algorithm whether the motor should rotated continuous or only a limited number of steps. If set to 1, the motor will rotate continous. </p>
+<p>&lt; This variable keeps track of the total number of steps to be performed in the current move of a predefined number of steps. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00469">469</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00493">493</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1011,9 +1065,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the number of steps we are off the setpoint, and is updated once every PID sample. </p>
+<p>&lt; This variable contains the number of steps commanded by external controller, in case of dropin feature </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00497">497</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00552">552</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1036,9 +1090,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable is used by Timer2 to check wether it is time to generate steps or not. only used if PID is activated </p>
+<p>&lt; This variable contains the conversion coefficient from raw encoder data to number of steps </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00493">493</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00546">546</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1061,9 +1115,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable keeps track of how many steps to perform in the cruise phase of the profile. </p>
+<p>&lt; This variable keeps track of how many steps to perform in the initial deceleration phase of the profile. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00463">463</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00484">484</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1086,9 +1140,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable keeps track of the current step number in the current move of a predefined number of steps. </p>
+<p>&lt; This variable keeps track of how many steps to perform in the cruise phase of the profile. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00465">465</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00487">487</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1111,9 +1165,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable keeps track of how many steps to perform in the deceleration phase of the profile. </p>
+<p>&lt; This variable keeps track of how many steps to perform in the acceleration phase of the profile. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00459">459</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00478">478</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1136,9 +1190,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. </p>
+<p>&lt; This variable contains the exact delay (in number of interrupts) before the next step is applied. This variable is used in the calculations of the next step delay. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00479">479</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00515">515</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1161,9 +1215,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable tells the algorithm the direction of rotation for the commanded move. </p>
+<p>&lt; This variable tells the algorithm if it should block the motor by keeping the motor coils excited after the commanded number of steps have been carried out, or if it should release the motor coil, allowing the shaft to be rotated freely. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00473">473</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00502">502</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1186,9 +1240,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Not used anymore ! </p>
+<p>&lt; This variable is used by the stepper algorithm to keep track of when to apply the next step pulse. When the algorithm have applied a step pulse, it will calculate the next delay (in number of interrupts) needed before the next pulse should be applied. A truncated version of this delay will be put in this variable and is decremented by one for each interrupt untill it reaches zero and a step is applied. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00481">481</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00523">523</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1211,9 +1265,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the differential coefficient used by the PID </p>
+<p>&lt; This variable contains the integral coefficient used by the PID </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00505">505</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00563">563</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1228,9 +1282,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Instantiate object for the encoder </p>
+<p>&lt; Instantiate object for the temperature sensor </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00563">563</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00635">635</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1253,9 +1307,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the exact delay (in number of interrupts) before the next step is applied. This variable is used in the calculations of the next step delay. </p>
+<p>&lt; This variable contains an open-loop number of steps moved from the position the motor had when powered on (or reset). a negative value represents a rotation in the counter clock wise direction and a positive value corresponds to a rotation in the clock wise direction. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00477">477</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00511">511</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1278,9 +1332,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable tells the algorithm if it should block the motor by keeping the motor coils excited after the commanded number of steps have been carried out, or if it should release the motor coil, allowing the shaft to be rotated freely. </p>
+<p>&lt; This variable tells the algorithm whether the motor should rotated continuous or only a limited number of steps. If set to 1, the motor will rotate continous. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00471">471</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00497">497</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1303,9 +1357,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the error which the PID controller should have obtained in order to switch off </p>
+<p>&lt; This variable contains the number of missed steps allowed before the PID controller kicks in, if activated </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00489">489</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00540">540</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1328,9 +1382,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable keeps track of how many steps to perform in the initial deceleration phase of the profile. </p>
+<p>&lt; This variable keeps track of how many steps to perform in the deceleration phase of the profile. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00461">461</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00481">481</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1353,9 +1407,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the integral coefficient used by the PID </p>
+<p>&lt; This variable contains the proportional coefficient used by the PID </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00503">503</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00561">561</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1378,9 +1432,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable is used to indicate which mode the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> is running in (Normal, dropin or pid) </p>
+<p>&lt; This variable contains the differential coefficient used by the PID </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00507">507</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00566">566</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1403,9 +1457,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; This variable is used by the stepper acceleration algorithm to set the delay between step pulses when running at the set cruise speed This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. </p>
+<p>&lt; This variable is used by the stepper acceleration algorithm to set the delay between step pulses when running at the set cruise speed </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00453">453</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00467">467</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1428,9 +1482,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the proportional coefficient used by the PID </p>
+<p>&lt; This variable contains the number of microseconds between last step pulse from external controller </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00501">501</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00558">558</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1453,9 +1507,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the number of microseconds between last step pulse from external controller </p>
+<p>&lt; This variable contains the number of steps we are off the setpoint, and is updated once every PID sample. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00499">499</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00555">555</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1478,9 +1532,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable is used by the stepper algorithm to keep track of which part of the acceleration profile the motor is currently operating at. </p>
+<p>&lt; This is the constant multiplier used by the stepper algorithm. See description of timer2 overflow interrupt routine for more details. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00455">455</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00471">471</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1503,9 +1557,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the number of steps commanded by external controller, in case of dropin feature </p>
+<p>&lt; This variable is used by Timer2 to check wether it is time to generate steps or not. only used if PID is activated </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00495">495</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00549">549</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1528,9 +1582,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the conversion coefficient from raw encoder data to number of steps </p>
+<p>&lt; This variable contains the error which the PID controller should have obtained in order to switch off </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00491">491</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00543">543</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1553,26 +1607,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains an open-loop number of steps moved from the position the motor had when powered on (or reset). a negative value represents a rotation in the counter clock wise direction and a positive value corresponds to a rotation in the clock wise direction. </p>
+<p>&lt; This variable tells the algorithm the direction of rotation for the commanded move. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00475">475</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
-
-</div>
-</div>
-<a id="af53550d64e7c738398256bc5f502795e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af53550d64e7c738398256bc5f502795e">&sect;&nbsp;</a></span>temp</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname"><a class="el" href="classuStepperTemp.html">uStepperTemp</a> uStepper::temp</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Instantiate object for the temperature sensor </p>
-
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00562">562</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00505">505</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1595,9 +1632,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the number of missed steps allowed before the PID controller kicks in, if activated </p>
+<p>&lt; This variable contains the maximum acceleration to be used. The can be set and read by the user of the library using the functions <a class="el" href="classuStepper.html#a97998e6f4b3f6eac8226d4670548edf0" title="Set the maximum acceleration of the stepper motor. ">setMaxAcceleration()</a> and <a class="el" href="classuStepper.html#a352e4b96324adfe1feb66ab4f88c3745" title="Get the value of the maximum motor acceleration. ">getMaxAcceleration()</a> respectively. Since this library uses a second order acceleration curve, the acceleration applied will always be either +/- this value (acceleration/deceleration)or zero (cruise). </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00487">487</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00537">537</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1620,9 +1657,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable keeps track of the total number of steps to be performed in the current move of a predefined number of steps. </p>
+<p>&lt; This variable keeps track of the current step number in the current move of a predefined number of steps. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00467">467</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00490">490</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1645,9 +1682,9 @@ positive value - number of steps the motor should have rotated in the clockwise 
   </tr>
 </table>
 </div><div class="memdoc">
-<p>This variable contains the maximum velocity, the motor is allowed to reach at any given point. The user of the library can set this by use of the <a class="el" href="classuStepper.html#a3058a91bbd7ee379127b8ff354d8cdff" title="Sets the maximum rotational velocity of the motor. ">setMaxVelocity()</a> function, and get the current value with the <a class="el" href="classuStepper.html#a1e88bdd345aba07f23409df7d7f93a89" title="Returns the maximum rotational velocity of the motor. ">getMaxVelocity()</a> function. </p>
+<p>&lt; Not used anymore ! </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00483">483</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00525">525</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -1658,7 +1695,7 @@ positive value - number of steps the motor should have rotated in the clockwise 
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Oct 13 2016 15:31:09 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Oct 14 2016 09:24:15 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

@@ -1,19 +1,11 @@
 var searchData=
 [
-  ['sethome',['setHome',['../classuStepperEncoder.html#abf3fc82540c092e8a6c68d4580bedbf9',1,'uStepperEncoder']]],
-  ['setmaxacceleration',['setMaxAcceleration',['../classuStepper.html#a97998e6f4b3f6eac8226d4670548edf0',1,'uStepper']]],
-  ['setmaxvelocity',['setMaxVelocity',['../classuStepper.html#a3058a91bbd7ee379127b8ff354d8cdff',1,'uStepper']]],
-  ['setup',['setup',['../classuStepperEncoder.html#a75fd4d246e168c47c06f4e7ec8f124c4',1,'uStepperEncoder::setup()'],['../classuStepper.html#ab9279e2dc81b2348511172025ee7988d',1,'uStepper::setup()']]],
-  ['soft',['SOFT',['../uStepper_8h.html#a1b44ecf82561bec987fa3c07632335a4',1,'uStepper.h']]],
-  ['softstop',['softStop',['../classuStepper.html#af5715f56bed814257f496150e032b41c',1,'uStepper']]],
-  ['speedvalue',['speedValue',['../classuStepper.html#adb545697344fe53451c2e33f503c4ec9',1,'uStepper']]],
-  ['start',['start',['../classi2cMaster.html#a1f220aa9d4c43c6b6ff53395c76428af',1,'i2cMaster::start()'],['../uStepper_8h.html#a3018c7600b7bb9866400596a56a57af7',1,'START():&#160;uStepper.h']]],
-  ['starttimer',['startTimer',['../classuStepper.html#aa3a08ba0871ec3fd1f0deba270d9bacf',1,'uStepper']]],
-  ['state',['state',['../classuStepper.html#af406f7f37fadc3ababf95e3bbebb302f',1,'uStepper']]],
-  ['status',['status',['../classi2cMaster.html#a7a51e61bacd034eef996bc5ffccbb75b',1,'i2cMaster::status()'],['../uStepper_8h.html#a59279bee44f34d08b3cbf3a89fb0d8d9',1,'STATUS():&#160;uStepper.h']]],
-  ['stepcnt',['stepCnt',['../classuStepper.html#a3377fddee847faec3370d10d2b9689ca',1,'uStepper']]],
-  ['stepconversion',['stepConversion',['../classuStepper.html#a51c394e0f436b1052067dd16c17bfe66',1,'uStepper']]],
-  ['stepssincereset',['stepsSinceReset',['../classuStepper.html#a98db94619cc110a32ea57f8cbbd97cb1',1,'uStepper']]],
-  ['stop',['stop',['../classi2cMaster.html#aa3b88864e9b2b6a864c48721b34e206e',1,'i2cMaster::stop()'],['../uStepper_8h.html#ae19b6bb2940d2fbe0a79852b070eeafd',1,'STOP():&#160;uStepper.h']]],
-  ['stoptimer',['stopTimer',['../classuStepper.html#a8e795410f167d9473ea871ee31f9e5f4',1,'uStepper']]]
+  ['r',['R',['../uStepper_8h.html#a5c71a5e59a53413cd6c270266d63b031',1,'uStepper.h']]],
+  ['read',['read',['../classi2cMaster.html#a9d56b4ea47659456f19cff59ac96d5f9',1,'i2cMaster::read()'],['../uStepper_8h.html#ada74e7db007a68e763f20c17f2985356',1,'READ():&#160;uStepper.h']]],
+  ['readbyte',['readByte',['../classi2cMaster.html#a631086e66e032c001da7ba7492ec4dc5',1,'i2cMaster']]],
+  ['refresh',['refresh',['../classuStepperServo.html#a8ae556ef5f97bb7b614906f3db472dc6',1,'uStepperServo']]],
+  ['repstart',['REPSTART',['../uStepper_8h.html#a819db82b3595334312089eb4340ef80d',1,'uStepper.h']]],
+  ['restart',['restart',['../classi2cMaster.html#a67daea3016661f33cdf8621d621300be',1,'i2cMaster']]],
+  ['runcontinous',['runContinous',['../classuStepper.html#a963e4d53e856238e5a4f54be38b8a8b3',1,'uStepper']]],
+  ['rxaddrack',['RXADDRACK',['../uStepper_8h.html#a3c946fae086c9d624c8a65315fb9435a',1,'uStepper.h']]]
 ];

@@ -31,9 +31,11 @@
 *   This will attach a servo to pin 10, which is the argument of the attach function.       *
 *                                                                                           *
 *   The servo pulse widths are normally around 500 us for 0 deg and 2500 us for 180 deg.    *
-*   The default values in this library are 544 and 2400 us. These values can be redefined   *
-*   to fit your servos specifications by calling the setMaximumPulse and SetMinimumPulse    *
-*   functions.                                                                              *
+*   The default values in this library are 1472 and 2400 us - giving a work area of         *
+*   ~90-180deg. These values can be redefined to fit your servos specifications by calling  *
+*    the setMaximumPulse and SetMinimumPulse functions. However, because of running the     *
+*    stepper algorithm simultaniously with the servo, there is a risk of twitching if       *
+*    using lower values than the 1500 us.                                                   *                           *
 *                                                                                           *
 *       example:                                                                            *
 *                                                                                           *
@@ -42,8 +44,8 @@
 *       void setup()                                                                        *
 *       {                                                                                   *
 *           servo.attach(10);                                                               *
-*           servo.SetMaximumPulse(2000);                                                    *
-*           servo.SetMinimumPulse(500);                                                     *
+*           servo.SetMaximumPulse(2400);                                                    *
+*           servo.SetMinimumPulse(1500);//Should be kept above 1500!!                       *
 *       }                                                                                   *
 *                                                                                           *
 *   To apply the pulses to the attached servos, the refresh function should be called       *
@@ -57,8 +59,8 @@
 *       void setup()                                                                        *
 *       {                                                                                   *  
 *           servo.attach(10);                                                               *
-*           servo.SetMaximumPulse(2000);                                                    *
-*           servo.SetMinimumPulse(500);                                                     *
+*           servo.SetMaximumPulse(2400);                                                    *
+*           servo.SetMinimumPulse(1500);  //Should be kept above 1500!!                     *
 *       }                                                                                   *
 *                                                                                           *
 *        void loop()                                                                        *

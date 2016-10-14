@@ -36,7 +36,7 @@
 #include <inttypes.h>
 
 /**
- * @brief      Class for ustepper servo.
+ * @brief      Prototype of class for ustepper servo.
  */
 class uStepperServo
 {

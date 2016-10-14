@@ -97,7 +97,6 @@
 *	\par To do list
 *	- Clean out in unused variables
 *	- Update comments
-*	- Implement PID-controller into dropin feature
 *	- Implement multiaxis feature between multiple uSteppers
 *	- Add support for limit switches
 *	- Split the library into multiple files

@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['i2cfree',['I2CFREE',['../uStepper_8h.html#a46fd28b671402790a8b9c4c2dde700d8',1,'uStepper.h']]],
-  ['initdecel',['INITDECEL',['../uStepper_8h.html#a0c1151fb74132a2a24a1483ca529d511',1,'uStepper.h']]],
-  ['intfreq',['INTFREQ',['../uStepper_8h.html#a2d6d8ed93a3b37e34993ff25b5dfa6f3',1,'uStepper.h']]],
-  ['intpiddelayconstant',['INTPIDDELAYCONSTANT',['../uStepper_8h.html#ac5b1500d852f9a821aa8816eb1e89436',1,'uStepper.h']]]
+  ['half',['HALF',['../uStepper_8h.html#a37c4c48ff47f0838f64b5a1fb3c803b2',1,'uStepper.h']]],
+  ['hard',['HARD',['../uStepper_8h.html#a4d14a79c82f3f831303e38487811eda4',1,'uStepper.h']]]
 ];

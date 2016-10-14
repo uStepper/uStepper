@@ -77,7 +77,6 @@ $(function() {
 <div class="textblock"><code>#include &lt;inttypes.h&gt;</code><br />
 <code>#include &lt;avr/io.h&gt;</code><br />
 <code>#include &lt;Arduino.h&gt;</code><br />
-<code>#include &lt;avr/wdt.h&gt;</code><br />
 <code>#include &lt;<a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>&gt;</code><br />
 </div>
 <p><a href="uStepper_8h_source.html">Go to the source code of this file.</a></p>
@@ -101,29 +100,21 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a7b05b8118861711fd8573e92759bbc34"><td class="memItemLeft" align="right" valign="top"><a id="a7b05b8118861711fd8573e92759bbc34"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>FULL</b>&#160;&#160;&#160;1</td></tr>
+<tr class="memitem:a7b05b8118861711fd8573e92759bbc34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a7b05b8118861711fd8573e92759bbc34">FULL</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:a7b05b8118861711fd8573e92759bbc34"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37c4c48ff47f0838f64b5a1fb3c803b2"><td class="memItemLeft" align="right" valign="top"><a id="a37c4c48ff47f0838f64b5a1fb3c803b2"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>HALF</b>&#160;&#160;&#160;2</td></tr>
+<tr class="memitem:a37c4c48ff47f0838f64b5a1fb3c803b2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a37c4c48ff47f0838f64b5a1fb3c803b2">HALF</a>&#160;&#160;&#160;2</td></tr>
 <tr class="separator:a37c4c48ff47f0838f64b5a1fb3c803b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a641d13af9fb651f951b55064ab61d5bd"><td class="memItemLeft" align="right" valign="top"><a id="a641d13af9fb651f951b55064ab61d5bd"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>QUARTER</b>&#160;&#160;&#160;4</td></tr>
+<tr class="memitem:a641d13af9fb651f951b55064ab61d5bd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a641d13af9fb651f951b55064ab61d5bd">QUARTER</a>&#160;&#160;&#160;4</td></tr>
 <tr class="separator:a641d13af9fb651f951b55064ab61d5bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf6cfeda610d5092df7deb18fd5d63c2"><td class="memItemLeft" align="right" valign="top"><a id="aaf6cfeda610d5092df7deb18fd5d63c2"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>EIGHT</b>&#160;&#160;&#160;8</td></tr>
+<tr class="memitem:aaf6cfeda610d5092df7deb18fd5d63c2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#aaf6cfeda610d5092df7deb18fd5d63c2">EIGHT</a>&#160;&#160;&#160;8</td></tr>
 <tr class="separator:aaf6cfeda610d5092df7deb18fd5d63c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb254031f3aabcf1496d49bc967946e4"><td class="memItemLeft" align="right" valign="top"><a id="abb254031f3aabcf1496d49bc967946e4"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>SIXTEEN</b>&#160;&#160;&#160;16</td></tr>
+<tr class="memitem:abb254031f3aabcf1496d49bc967946e4"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#abb254031f3aabcf1496d49bc967946e4">SIXTEEN</a>&#160;&#160;&#160;16</td></tr>
 <tr class="separator:abb254031f3aabcf1496d49bc967946e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1291f416b069313021b519eea62d5bf1"><td class="memItemLeft" align="right" valign="top"><a id="a1291f416b069313021b519eea62d5bf1"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>NORMAL</b>&#160;&#160;&#160;0</td></tr>
+<tr class="memitem:a1291f416b069313021b519eea62d5bf1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a1291f416b069313021b519eea62d5bf1">NORMAL</a>&#160;&#160;&#160;0</td></tr>
 <tr class="separator:a1291f416b069313021b519eea62d5bf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f68cacd85ea12b3b1818171d902aa76"><td class="memItemLeft" align="right" valign="top"><a id="a7f68cacd85ea12b3b1818171d902aa76"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>DROPIN</b>&#160;&#160;&#160;1</td></tr>
+<tr class="memitem:a7f68cacd85ea12b3b1818171d902aa76"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a7f68cacd85ea12b3b1818171d902aa76">DROPIN</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:a7f68cacd85ea12b3b1818171d902aa76"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1230649f2e178a83485c5b5465ff8260"><td class="memItemLeft" align="right" valign="top"><a id="a1230649f2e178a83485c5b5465ff8260"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>PID</b>&#160;&#160;&#160;2</td></tr>
+<tr class="memitem:a1230649f2e178a83485c5b5465ff8260"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a1230649f2e178a83485c5b5465ff8260">PID</a>&#160;&#160;&#160;2</td></tr>
 <tr class="separator:a1230649f2e178a83485c5b5465ff8260"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae19b6bb2940d2fbe0a79852b070eeafd"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#ae19b6bb2940d2fbe0a79852b070eeafd">STOP</a>&#160;&#160;&#160;1</td></tr>
 <tr class="separator:ae19b6bb2940d2fbe0a79852b070eeafd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -201,8 +192,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt0</b> (void)
 <tr class="memitem:a9d297deade6b2a750336bf6194976a42"><td class="memItemLeft" align="right" valign="top"><a id="a9d297deade6b2a750336bf6194976a42"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>interrupt1</b> (void)</td></tr>
 <tr class="separator:a9d297deade6b2a750336bf6194976a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memItemLeft" align="right" valign="top"><a id="abbafa3bc17b23bf531c6feba4ee0778d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>TIMER2_COMPA_vect</b> (void) __attribute__((signal</td></tr>
+<tr class="memitem:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#abbafa3bc17b23bf531c6feba4ee0778d">TIMER2_COMPA_vect</a> (void) __attribute__((signal</td></tr>
 <tr class="separator:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8bc7a9f474f12ea128e6ea6fde8382a5"><td class="memItemLeft" align="right" valign="top"><a id="a8bc7a9f474f12ea128e6ea6fde8382a5"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>TIMER1_COMPA_vect</b> (void) __attribute__((signal</td></tr>
@@ -216,7 +206,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>naked</b></td></tr>
 <tr class="memitem:ae42ac974af50b5cbffacf3006fe8a812"><td class="memItemLeft" align="right" valign="top"><a id="ae42ac974af50b5cbffacf3006fe8a812"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 <tr class="separator:ae42ac974af50b5cbffacf3006fe8a812"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3216dd3022dcb4a4e82d44fd41509e8e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classi2cMaster.html">i2cMaster</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="uStepper_8h.html#a3216dd3022dcb4a4e82d44fd41509e8e">I2C</a></td></tr>
+<tr class="memitem:a3216dd3022dcb4a4e82d44fd41509e8e"><td class="memItemLeft" align="right" valign="top"><a id="a3216dd3022dcb4a4e82d44fd41509e8e"></a>
+<a class="el" href="classi2cMaster.html">i2cMaster</a>&#160;</td><td class="memItemRight" valign="bottom"><b>I2C</b></td></tr>
 <tr class="separator:a3216dd3022dcb4a4e82d44fd41509e8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -418,6 +409,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 
 </div>
 </div>
+<a id="a7f68cacd85ea12b3b1818171d902aa76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f68cacd85ea12b3b1818171d902aa76">&sect;&nbsp;</a></span>DROPIN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define DROPIN&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Value defining dropin mode for 3d printer/CNC controller boards </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00180">180</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="aaf6cfeda610d5092df7deb18fd5d63c2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf6cfeda610d5092df7deb18fd5d63c2">&sect;&nbsp;</a></span>EIGHT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define EIGHT&#160;&#160;&#160;8</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Eighth step definition </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00176">176</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
 <a id="a2e619f47c3bc5b6af8ea904dbf5c98fe"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a2e619f47c3bc5b6af8ea904dbf5c98fe">&sect;&nbsp;</a></span>ENCODERADDR</h2>
 
@@ -466,6 +491,40 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 <p>Constant to convert angle difference between two interrupts to speed in revolutions per second </p>
 
 <p>Definition at line <a class="el" href="uStepper_8h_source.html#l00198">198</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="a7b05b8118861711fd8573e92759bbc34"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7b05b8118861711fd8573e92759bbc34">&sect;&nbsp;</a></span>FULL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define FULL&#160;&#160;&#160;1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Full step definition </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00173">173</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="a37c4c48ff47f0838f64b5a1fb3c803b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37c4c48ff47f0838f64b5a1fb3c803b2">&sect;&nbsp;</a></span>HALF</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HALF&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Half step definition </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00174">174</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -588,6 +647,57 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 
 </div>
 </div>
+<a id="a1291f416b069313021b519eea62d5bf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1291f416b069313021b519eea62d5bf1">&sect;&nbsp;</a></span>NORMAL</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define NORMAL&#160;&#160;&#160;0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Value defining normal mode </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00179">179</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="a1230649f2e178a83485c5b5465ff8260"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1230649f2e178a83485c5b5465ff8260">&sect;&nbsp;</a></span>PID</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define PID&#160;&#160;&#160;2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Value defining PID mode for normal library functions </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00181">181</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="a641d13af9fb651f951b55064ab61d5bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a641d13af9fb651f951b55064ab61d5bd">&sect;&nbsp;</a></span>QUARTER</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define QUARTER&#160;&#160;&#160;4</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Quarter step definition </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00175">175</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
 <a id="a5c71a5e59a53413cd6c270266d63b031"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5c71a5e59a53413cd6c270266d63b031">&sect;&nbsp;</a></span>R</h2>
 
@@ -653,6 +763,23 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 <p>slave address plus read bit transmitted, ACK received </p>
 
 <p>Definition at line <a class="el" href="uStepper_8h_source.html#l00223">223</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="abb254031f3aabcf1496d49bc967946e4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb254031f3aabcf1496d49bc967946e4">&sect;&nbsp;</a></span>SIXTEEN</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define SIXTEEN&#160;&#160;&#160;16</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sixteenth step definition </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00177">177</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -775,28 +902,32 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 
 </div>
 </div>
-<h2 class="groupheader">Variable Documentation</h2>
-<a id="a3216dd3022dcb4a4e82d44fd41509e8e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3216dd3022dcb4a4e82d44fd41509e8e">&sect;&nbsp;</a></span>I2C</h2>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="abbafa3bc17b23bf531c6feba4ee0778d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbafa3bc17b23bf531c6feba4ee0778d">&sect;&nbsp;</a></span>TIMER2_COMPA_vect()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classi2cMaster.html">i2cMaster</a> I2C</td>
+          <td class="memname">void TIMER2_COMPA_vect </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Global definition of I2C object for use in arduino sketch </p>
+<p>&lt; This variable converts an angle in degrees into a corresponding number of steps </p>
 
-<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00075">75</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00127">127</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
 </div>
 </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Oct 13 2016 15:31:09 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Fri Oct 14 2016 09:24:15 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

@@ -76,8 +76,6 @@ volatile int32_t *p __attribute__((used));
 
 i2cMaster I2C;
 
-volatile float abe;
-
 extern "C" {
 
 	void interrupt1(void)
@@ -392,7 +390,6 @@ extern "C" {
 		asm volatile("pop r16 \n\t");	
 		asm volatile("cbi 0x05,5 \n\t");	
 		asm volatile("reti \n\t");
-
 	}*/
 
 	void TIMER1_COMPA_vect(void)
@@ -933,6 +930,7 @@ uStepper::uStepper(float accel, float vel)
 	this->setMaxVelocity(vel);
 	this->setMaxAcceleration(accel);
 
+	p = &(this->control);
 	pointer = this;
 
 	DDRD |= (1 << 7);		//set direction pin to output
@@ -1559,7 +1557,6 @@ void uStepper::pidDropIn(void)
 		
 		cli();		//Atomic copy
 			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
-			abe = this->delay;
 		sei();
 
 		this->startTimer();	
@@ -1592,7 +1589,6 @@ void uStepper::pidDropIn(void)
 		
 		cli();
 			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-			abe = this->delay;
 		sei();
 
 		this->startTimer();	

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pterm',['pTerm',['../classuStepper.html#ad62569034dbefba62f3e2c5d4e0a17c1',1,'uStepper']]]
+  ['next',['next',['../classuStepperServo.html#a53bfc2de75dab9df9cfb71157e3dbb3a',1,'uStepperServo']]]
 ];
