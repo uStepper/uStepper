@@ -142,21 +142,53 @@ Friends</h2></td></tr>
 <tr class="memitem:a7256dda9d6a2decb036f1b853f2ce000"><td class="memItemLeft" align="right" valign="top"><a id="a7256dda9d6a2decb036f1b853f2ce000"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 <tr class="separator:a7256dda9d6a2decb036f1b853f2ce000"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memItemLeft" align="right" valign="top"><a id="abbafa3bc17b23bf531c6feba4ee0778d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>TIMER2_COMPA_vect</b> (void) __attribute__((signal</td></tr>
+<tr class="memitem:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classfloat2.html#abbafa3bc17b23bf531c6feba4ee0778d">TIMER2_COMPA_vect</a> (void) __attribute__((signal</td></tr>
+<tr class="memdesc:abbafa3bc17b23bf531c6feba4ee0778d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to apply step pulses to the motor.  <a href="#abbafa3bc17b23bf531c6feba4ee0778d">More...</a><br /></td></tr>
 <tr class="separator:abbafa3bc17b23bf531c6feba4ee0778d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock">
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00254">254</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00290">290</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+</div><h2 class="groupheader">Friends And Related Function Documentation</h2>
+<a id="abbafa3bc17b23bf531c6feba4ee0778d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abbafa3bc17b23bf531c6feba4ee0778d">&sect;&nbsp;</a></span>TIMER2_COMPA_vect</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void TIMER2_COMPA_vect </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">friend</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Used to apply step pulses to the motor. </p>
+<p>This interrupt routine is in charge of applying step pulses to the motor. The routine runs at a frequency of 28.2kHz, and handles acceleration algorithm calculations, as well as applying step pulses during compensation for missed steps, while either dropin or PID feature are enabled. </p>
+
+<p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00127">127</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>/home/thomas/Dropbox/Arduino/libraries/uStepper/src/<a class="el" href="uStepper_8h_source.html">uStepper.h</a></li>
 <li>/home/thomas/Dropbox/Arduino/libraries/uStepper/src/<a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Fri Oct 14 2016 09:24:15 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Oct 17 2016 20:58:44 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

@@ -29,6 +29,8 @@
 *	The uStepper library contains the following features:
 *	
 *	- Second order acceleration profile, to provide smooth ramping of the speed and to avoid the motor stalling when demanding high speeds.
+*	- Closed loop PID position controller
+*	- Control of RC servo motors
 *	- Temperature measurement of the stepper driver chip by means of a NTC resistor placed beneath the chip.
 *	- Measure the current position of the shaft (absolute, multiple revolutions)
 *	- Measure the current speed of the motor 
@@ -227,28 +229,62 @@
 #define NACK 0							/**< value to indicate NACK for i2c transmission */
 		
 /**
-*	Coefficients needed by the Steinhart-hart equation in order to find the temperature of the NTC (and hereby the temperature of the motor driver)
-*	from the current resistance of the NTC resistor. The coefficients are calculated for the following 3 operating points:
-*
-*	A: T = 5 degree Celsius
-*
-*	B: T = 50 degree Celsius
-*
-*	C: T = 105 degree Celsius
-*
-*	The Steinhart-Hart equation is described at the following link:
-*
-*	https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation#Developers_of_the_equation
-*
-*/
+ * Coefficients needed by the Steinhart-hart equation in order to find the
+ * temperature of the NTC (and hereby the temperature of the motor driver) from
+ * the current resistance of the NTC resistor. The coefficients are calculated
+ * for the following 3 operating points:
+ *
+ * A: T = 5 degree Celsius
+ *
+ * B: T = 50 degree Celsius
+ *
+ * C: T = 105 degree Celsius
+ *
+ * The Steinhart-Hart equation is described at the following link:
+ *
+ * https://en.wikipedia.org/wiki/Steinhart%E2%80%93Hart_equation#Developers_of_the_equation
+ */
 
 #define A 0.001295752996237  	
 #define B 0.000237488365866  			/**< See description of A */
 #define C 0.000000083423218  			/**< See description of A */
 
+/**
+ * @brief      Used by dropin feature to take in step pulses
+ *
+ *             This interrupt routine is used by the dropin feature to keep
+ *             track of step and direction pulses from main controller
+ */
 extern "C" void interrupt0(void);
+
+/**
+ * @brief      Used by dropin feature to take in enable signal
+ *
+ *             This interrupt routine is used by the dropin feature to keep
+ *             track of enable signal from main controller
+ */
 extern "C" void interrupt1(void);
+
+/**
+ * @brief      Used to apply step pulses to the motor
+ *
+ *
+ *             This interrupt routine is in charge of applying step pulses to
+ *             the motor. The routine runs at a frequency of 28.2kHz, and
+ *             handles acceleration algorithm calculations, as well as applying
+ *             step pulses during compensation for missed steps, while either
+ *             dropin or PID feature are enabled.
+ */
 extern "C" void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
+
+/**
+ * @brief      Measures angle and speed of motor.
+ *
+ *             This interrupt routine is in charge of sampling the encoder and
+ *             measure the current speed of the motor. In case of Dropin or PID
+ *             feature this routine runs at a frequency of 500Hz while during
+ *             normal operation it runs at a frequency of 1kHz.
+ */
 extern "C" void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 
 class float2
@@ -626,7 +662,7 @@ private:
 
 	/**
 	 * @brief      This method handles the actual PID controller calculations,
-	 *             if enabled. 
+	 *             if enabled.
 	 */
 	void pid(void);
 

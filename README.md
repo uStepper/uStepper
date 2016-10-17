@@ -43,7 +43,8 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 - Added PID functionality to drop-in Feature
 - Added PID functionality to regular movement functions
 - Added support for servo motors
-- Added two new examples
+- Added one new example
+- Revised Drop-in example to utilise PID controller
 
 0.4.5:
 
