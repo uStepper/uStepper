@@ -1,7 +1,7 @@
 /********************************************************************************************
 *    	File: 		uStepper.S 																*
-*		Version:    0.4.5                                           						*
-*      	date: 		August 11th, 2016	                                    				*
+*		Version:    1.0.0                                          						*
+*      	date: 		October 13th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -43,14 +43,16 @@
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
-/**	\file uStepper.S
-*	\brief Stepper acceleration profile
-*	
-*	This file contains the assembly implementations of the stepper acceleration algorithm.
-*	The algorithm is implemented in assembly in order to get the best possible performance.
-*	
-*	\author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/**
+ * @file uStepper.S
+ * @brief      Stepper acceleration profile
+ *
+ *             This file contains the assembly implementations of the stepper
+ *             acceleration algorithm. The algorithm is implemented in assembly
+ *             in order to get the best possible performance.
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 
 .global _AccelerationAlgorithm			;The label "_AccelerationAlgorithm" needs to be accessible globally, since it is called from uStepper.cpp
 
@@ -111,7 +113,6 @@ brne _notRdy				;If lower part of delay variable not equal to 0, we should decre
 
 sbi 0x0B,4					;Pull Step pin high, to issue a step
 
-
 rjmp _rdy
 
 _notRdy:					;Not ready to issue step
@@ -143,6 +144,43 @@ std z+CURRENTSTEP,r19
 std z+CURRENTSTEP+1,r20
 std z+CURRENTSTEP+2,r21
 std z+CURRENTSTEP+3,r22
+
+ldi r19,37
+add r30,r19
+clr r19
+adc r31,r19
+
+ldd r19,z+42				
+ldd r20,z+43
+ldd r21,z+44
+ldd r22,z+45
+
+ldd r18,z+0
+cpi r18,0
+brne _subStepCnt
+
+ldi r18,1
+ldi r23,0
+add r19,r18
+adc r20,r23
+adc r21,r23
+adc r22,r23
+rjmp _storeStepCnt
+
+_subStepCnt:
+subi r19,1
+sbci r20,0
+sbci r21,0
+sbci r22,0
+
+_storeStepCnt:
+std z+42,r19
+std z+43,r20
+std z+44,r21
+std z+45,r22
+subi r30,37
+sbci r31,0
+
 ;
 ;72 clock cycles has been used to reach this point !
 ;
@@ -157,7 +195,7 @@ rjmp _accelAlgorithm		;If state variable is equal to ACCEL, we should jump to th
 rjmp _cruiseAlgorithm		;If state variable is not equal to any of the above states, the state has to be equal to CRUISE
 
 _stopMotor:					;Motor should stand still
-ldd r15,z+STEPSSINCERESET	;Load the four lower bytes of stepsSinceReset variable
+/*ldd r15,z+STEPSSINCERESET	;Load the four lower bytes of stepsSinceReset variable
 ldd r16,z+STEPSSINCERESET+1
 ldd r17,z+STEPSSINCERESET+2
 ldd r18,z+STEPSSINCERESET+3
@@ -222,7 +260,7 @@ std z+STEPSSINCERESET+4,r19
 std z+STEPSSINCERESET+5,r20
 std z+STEPSSINCERESET+6,r21
 std z+STEPSSINCERESET+7,r22
-
+*/
 ;clear currentSteps variable and store this back into ram
 clr r15
 std z+CURRENTSTEP,r15

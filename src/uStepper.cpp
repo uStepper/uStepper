@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    0.4.5             	                             						*
-*      	date: 		August 11th, 2016	                                    				*
+*		Version:    1.0.0             	                             						*
+*      	date: 		October 13th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -59,57 +59,60 @@
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
-/**	\file uStepper.cpp
-*	\brief Class implementations for the uStepper library
-*	
-*	This file contains the implementations of the classes defined in uStepper.h
-*	
-*	\author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/**
+ * @file uStepper.cpp
+ * @brief      Class implementations for the uStepper library
+ *
+ *             This file contains the implementations of the classes defined in
+ *             uStepper.h
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 #include <uStepper.h>
 #include <math.h>
 
 uStepper *pointer;
-i2cMaster I2C;
+volatile int32_t *p __attribute__((used));
 
-volatile uint16_t i = 0;
-volatile int32_t stepCnt = 0, control = 0;
+i2cMaster I2C;
 
 extern "C" {
 
 	void interrupt1(void)
 	{
+		pointer->speedValue[1] = pointer->speedValue[0];
+		pointer->speedValue[0] = micros();
+
 		if((PIND & (0x20)))			//CCW
 		{
-			if(control == 0)
+			if(pointer->control == 0)
 			{
 				PORTD |= (1 << 7);	//Set dir to CCW
-				
-			}			
-			stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
+
+				PORTD |= (1 << 4);		//generate step pulse
+
+				pointer->stepsSinceReset--;
+				PORTD &= ~(1 << 4);		//pull step pin low again
+			}		
+			pointer->stepCnt--;				//DIR is set to CCW, therefore we subtract 1 step from step count (negative values = number of steps in CCW direction from initial postion)
 		}
 		else						//CW
 		{
-			if(control == 0)
+			if(pointer->control == 0)
 			{
 				
 				PORTD &= ~(1 << 7);	//Set dir to CW
+
+				PORTD |= (1 << 4);		//generate step pulse
+				pointer->stepsSinceReset++;
+				PORTD &= ~(1 << 4);		//pull step pin low again
 			}
-
-			stepCnt++;				//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
-		}
-
-		if(control == 0)			//If no steps are lost, redirect step pulses		
-		{
-			PORTD |= (1 << 4);		//generate step pulse
-			delayMicroseconds(1);	//wait a small time
-			PORTD &= ~(1 << 4);		//pull step pin low again
+			pointer->stepCnt++;			//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
 	}
 
 	void interrupt0(void)
 	{
-
 		if(PIND & 0x04)
 		{
 			
@@ -128,12 +131,35 @@ extern "C" {
 		asm volatile("push r16 \n\t");
 		asm volatile("push r30 \n\t");
 		asm volatile("push r31 \n\t");
-		asm volatile("lds r30,pointer \n\t");
-		asm volatile("lds r31,pointer+1 \n\t");
-		asm volatile("ldd r16,z+56 \n\t");
-		asm volatile("sbrs r16,0 \n\t");
+		asm volatile("lds r30,p \n\t");
+		asm volatile("lds r31,p+1 \n\t");		
+
+		asm volatile("ldd r16,z+24 \n\t");
+		asm volatile("cpi r16,0x01 \n\t");
+		asm volatile("breq _pid \n\t");
+
+		asm volatile("ldd r16,z+0 \n\t");
+		asm volatile("cpi r16,0x00 \n\t");
+		asm volatile("brne _pid \n\t");
+
+		asm volatile("ldd r16,z+1 \n\t");
+		asm volatile("cpi r16,0x00 \n\t");
+		asm volatile("brne _pid \n\t");
+
+		asm volatile("ldd r16,z+2 \n\t");
+		asm volatile("cpi r16,0x00 \n\t");
+		asm volatile("brne _pid \n\t");
+
+		asm volatile("ldd r16,z+3 \n\t");
+		asm volatile("cpi r16,0x00 \n\t");
+		asm volatile("brne _pid \n\t");
+
+		asm volatile("subi r30,83 \n\t");
+		asm volatile("sbci r31,0 \n\t");
+
 		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
 		
+		asm volatile("_pid: \n\t");
 		asm volatile("push r0 \n\t");
 		asm volatile("push r1 \n\t");
 		asm volatile("push r2 \n\t");
@@ -164,28 +190,46 @@ extern "C" {
 		asm volatile("push r28 \n\t");
 		asm volatile("push r29 \n\t");
 
-		if(i < pointer->faultStepDelay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
+		if(pointer->counter < pointer->delay)		//This value defines the speed at which the motor rotates when compensating for lost steps. This value should be tweaked to the application
 		{
-
-			i++;
+			pointer->counter++;
 		}
 		else
 		{	
 			PORTD |= (1 << 4);
-			delayMicroseconds(1);
-			PORTD &= ~(1 << 4);	
-			if(control < 0)
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			asm volatile("nop \n\t");
+			PORTD &= ~(1 << 4);
+			pointer->counter = 0;
+			if(pointer->control > 0)
 			{
-				control += 1;
+				pointer->control--;
+			}
+			else
+			{
+				pointer->control++;
 			}
 
-			else if(control > 0)
+			if(!pointer->control && !pointer->state)
 			{
-				control -= 1;
+				pointer->stopTimer();
 			}
-			i = 0;
 		}
-
 		asm volatile("pop r29 \n\t");
 		asm volatile("pop r28 \n\t");
 		asm volatile("pop r27 \n\t");
@@ -219,18 +263,145 @@ extern "C" {
 		asm volatile("pop r30 \n\t");
 		asm volatile("pop r16 \n\t");
 		asm volatile("out 0x3F,r16 \n\t");
-		asm volatile("pop r16 \n\t");
+		asm volatile("pop r16 \n\t");	
 		asm volatile("reti \n\t");
 	}
+
+	/*
+	void TIMER2_COMPA_vect(void)
+	{	
+		
+		asm volatile("push r16 \n\t");
+		asm volatile("in r16,0x3F \n\t");
+		asm volatile("push r16 \n\t");
+		asm volatile("push r30 \n\t");
+		asm volatile("push r31 \n\t");
+		asm volatile("lds r30,pointer \n\t");
+		asm volatile("lds r31,pointer+1 \n\t");
+		asm volatile("ldd r16,z+56 \n\t");
+		asm volatile("sbrs r16,0 \n\t");
+		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
+
+		asm volatile("push r17 \n\t");
+		asm volatile("push r18 \n\t");
+		asm volatile("push r19 \n\t");
+		asm volatile("push r20 \n\t");
+
+		asm volatile("ldi r16,54 \n\t");	//Offset pointer to point to delay variable as first address
+		asm volatile("add r30,r16 \n\t");	
+		asm volatile("clr r16 \n\t");
+		asm volatile("adc r31,r16 \n\t");
+		asm volatile("ldd r16,z+0 \n\t");			//Load delay variable
+		asm volatile("ldd r17,z+1 \n\t");			//load delay variable
+		asm volatile("ldd r18,z+22 \n\t");		//load counter
+		asm volatile("ldd r19,z+23 \n\t");
+		
+		asm volatile("cpse r17,r19 \n\t");			//if high nibble of counter and delay variable is equal, it could be time to step.
+		asm volatile("rjmp _notRdyTimer2 \n\t");	//if not, it certainly is not time
+		asm volatile("cpse r16,r18 \n\t");			//if low nibble of counter and delay variable is equal, it is time to step.
+		asm volatile("rjmp _notRdyTimer2 \n\t");	//if not, it is not time yet
+		asm volatile("sbi 0x05,5 \n\t");
+		asm volatile("sbi 0x0B,4 \n\t");				//PORTD |= (1 << 4);
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("nop \n\t");
+		asm volatile("cbi 0x0B,4 \n\t");				//PORTD &= ~(1 << 4);	
+
+		asm volatile("clr r17 \n\t");
+		asm volatile("std z+22,r17 \n\t");
+		asm volatile("std z+23,r17 \n\t");
 	
+		asm volatile("ldd r16,z+28 \n\t");			//Load high nibble of control variable
+		asm volatile("ldd r17,z+29 \n\t");			//Load high nibble of control variable
+		asm volatile("ldd r18,z+30 \n\t");			//Load high nibble of control variable
+		asm volatile("ldd r19,z+31 \n\t");			//Load high nibble of control variable
+		asm volatile("cpi r16,0x00 \n\t");
+		asm volatile("brne _adjustControl \n\t");
+		asm volatile("cpi r17,0x00 \n\t");
+		asm volatile("brne _adjustControl \n\t");
+		asm volatile("cpi r18,0x00 \n\t");
+		asm volatile("brne _adjustControl \n\t");
+		asm volatile("cpi r19,0x00 \n\t");
+		asm volatile("brne _adjustControl \n\t");
+		asm volatile("lds r16,0x0070 \n\t");		//load contents of TIMSK2
+		asm volatile("andi r16,0xFD \n\t");			//Clear bit 1 (OCIE2A) of TIMSK2 in order to stop timer 2
+		asm volatile("sts 0x0070,r16 \n\t");		//Store new TIMSK2 value into TIMSK2 register
+
+		asm volatile("rjmp _endTimer2 \n\t");
+
+		asm volatile("_adjustControl: \n\t");
+		asm volatile("cpi r19,0x80 \n\t");
+		asm volatile("brlo _subtractControl \n\t");
+
+		asm volatile("ldi r20,0x01\n\t");
+		asm volatile("add r16,r20 \n\t");
+		asm volatile("clr r20 \n\t");
+		asm volatile("adc r17,r20 \n\t");
+		asm volatile("adc r18,r20 \n\t");
+		asm volatile("adc r19,r20 \n\t");
+		asm volatile("rjmp _endStepTimer2 \n\t");
+
+		asm volatile("_subtractControl: \n\t");
+		asm volatile("brlo _subtractControl \n\t");
+		asm volatile("subi r16,0x01 \n\t");
+		asm volatile("sbci r17,0x00 \n\t");
+		asm volatile("sbci r18,0x00 \n\t");
+		asm volatile("sbci r19,0x00 \n\t");
+		asm volatile("rjmp _endStepTimer2 \n\t");
+
+		asm volatile("_notRdyTimer2: \n\t");
+		asm volatile("inc r18 \n\t");
+		asm volatile("clr r16 \n\t");
+		asm volatile("adc r19,r16 \n\t");
+		asm volatile("std z+38,r18 \n\t");
+		asm volatile("std z+39,r19 \n\t");
+		asm volatile("rjmp _endTimer2 \n\t");
+
+		asm volatile("_endStepTimer2: \n\t");
+		asm volatile("std z+4,r16 \n\t");
+		asm volatile("std z+5,r17 \n\t");
+		asm volatile("std z+6,r18 \n\t");
+		asm volatile("std z+7,r19 \n\t");
+
+		asm volatile("_endTimer2: \n\t");
+
+		asm volatile("pop r20 \n\t");
+		asm volatile("pop r19 \n\t");
+		asm volatile("pop r18 \n\t");
+		asm volatile("pop r17 \n\t");
+		asm volatile("pop r31 \n\t");
+		asm volatile("pop r30 \n\t");
+		asm volatile("pop r16 \n\t");
+		asm volatile("out 0x3F,r16 \n\t");
+		asm volatile("pop r16 \n\t");	
+		asm volatile("cbi 0x05,5 \n\t");	
+		asm volatile("reti \n\t");
+	}*/
+
 	void TIMER1_COMPA_vect(void)
 	{
-		float error;
-		float deltaAngle, newSpeed;
-		static float curAngle, oldAngle = 0.0, deltaSpeedAngle = 0.0, oldSpeed = 0.0;
-		static uint8_t loops = 0;
-		static float revolutions = 0.0;
 		uint8_t data[2];
+		uint16_t curAngle;
+		int16_t deltaAngle;
+		float newSpeed;
+		static float deltaSpeedAngle = 0.0;
+		static uint8_t loops = 0;
+		static uint16_t oldAngle = 0;
+		static int16_t revolutions = 0;
 
 		sei();
 		if(I2C.getStatus() != I2CFREE)
@@ -238,77 +409,60 @@ extern "C" {
 			return;
 		}
 
+		if(pointer->mode == DROPIN)
+		{
+			pointer->pidDropIn();
+			return;
+		}
+		else if(pointer->mode == PID)
+		{
+			pointer->pid();
+			return;
+		}
+		
 		I2C.read(ENCODERADDR, ANGLE, 2, data);
-		curAngle = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+		
+		curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 		pointer->encoder.angle = curAngle;
 		curAngle -= pointer->encoder.encoderOffset;
-
-		curAngle = fmod(curAngle + 360.0, 360.0);
-
-		deltaAngle = (oldAngle - curAngle);
-		//count number of revolutions, on angle overflow
-		if(deltaAngle < -180.0)
+		if(curAngle > 4095)
 		{
-			revolutions -= 1.0;
-			deltaAngle += 360;
+			curAngle -= 61440;
+		}
+
+		deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+
+		if(deltaAngle < -2047)
+		{
+			revolutions--;
+			deltaAngle += 4096;
 		}
 		
-		else if(deltaAngle > 180.0)
+		else if(deltaAngle > 2047)
 		{
-			revolutions += 1.0;
-			deltaAngle -= 360.0;
+			revolutions++;
+			deltaAngle -= 4096;
 		}
-		
+
 		if( loops < 10)
 		{
 			loops++;
-			deltaSpeedAngle += deltaAngle;
+			deltaSpeedAngle += (float)deltaAngle;
 		}
 		else
 		{
-			newSpeed = (deltaSpeedAngle*ENCODERSPEEDCONSTANT);
-			newSpeed = oldSpeed*ALPHA + newSpeed*BETA;					//Filter
-			oldSpeed = newSpeed;
+			newSpeed = deltaSpeedAngle*ENCODERSPEEDCONSTANT;
+			if(pointer->dropIn)
+			{
+				newSpeed *= 0.5;
+			}
 			pointer->encoder.curSpeed = newSpeed;
 			loops = 0;
 			deltaSpeedAngle = 0.0;
 		}
 
-		pointer->encoder.angleMoved = curAngle + (360.0*revolutions);
+		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
 		oldAngle = curAngle;
-		pointer->encoder.oldAngle = curAngle;
-
-		if(pointer->dropIn)
-		{
-			cli();
-				error = (float)stepCnt;  //atomic read to ensure no fuckups happen from the external interrupt routine
-			sei();
-			error *= pointer->stepResolution;
-			error -= pointer->encoder.angleMoved;
-			if(error > pointer->tolerance)	
-			{
-				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
-				PORTD &= ~(1 << 7);
-				pointer->startTimer();	
-			}
-			else if(error < -pointer->tolerance)
-			{
-				PORTB &= ~(1 << 0);
-				control = (int32_t)(error/pointer->stepResolution);
-				PORTD |= (1 << 7);
-				pointer->startTimer();	
-			}
-			else
-			{
-				if((error < (pointer->tolerance/2.0)) && (error > (-pointer->tolerance/2.0)))
-				{
-					PORTB |= (PIND & 0x04) >> 2;
-					control = 0;
-					pointer->stopTimer();
-				}
-			}
-		}
 	}
 }
 
@@ -655,41 +809,8 @@ uStepperEncoder::uStepperEncoder(void)
 }
 
 float uStepperEncoder::getAngleMoved(void)
-{/*
-	float deltaAngle, angle;
-
-	TIMSK1 &= ~(1 << OCIE1A);
-	
-	angle = this->getAngle() - this->encoderOffset;
-	
-
-	if(angle < 0.0)
-	{
-		angle += 360.0;
-	}
-
-	deltaAngle = this->oldAngle - angle;
-
-	if(deltaAngle < -180.0)
-	{
-		pointer->encoder.angleMoved += (deltaAngle + 360.0); 
-	}
-
-	else if(deltaAngle > 180.0)
-	{
-		pointer->encoder.angleMoved -= (360.0 - deltaAngle); 
-	}
-
-	else
-	{
-		this->angleMoved += deltaAngle;
-	}
-
-	this->oldAngle = angle;
-	
-	TIMSK1 |= (1 << OCIE1A);*/
-
-	return this->angleMoved;
+{
+	return (float)this->angleMoved*0.087890625;
 }
 
 float uStepperEncoder::getSpeed(void)
@@ -697,23 +818,31 @@ float uStepperEncoder::getSpeed(void)
 	return this->curSpeed;
 }
 
-void uStepperEncoder::setup(void)
+void uStepperEncoder::setup(uint8_t mode)
 {
 	uint8_t data[2];
 	TCNT1 = 0;
-	ICR1 = 16000;
+
+	if(mode)
+	{
+		ICR1 = 32000;
+	}
+	else
+	{
+		ICR1 = 16000;
+	}
+	
 	TIFR1 = 0;
 	TIMSK1 = (1 << OCIE1A);
 	TCCR1A = (1 << WGM11);
 	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 
-	this->oldAngle = 0.0;
-	this->angleMoved = 0.0;
+	this->oldAngle = 0;
+	this->angleMoved = 0;
 
 	sei();
-
 }
 
 void uStepperEncoder::setHome(void)
@@ -721,17 +850,17 @@ void uStepperEncoder::setHome(void)
 	cli();
 	uint8_t data[2];
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (float)((((uint16_t)data[0]) << 8 ) | (uint16_t)data[1])*0.087890625;
+	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 
-	this->angle = 0.0;
-	this->oldAngle = 0.0;
-	this->angleMoved = 0.0;
+	this->angle = 0;
+	this->oldAngle = 0;
+	this->angleMoved = 0;
 	sei();
 }
 
 float uStepperEncoder::getAngle()
 {
-	return this->angle;
+	return (float)this->angle*0.087890625;
 }
 
 uint16_t uStepperEncoder::getStrength()
@@ -786,6 +915,7 @@ uStepper::uStepper(void)
 	this->setMaxAcceleration(1000.0);
 	this->setMaxVelocity(1000.0);
 
+	p = &(this->control);
 	pointer = this;
 
 	DDRD |= (1 << 7);		//set direction pin to output
@@ -800,6 +930,7 @@ uStepper::uStepper(float accel, float vel)
 	this->setMaxVelocity(vel);
 	this->setMaxAcceleration(accel);
 
+	p = &(this->control);
 	pointer = this;
 
 	DDRD |= (1 << 7);		//set direction pin to output
@@ -829,31 +960,6 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	/*Serial.print(this->exactDelay.getFloatValue(),15);
-	Serial.print("\t");
-	Serial.println(this->delay);
-	Serial.print("\t");
-	Serial.print((uint8_t)((this->exactDelay.value >> 48) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 40) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 32) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 24) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 16) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value >> 8) & 0x00000000000000FF),HEX);
-	Serial.print(" ");
-	Serial.print((uint8_t)((this->exactDelay.value) & 0x00000000000000FF),HEX);
-	Serial.print("\t");
-	Serial.print(this->delay);
-	Serial.print("\t");
-	Serial.println(this->totalSteps);*/
-	/*cli();
-	float tmp=this->exactDelay.getFloatValue();
-	sei();
-	return tmp;*/
 	return this->acceleration;
 }
 
@@ -899,15 +1005,13 @@ void uStepper::runContinous(bool dir)
 {
 	float curVel;
 
-	if(this->dropIn)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
 	
 	this->stopTimer();				//Stop interrupt timer, so we don't fuck up stuff !
 	this->continous = 1;			//Set continous variable to 1, in order to let the interrupt routine now, that the motor should run continously
-	
-	
 
 	if(state != STOP)										//if the motor is currently running and we want to move the opposite direction, we need to decelerate in order to change direction.
 	{
@@ -986,7 +1090,7 @@ void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 {
 	float curVel;
 
-	if(this->dropIn)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
@@ -1137,7 +1241,7 @@ void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
 
 void uStepper::hardStop(bool holdMode)
 {
-	if(this->dropIn)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
@@ -1170,7 +1274,7 @@ void uStepper::softStop(bool holdMode)
 {
 	float curVel;
 
-	if(this->dropIn)
+	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
@@ -1214,28 +1318,50 @@ void uStepper::softStop(bool holdMode)
 	}
 }
 
-void uStepper::setup(bool mode, uint8_t microStepping, float faultSpeed, uint32_t faultTolerance)
+void uStepper::setup(	uint8_t mode, 
+						uint8_t microStepping, 
+						float faultTolerance,
+						float faultHysteresis, 
+						float pTerm, 
+						float iTerm, 
+						float dterm)
 {
-	this->dropIn = mode;
-	if(mode)
+	this->mode = mode;
+	if(this->mode)
 	{
-		pinMode(2,INPUT);
-		pinMode(3,INPUT);
-		pinMode(4,INPUT);
-		digitalWrite(2,HIGH);
-		digitalWrite(3,HIGH);
-		digitalWrite(4,HIGH);
-		this->stepResolution = 360.0/((float)(200*microStepping));
-		this->tolerance = ((float)faultTolerance)*this->stepResolution;
-		this->faultStepDelay = (uint16_t)((INTFREQ/faultSpeed) - 1);
-		attachInterrupt(digitalPinToInterrupt(2), interrupt0, CHANGE);
-		attachInterrupt(digitalPinToInterrupt(3), interrupt1, FALLING);
+		if(this->mode == DROPIN)
+		{
+			//Set Enable, Step and Dir signal pins from 3dPrinter controller as inputs
+			pinMode(2,INPUT);		
+			pinMode(3,INPUT);
+			pinMode(4,INPUT);
+			//Enable internal pull-up resistors on the above pins
+			digitalWrite(2,HIGH);
+			digitalWrite(3,HIGH);
+			digitalWrite(4,HIGH);
+			attachInterrupt(digitalPinToInterrupt(2), interrupt0, CHANGE);
+			attachInterrupt(digitalPinToInterrupt(3), interrupt1, FALLING);
+		}
+
+		this->stepConversion = ((float)(200*microStepping))/4096.0;	//Calculate conversion coefficient from raw encoder data, to actual moved steps
+		this->tolerance = faultTolerance;		//Number of steps missed before controller kicks in
+		this->hysteresis = faultHysteresis;
+		this->angleToStep = ((float)(200*microStepping))/360.0;	//Calculate conversion coefficient from angle to corresponding number of steps
+		
+		//Scale supplied controller coefficents. This is done to enable the user to use easier to manage numbers for these coefficients.
+		this->pTerm = pTerm/10000.0;	  
+		this->iTerm = iTerm/10000.0;
+		this->dTerm = dTerm/10000.0;
 	}
 
-	TCCR2B = (1 << CS21) | (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
-	TCCR2A = (1 << WGM21) | (1 << WGM20);				//Switch timer 2 to Fast PWM mode, to enable adjustment of interrupt frequency, while being able to use PWM
+	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
+	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));
+	TCCR2B |= (1 << CS21)| (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
+	TCCR2A |= (1 << WGM21) | (1 << WGM20);				//Switch timer 2 to Fast PWM mode, to enable adjustment of interrupt frequency, while being able to use PWM
 	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
-	this->encoder.setup();
+	this->enableMotor();
+	this->encoder.setup(mode);
+	
 }
 
 void uStepper::startTimer(void)
@@ -1249,7 +1375,7 @@ void uStepper::startTimer(void)
 
 void uStepper::stopTimer(void)
 {
-	TIMSK2 &= ~(1 << OCF2A);			//disable compare match interrupt
+	TIMSK2 &= ~(1 << OCIE2A);			//disable compare match interrupt
 }
 
 void uStepper::enableMotor(void)
@@ -1325,6 +1451,322 @@ void uStepper::pwmD3(float duty)
 	duty *= 0.7;
 
 	OCR2B = (uint16_t)(duty + 0.5);
+}
+
+void uStepper::updateSetPoint(float setPoint)
+{
+	if(this->mode != DROPIN)
+	{
+		return;			//This function doesn't make sense in any other configuration than dropin
+	}
+
+	this->stepCnt = (int32_t)(setPoint*this->angleToStep);
+}
+
+void uStepper::pidDropIn(void)
+{
+	static float oldError = 0.0;
+	float integral;
+	float output = 1.0;
+	static float accumError = 0.0;
+	uint8_t data[2];
+	uint16_t curAngle;
+	int16_t deltaAngle;
+	static uint16_t oldAngle = 0;
+	static int16_t revolutions = 0;
+	float error;
+	static uint32_t speed = 10000;
+	static uint32_t oldMicros = 0;
+
+	sei();
+	
+	I2C.read(ENCODERADDR, ANGLE, 2, data);
+	cli();
+		error = (float)this->stepCnt;
+		if(this->speedValue[0] == oldMicros)
+		{
+			speed += 2000;
+			if(speed > 10000)
+			{
+				speed = 10000;
+			}
+		}
+		else
+		{
+			speed = this->speedValue[0] - this->speedValue[1];
+		} 
+	sei();
+	
+	curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
+	this->encoder.angle = curAngle;
+	curAngle -= this->encoder.encoderOffset;
+	if(curAngle > 4095)
+	{
+		curAngle -= 61440;
+	}
+
+	deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+
+	if(deltaAngle < -2047)
+	{
+		revolutions--;
+		deltaAngle += 4096;
+	}
+	
+	else if(deltaAngle > 2047)
+	{
+		revolutions++;
+		deltaAngle -= 4096;
+	}
+
+	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
+	oldAngle = curAngle;
+
+	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
+
+	if(error < -this->tolerance)
+	{
+		cli(); //Do Atomic copy, in order to not fuck up variables
+			this->control = (int32_t)error;	//Move current error into control variable, for Timer2 and int0 routines to decide who should provide steps
+		sei();
+
+		error = -error;		//error variable should always be positive when calculating controller output
+	
+		integral = error*this->iTerm;	//Multiply current error by integral term
+		accumError += integral;				//And accumulate, to get integral action
+		
+		//The output of each PID part, should be subtracted from the output variable.
+		//This is true, since in case of no error the motor should run at a higher speed
+		//to catch up, and since the speed variable contains the number of microseconds
+		//between each step, the we need to multiply with a number < 1 to increase speed
+		output -= this->pTerm*error;		
+		output -= accumError;
+		output -= this->dTerm*(error - oldError);
+
+		oldError = error;		//Save current error for next sample, for use in differential part
+
+		PORTD &= ~(1 << 7);		//change direction to CW
+		
+		output *= (float)speed;	//Calculate stepSpeed
+
+		if(output < 54.0)		//If stepSpeed is lower than possible
+		{
+			output = 54.0;		//Set stepSpeed to lowest possible
+			accumError -= integral;	//and subtract current integral part from accumerror (anti-windup)
+		}
+		
+		cli();		//Atomic copy
+			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
+		sei();
+
+		this->startTimer();	
+		PORTB &= ~(1 << 0);
+	}
+
+	else if(error > this->tolerance)
+	{
+		cli(); //Do Atomic copy, in order to not fuck up variables
+			this->control = (int32_t)error;		
+		sei();
+
+		integral = error*this->iTerm;
+		accumError += integral;
+
+		output -= this->pTerm*error;
+		output -= accumError;
+		output -= this->dTerm*(error - oldError);
+
+		oldError = error;
+		
+		PORTD |= (1 << 7);				//change direction to CCW
+		output *= (float)speed;
+		
+		if(output < 54.0)
+		{
+			output = 54.0;
+			accumError -= integral;
+		}
+		
+		cli();
+			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+		sei();
+
+		this->startTimer();	
+		PORTB &= ~(1 << 0);
+	}
+	
+	else
+	{
+		if(error >= -this->hysteresis && error <= this->hysteresis)	//If error is less than 1 step
+		{
+			PORTB |= (PIND & 0x04) >> 2;	//Set enable pin to whatever is demanded by the 3Dprinter controller
+
+			this->control = 0;			//Set control variable to 0, in order to make sure int0 routine generates step pulses
+			accumError = 0.0;				//Clear accumerror
+
+			this->stopTimer();			//Stop timer 2
+		}
+	}	
+}
+
+void uStepper::pid(void)
+{
+	static float oldError = 0.0;
+	float integral;
+	float output = 1.0;
+	static float accumError = 0.0;
+	float limit;
+	uint8_t data[2];
+	uint16_t curAngle;
+	int16_t deltaAngle;
+	static uint16_t oldAngle = 0;
+	static int16_t revolutions = 0;
+	float error;
+	static uint32_t speed = 10000;
+	static uint32_t oldMicros = 0;
+
+	sei();
+	if(I2C.getStatus() != I2CFREE)
+	{
+		return;
+	}
+	
+	I2C.read(ENCODERADDR, ANGLE, 2, data);
+	cli();
+		error = (float)this->stepCnt;
+		speed = (uint32_t)(this->exactDelay.getFloatValue() * INTPERIOD);
+	sei();
+	
+	curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
+	this->encoder.angle = curAngle;
+	curAngle -= this->encoder.encoderOffset;
+	if(curAngle > 4095)
+	{
+		curAngle -= 61440;
+	}
+
+	deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+
+	if(deltaAngle < -2047)
+	{
+		revolutions--;
+		deltaAngle += 4096;
+	}
+	
+	else if(deltaAngle > 2047)
+	{
+		revolutions++;
+		deltaAngle -= 4096;
+	}
+
+	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
+	oldAngle = curAngle;
+
+	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
+
+	if(error < -this->tolerance)
+	{
+		cli(); //Do Atomic copy, in order to not fuck up variables
+			this->control = (int32_t)error;	//Move current error into control variable, for Timer2 and int0 routines to decide who should provide steps
+		sei();
+
+		error = -error;		//error variable should always be positive when calculating controller output
+	
+		integral = error*this->iTerm;	//Multiply current error by integral term
+		accumError += integral;				//And accumulate, to get integral action
+		
+		//The output of each PID part, should be subtracted from the output variable.
+		//This is true, since in case of no error the motor should run at a higher speed
+		//to catch up, and since the speed variable contains the number of microseconds
+		//between each step, the we need to multiply with a number < 1 to increase speed
+		output -= this->pTerm*error;		
+		output -= accumError;
+		output -= this->dTerm*(error - oldError);
+
+		oldError = error;		//Save current error for next sample, for use in differential part
+
+		PORTD &= ~(1 << 7);		//change direction to CW
+		
+		output *= (float)speed;	//Calculate stepSpeed
+
+		if(output < 54.0)		//If stepSpeed is lower than possible
+		{
+			output = 54.0;		//Set stepSpeed to lowest possible
+			accumError -= integral;	//and subtract current integral part from accumerror (anti-windup)
+		}
+		
+		cli();		//Atomic copy
+			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
+		sei();
+
+		this->startTimer();	
+		PORTB &= ~(1 << 0);
+	}
+
+	else if(error > this->tolerance)
+	{
+		cli(); //Do Atomic copy, in order to not fuck up variables
+			this->control = (int32_t)error;		
+		sei();
+
+		integral = error*this->iTerm;
+		accumError += integral;
+
+		output -= this->pTerm*error;
+		output -= accumError;
+		output -= this->dTerm*(error - oldError);
+
+		oldError = error;
+		
+		PORTD |= (1 << 7);				//change direction to CCW
+		output *= (float)speed;
+		
+		if(output < 54.0)
+		{
+			output = 54.0;
+			accumError -= integral;
+		}
+		
+		cli();
+			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+		sei();
+
+		this->startTimer();	
+		PORTB &= ~(1 << 0);
+	}
+	
+	else
+	{
+		if(error >= -this->hysteresis && error <= this->hysteresis)	//If error is less than 1 step
+		{
+			cli();
+			if(this->hold || this->state)
+			{
+				PORTB &= ~(1 << 0);
+			}
+			else 
+			{
+				PORTB |= (1 << 0);
+			}
+
+			if(this->direction)
+			{
+				PORTD |= (1 << 7);		//change direction to CCW
+			}
+			else
+			{
+				PORTD &= ~(1 << 7);		//change direction to CW
+			}
+			sei();
+			this->control = 0;			//Set control variable to 0, in order to make sure int0 routine generates step pulses
+			accumError = 0.0;				//Clear accumerror
+			
+			if(!this->state)
+			{
+				this->stopTimer();			//Stop timer 2
+			}
+		}
+	}
 }
 
 void i2cMaster::cmd(uint8_t cmd)

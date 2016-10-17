@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['multiplier',['multiplier',['../classuStepper.html#a7d69fe56b00bbdc535901d96c1504fff',1,'uStepper']]]
+  ['initialdecelsteps',['initialDecelSteps',['../classuStepper.html#ac8e3d3157ea9b11dec50354396e67ef6',1,'uStepper']]],
+  ['iterm',['iTerm',['../classuStepper.html#a531a34b1df2a630226ce589630b2c32d',1,'uStepper']]]
 ];
