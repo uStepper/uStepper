@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['velocity',['velocity',['../classuStepper.html#a67ab99136fae0691ed3ab8c9a677e8a5',1,'uStepper']]]
+  ['pterm',['pTerm',['../classuStepper.html#ad62569034dbefba62f3e2c5d4e0a17c1',1,'uStepper']]],
+  ['pulse',['pulse',['../classuStepperServo.html#ae5134b8075617d90449f56014273ebeb',1,'uStepperServo']]]
 ];

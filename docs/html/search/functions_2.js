@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['detectmagnet',['detectMagnet',['../classuStepperEncoder.html#a990203acc3069947412e0a9dd36bc988',1,'uStepperEncoder']]],
-  ['disablemotor',['disableMotor',['../classuStepper.html#aba6edb2757fb57b204979a99fa0248d8',1,'uStepper']]]
+  ['cmd',['cmd',['../classi2cMaster.html#af74990f278bc2f34fed0bc25a17f31be',1,'i2cMaster']]]
 ];

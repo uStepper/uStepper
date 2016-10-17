@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    0.4.5             	                             						*
-*      	date: 		August 11th, 2016	                                    				*
+*		Version:    1.0.0             	                             						*
+*      	date: 		October 13th, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -59,22 +59,22 @@
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
-/**	\file uStepper.cpp
-*	\brief Class implementations for the uStepper library
-*	
-*	This file contains the implementations of the classes defined in uStepper.h
-*	
-*	\author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/**
+ * @file uStepper.cpp
+ * @brief      Class implementations for the uStepper library
+ *
+ *             This file contains the implementations of the classes defined in
+ *             uStepper.h
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 #include <uStepper.h>
 #include <math.h>
 
 uStepper *pointer;
-uint32_t *p __attribute__((used));
+volatile int32_t *p __attribute__((used));
 
 i2cMaster I2C;
-
-volatile float abe;
 
 extern "C" {
 
@@ -390,7 +390,6 @@ extern "C" {
 		asm volatile("pop r16 \n\t");	
 		asm volatile("cbi 0x05,5 \n\t");	
 		asm volatile("reti \n\t");
-
 	}*/
 
 	void TIMER1_COMPA_vect(void)
@@ -931,6 +930,7 @@ uStepper::uStepper(float accel, float vel)
 	this->setMaxVelocity(vel);
 	this->setMaxAcceleration(accel);
 
+	p = &(this->control);
 	pointer = this;
 
 	DDRD |= (1 << 7);		//set direction pin to output
@@ -960,8 +960,7 @@ void uStepper::setMaxAcceleration(float accel)
 
 float uStepper::getMaxAcceleration(void)
 {
-	return (float)this->mode;
-	//return this->acceleration;
+	return this->acceleration;
 }
 
 void uStepper::setMaxVelocity(float vel)
@@ -1347,6 +1346,7 @@ void uStepper::setup(	uint8_t mode,
 		this->stepConversion = ((float)(200*microStepping))/4096.0;	//Calculate conversion coefficient from raw encoder data, to actual moved steps
 		this->tolerance = faultTolerance;		//Number of steps missed before controller kicks in
 		this->hysteresis = faultHysteresis;
+		this->angleToStep = ((float)(200*microStepping))/360.0;	//Calculate conversion coefficient from angle to corresponding number of steps
 		
 		//Scale supplied controller coefficents. This is done to enable the user to use easier to manage numbers for these coefficients.
 		this->pTerm = pTerm/10000.0;	  
@@ -1453,6 +1453,16 @@ void uStepper::pwmD3(float duty)
 	OCR2B = (uint16_t)(duty + 0.5);
 }
 
+void uStepper::updateSetPoint(float setPoint)
+{
+	if(this->mode != DROPIN)
+	{
+		return;			//This function doesn't make sense in any other configuration than dropin
+	}
+
+	this->stepCnt = (int32_t)(setPoint*this->angleToStep);
+}
+
 void uStepper::pidDropIn(void)
 {
 	static float oldError = 0.0;
@@ -1547,7 +1557,6 @@ void uStepper::pidDropIn(void)
 		
 		cli();		//Atomic copy
 			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
-			abe = this->delay;
 		sei();
 
 		this->startTimer();	
@@ -1580,7 +1589,6 @@ void uStepper::pidDropIn(void)
 		
 		cli();
 			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-			abe = this->delay;
 		sei();
 
 		this->startTimer();	

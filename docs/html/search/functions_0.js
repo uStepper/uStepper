@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['begin',['begin',['../classi2cMaster.html#af639b1fb501c7530afdca5e87a56168f',1,'i2cMaster']]]
+  ['attach',['attach',['../classuStepperServo.html#a54314020d996a4d8f3c2545e55ce4678',1,'uStepperServo']]]
 ];

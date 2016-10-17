@@ -1,7 +1,7 @@
 /********************************************************************************************
 *       File:       uStepperServo.cpp                                                       *
-*       Version:    0.5.0                                                                   *
-*       date:       October 9th, 2016                                                       *
+*       Version:    1.0.0                                                                  *
+*       date:       October 13th, 2016                                                       *
 *       Author:     Thomas Hørring Olsen                                                    *
 *                                                                                           *  
 *********************************************************************************************
@@ -31,9 +31,11 @@
 *   This will attach a servo to pin 10, which is the argument of the attach function.       *
 *                                                                                           *
 *   The servo pulse widths are normally around 500 us for 0 deg and 2500 us for 180 deg.    *
-*   The default values in this library are 544 and 2400 us. These values can be redefined   *
-*   to fit your servos specifications by calling the setMaximumPulse and SetMinimumPulse    *
-*   functions.                                                                              *
+*   The default values in this library are 1472 and 2400 us - giving a work area of         *
+*   ~90-180deg. These values can be redefined to fit your servos specifications by calling  *
+*    the setMaximumPulse and SetMinimumPulse functions. However, because of running the     *
+*    stepper algorithm simultaniously with the servo, there is a risk of twitching if       *
+*    using lower values than the 1500 us.                                                   *                           *
 *                                                                                           *
 *       example:                                                                            *
 *                                                                                           *
@@ -42,8 +44,8 @@
 *       void setup()                                                                        *
 *       {                                                                                   *
 *           servo.attach(10);                                                               *
-*           servo.SetMaximumPulse(2000);                                                    *
-*           servo.SetMinimumPulse(500);                                                     *
+*           servo.SetMaximumPulse(2400);                                                    *
+*           servo.SetMinimumPulse(1500);//Should be kept above 1500!!                       *
 *       }                                                                                   *
 *                                                                                           *
 *   To apply the pulses to the attached servos, the refresh function should be called       *
@@ -57,8 +59,8 @@
 *       void setup()                                                                        *
 *       {                                                                                   *  
 *           servo.attach(10);                                                               *
-*           servo.SetMaximumPulse(2000);                                                    *
-*           servo.SetMinimumPulse(500);                                                     *
+*           servo.SetMaximumPulse(2400);                                                    *
+*           servo.SetMinimumPulse(1500);  //Should be kept above 1500!!                     *
 *       }                                                                                   *
 *                                                                                           *
 *        void loop()                                                                        *
@@ -82,13 +84,14 @@
 *   caused by the use of the code contained in this file !                                  *
 *                                                                                           *
 ********************************************************************************************/
-/** \file uStepperServo.cpp
-*   \brief Class implementations for the uStepper library
-*   
-*   This file contains the implementations of the classes defined in uStepper.h
-*   
-*   \author Thomas Hørring Olsen (thomas@ustepper.com)
-*/
+/** @file uStepperServo.cpp
+ * @brief      Class implementations for the uStepper library
+ *
+ *             This file contains the implementations of the classes defined in
+ *             uStepper.h
+ *
+ * @author     Thomas Hørring Olsen (thomas@ustepper.com)
+ */
 
 #include <uStepperServo.h>
 
@@ -97,7 +100,9 @@ uStepperServo *uStepperServo::first;
 #define NO_ANGLE (0xff)
 
 uStepperServo::uStepperServo() : pin(0),angle(NO_ANGLE),pulse(0),min16(92),max16(150),next(0)
-{}
+{
+
+}
 
 void uStepperServo::setMinimumPulse(uint16_t t)
 {
@@ -141,19 +146,6 @@ void uStepperServo::write(int angleArg)
     // That 64L on the end is the TCNT0 prescaler, it will need to change if the clock's prescaler changes,
     // but then there will likely be an overflow problem, so it will have to be handled by a human.
       pulse = (min16*16L*clockCyclesPerMicrosecond() + (max16-min16)*(16L*clockCyclesPerMicrosecond())*angle/180L)/64L;
-}
-
-uint8_t uStepperServo::read()
-{
-    return angle;
-}
-
-uint8_t uStepperServo::attached()
-{
-    for ( uStepperServo *p = first; p != 0; p = p->next ) {
-	if ( p == this) return 1;
-    }
-    return 0;
 }
 
 void uStepperServo::refresh()

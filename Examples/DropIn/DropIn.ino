@@ -18,9 +18,11 @@
 
 #include <uStepper.h>
 
+uStepper stepper;
+
 void setup(void)
 {
-	stepper.setup(DROPIN,SIXTEEN,4000.0,20);			//Activate dropin, 1/16th microstepping, speed during fault: 4000 steps/s, # of missed steps allowed
+	stepper.setup(DROPIN,SIXTEEN,10,5,1.0,0.02,0.006);
 }
 
 void loop(void)
