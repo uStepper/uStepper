@@ -400,7 +400,7 @@ extern "C" {
 		float newSpeed;
 		static float deltaSpeedAngle = 0.0;
 		static uint8_t loops = 0;
-		static uint16_t oldAngle = 0;
+		//static uint16_t oldAngle = 0;
 		static int16_t revolutions = 0;
 
 		sei();
@@ -430,7 +430,7 @@ extern "C" {
 			curAngle -= 61440;
 		}
 
-		deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+		deltaAngle = (int16_t)pointer->encoder.oldAngle - (int16_t)curAngle;
 
 		if(deltaAngle < -2047)
 		{
@@ -462,7 +462,7 @@ extern "C" {
 		}
 
 		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
-		oldAngle = curAngle;
+		pointer->encoder.oldAngle = curAngle;
 	}
 }
 
@@ -1472,7 +1472,7 @@ void uStepper::pidDropIn(void)
 	uint8_t data[2];
 	uint16_t curAngle;
 	int16_t deltaAngle;
-	static uint16_t oldAngle = 0;
+	//static uint16_t oldAngle = 0;
 	static int16_t revolutions = 0;
 	float error;
 	static uint32_t speed = 10000;
@@ -1505,7 +1505,7 @@ void uStepper::pidDropIn(void)
 		curAngle -= 61440;
 	}
 
-	deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+	deltaAngle = (int16_t)this->encoder.oldAngle - (int16_t)curAngle;
 
 	if(deltaAngle < -2047)
 	{
@@ -1520,7 +1520,7 @@ void uStepper::pidDropIn(void)
 	}
 
 	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
-	oldAngle = curAngle;
+	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
 
@@ -1619,7 +1619,7 @@ void uStepper::pid(void)
 	uint8_t data[2];
 	uint16_t curAngle;
 	int16_t deltaAngle;
-	static uint16_t oldAngle = 0;
+	//static uint16_t oldAngle = 0;
 	static int16_t revolutions = 0;
 	float error;
 	static uint32_t speed = 10000;
@@ -1645,7 +1645,7 @@ void uStepper::pid(void)
 		curAngle -= 61440;
 	}
 
-	deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+	deltaAngle = (int16_t)this->encoder.oldAngle - (int16_t)curAngle;
 
 	if(deltaAngle < -2047)
 	{
@@ -1660,7 +1660,7 @@ void uStepper::pid(void)
 	}
 
 	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
-	oldAngle = curAngle;
+	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
 
