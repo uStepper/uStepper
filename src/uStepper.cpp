@@ -1780,7 +1780,7 @@ bool i2cMaster::cmd(uint8_t cmd)
 		i++;
 		if(i == 65000)
 		{
-			//return false;
+			return false;
 		}
 	}
 	
@@ -1796,7 +1796,7 @@ bool i2cMaster::read(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, uin
 
 	TIMSK1 &= ~(1 << OCIE1A);
 
-	if(I2C.start(slaveAddr, WRITE) == false);
+	if(I2C.start(slaveAddr, WRITE) == false)
 	{
 		I2C.stop();
 		return false;
@@ -1909,6 +1909,7 @@ bool i2cMaster::start(uint8_t addr, bool RW)
 	
 	if (RW == READ) 
 	{
+
 		return this->getStatus() == RXADDRACK;
 	} 
 
