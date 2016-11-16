@@ -978,7 +978,7 @@ class i2cMaster
 		 *
 		 * @param      cmd   - Command to be send over the I2C bus.
 		 */
-		void cmd(uint8_t cmd);
+		bool cmd(uint8_t cmd);
 
 	public:
 

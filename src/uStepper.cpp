@@ -1769,16 +1769,25 @@ void uStepper::pid(void)
 	}
 }
 
-void i2cMaster::cmd(uint8_t cmd)
+bool i2cMaster::cmd(uint8_t cmd)
 {
 	uint16_t i = 0;
 	// send command
 	TWCR = cmd;
 	// wait for command to complete
-	while (!(TWCR & (1 << TWINT)));
+	while (!(TWCR & (1 << TWINT)))
+	{
+		i++;
+		if(i == 65000)
+		{
+			//return false;
+		}
+	}
 	
 	// save status bits
 	status = TWSR & 0xF8;	
+
+	return true;
 }
 
 bool i2cMaster::read(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, uint8_t *data)
@@ -1787,18 +1796,38 @@ bool i2cMaster::read(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, uin
 
 	TIMSK1 &= ~(1 << OCIE1A);
 
-	I2C.start(slaveAddr, WRITE);
+	if(I2C.start(slaveAddr, WRITE) == false);
+	{
+		I2C.stop();
+		return false;
+	}
 
-	I2C.writeByte(regAddr);
+	if(I2C.writeByte(regAddr) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
-	I2C.restart(slaveAddr, READ);
+	if(I2C.restart(slaveAddr, READ) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
 	for(i = 0; i < (numOfBytes - 1); i++)
 	{
-		I2C.readByte(ACK, &data[i]);
+		if(I2C.readByte(ACK, &data[i]) == false)
+		{
+			I2C.stop();
+			return false;
+		}	
 	}
 
-	I2C.readByte(NACK, &data[numOfBytes-1]);
+	if(I2C.readByte(NACK, &data[numOfBytes-1]) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
 	I2C.stop();
 
@@ -1813,12 +1842,25 @@ bool i2cMaster::write(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, ui
 
 	TIMSK1 &= ~(1 << OCIE1A);
 
-	I2C.start(slaveAddr, WRITE);
-	I2C.writeByte(regAddr);
+	if(I2C.start(slaveAddr, WRITE) == false)
+	{
+		I2C.stop();
+		return false;
+	}
+
+	if(I2C.writeByte(regAddr) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 	
 	for(i = 0; i < numOfBytes; i++)
 	{
-		I2C.writeByte(*(data + i));
+		if(I2C.writeByte(*(data + i)) == false)
+		{
+			I2C.stop();
+			return false;
+		}
 	}
 	I2C.stop();
 
@@ -1831,17 +1873,24 @@ bool i2cMaster::readByte(bool ack, uint8_t *data)
 {
 	if(ack)
 	{
-		this->cmd((1 << TWINT) | (1 << TWEN) | (1 << TWEA));
+		if(this->cmd((1 << TWINT) | (1 << TWEN) | (1 << TWEA)) == false)
+		{
+			return false;
+		}
+
 	}
 	
 	else
 	{
-		this->cmd((1 << TWINT) | (1 << TWEN));
+		if(this->cmd((1 << TWINT) | (1 << TWEN)) == false)
+		{
+			return false;
+		}
 	}
 
 	*data = TWDR;
 
-	return 1;
+	return true;
 }
 
 bool i2cMaster::start(uint8_t addr, bool RW)
