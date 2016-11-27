@@ -108,6 +108,9 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+ *	\version 1.1.0:
+ *	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
+ *	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
 *	\version 1.0.0:
 *	- Added PID functionality to drop-in Feature
 *	- Added PID functionality to regular movement functions
