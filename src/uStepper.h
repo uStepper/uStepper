@@ -373,11 +373,19 @@ private:
 class uStepperEncoder
 {
 public:
-	volatile int32_t angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
-	uint16_t encoderOffset;				/**< Angle of the shaft at the reference position. */
-	volatile uint16_t oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
-	volatile uint16_t angle;
-	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 	
+	volatile int32_t angleMoved;		/** < Variable used to store that measured angle moved from the
+	                            		 * reference position */
+	uint16_t encoderOffset;				/** < Angle of the shaft at the reference position. */
+	volatile uint16_t oldAngle;			/** < Used to stored the previous measured angle for the speed
+	                           			 * measurement, and the calculation of angle moved from reference
+	                           			 * position */
+	volatile uint16_t angle;			/** < This variable always contain the current rotor angle, relative
+	                        			 * to a single revolution */
+	volatile int16_t revolutions;		/** < This variable contains the number of revolutions in either
+	                             		 * direction, since last home position was set. negative numbers
+	                             		 * corresponds to CCW turns, and positive to CW turns */
+	volatile float curSpeed;			/** < Variable used to store the last measured rotational speed of
+	                        			 * the motor shaft */ 	
 	/**
 	 * @brief      Constructor
 	 *

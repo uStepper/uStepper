@@ -400,8 +400,6 @@ extern "C" {
 		float newSpeed;
 		static float deltaSpeedAngle = 0.0;
 		static uint8_t loops = 0;
-		//static uint16_t oldAngle = 0;
-		static int16_t revolutions = 0;
 
 		sei();
 		if(I2C.getStatus() != I2CFREE)
@@ -434,13 +432,13 @@ extern "C" {
 
 		if(deltaAngle < -2047)
 		{
-			revolutions--;
+			pointer->encoder.revolutions--;
 			deltaAngle += 4096;
 		}
 		
 		else if(deltaAngle > 2047)
 		{
-			revolutions++;
+			pointer->encoder.revolutions++;
 			deltaAngle -= 4096;
 		}
 
@@ -461,7 +459,7 @@ extern "C" {
 			deltaSpeedAngle = 0.0;
 		}
 
-		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
+		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)pointer->encoder.revolutions);
 		pointer->encoder.oldAngle = curAngle;
 	}
 }
@@ -838,9 +836,9 @@ void uStepperEncoder::setup(uint8_t mode)
 	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
-
 	this->oldAngle = 0;
 	this->angleMoved = 0;
+	this->revolutions = 0;
 
 	sei();
 }
@@ -855,6 +853,7 @@ void uStepperEncoder::setHome(void)
 	this->angle = 0;
 	this->oldAngle = 0;
 	this->angleMoved = 0;
+	this->revolutions = 0;
 	sei();
 }
 
@@ -1472,8 +1471,6 @@ void uStepper::pidDropIn(void)
 	uint8_t data[2];
 	uint16_t curAngle;
 	int16_t deltaAngle;
-	//static uint16_t oldAngle = 0;
-	static int16_t revolutions = 0;
 	float error;
 	static uint32_t speed = 10000;
 	static uint32_t oldMicros = 0;
@@ -1509,17 +1506,17 @@ void uStepper::pidDropIn(void)
 
 	if(deltaAngle < -2047)
 	{
-		revolutions--;
+		this->encoder.revolutions--;
 		deltaAngle += 4096;
 	}
 	
 	else if(deltaAngle > 2047)
 	{
-		revolutions++;
+		this->encoder.revolutions++;
 		deltaAngle -= 4096;
 	}
 
-	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
+	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)this->encoder.revolutions);
 	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
@@ -1619,8 +1616,6 @@ void uStepper::pid(void)
 	uint8_t data[2];
 	uint16_t curAngle;
 	int16_t deltaAngle;
-	//static uint16_t oldAngle = 0;
-	static int16_t revolutions = 0;
 	float error;
 	static uint32_t speed = 10000;
 	static uint32_t oldMicros = 0;
@@ -1649,17 +1644,17 @@ void uStepper::pid(void)
 
 	if(deltaAngle < -2047)
 	{
-		revolutions--;
+		this->encoder.revolutions--;
 		deltaAngle += 4096;
 	}
 	
 	else if(deltaAngle > 2047)
 	{
-		revolutions++;
+		this->encoder.revolutions++;
 		deltaAngle -= 4096;
 	}
 
-	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
+	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)this->encoder.revolutions);
 	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
