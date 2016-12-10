@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.0.0             	                             						*
-*      	date: 		October 13th, 2016	                                    				*
+*		Version:    1.1.0             	                             						*
+*      	date: 		December 10, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -73,6 +73,7 @@
 
 uStepper *pointer;
 volatile int32_t *p __attribute__((used));
+
 
 i2cMaster I2C;
 
@@ -400,8 +401,6 @@ extern "C" {
 		float newSpeed;
 		static float deltaSpeedAngle = 0.0;
 		static uint8_t loops = 0;
-		static uint16_t oldAngle = 0;
-		static int16_t revolutions = 0;
 
 		sei();
 		if(I2C.getStatus() != I2CFREE)
@@ -430,17 +429,17 @@ extern "C" {
 			curAngle -= 61440;
 		}
 
-		deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+		deltaAngle = (int16_t)pointer->encoder.oldAngle - (int16_t)curAngle;
 
 		if(deltaAngle < -2047)
 		{
-			revolutions--;
+			pointer->encoder.revolutions--;
 			deltaAngle += 4096;
 		}
 		
 		else if(deltaAngle > 2047)
 		{
-			revolutions++;
+			pointer->encoder.revolutions++;
 			deltaAngle -= 4096;
 		}
 
@@ -461,8 +460,8 @@ extern "C" {
 			deltaSpeedAngle = 0.0;
 		}
 
-		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
-		oldAngle = curAngle;
+		pointer->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)pointer->encoder.revolutions);
+		pointer->encoder.oldAngle = curAngle;
 	}
 }
 
@@ -838,9 +837,9 @@ void uStepperEncoder::setup(uint8_t mode)
 	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
-
 	this->oldAngle = 0;
 	this->angleMoved = 0;
+	this->revolutions = 0;
 
 	sei();
 }
@@ -855,6 +854,7 @@ void uStepperEncoder::setHome(void)
 	this->angle = 0;
 	this->oldAngle = 0;
 	this->angleMoved = 0;
+	this->revolutions = 0;
 	sei();
 }
 
@@ -1359,6 +1359,7 @@ void uStepper::setup(	uint8_t mode,
 	TCCR2B |= (1 << CS21)| (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
 	TCCR2A |= (1 << WGM21) | (1 << WGM20);				//Switch timer 2 to Fast PWM mode, to enable adjustment of interrupt frequency, while being able to use PWM
 	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
+	OCR2B = 70;
 	this->enableMotor();
 	this->encoder.setup(mode);
 	
@@ -1415,10 +1416,13 @@ int64_t uStepper::getStepsSinceReset(void)
 	}
 }
 
-void uStepper::pwmD8(float duty)
+void uStepper::pwmD8(double duty)
 {
-	pinMode(8,OUTPUT);
-	TCCR1A |= (1 << COM1B1);
+	if(!(TCCR1A & (1 << COM1B1)))
+	{
+		pinMode(8,OUTPUT);
+		TCCR1A |= (1 << COM1B1);
+	}
 
 	if(duty > 100.0)
 	{
@@ -1434,10 +1438,30 @@ void uStepper::pwmD8(float duty)
 	OCR1B = (uint16_t)(duty + 0.5);
 }
 
-void uStepper::pwmD3(float duty)
+void uStepper::pwmD8(int mode)
 {
-	pinMode(3,OUTPUT);
-	TCCR2A |= (1 << COM2B1);
+	if(mode == PWM)
+	{
+		if(!(TCCR1A & (1 << COM1B1)))
+		{
+			pinMode(8,OUTPUT);
+			TCCR1A |= (1 << COM1B1);
+		}
+	}
+	else
+	{
+		pinMode(8,INPUT);
+		TCCR1A &= ~(1 << COM1B1);
+	}
+}
+
+void uStepper::pwmD3(double duty)
+{
+	if(!(TCCR2A & (1 << COM2B1)))
+	{
+		pinMode(3,OUTPUT);
+		TCCR2A |= (1 << COM2B1);
+	}
 
 	if(duty > 100.0)
 	{
@@ -1451,6 +1475,23 @@ void uStepper::pwmD3(float duty)
 	duty *= 0.7;
 
 	OCR2B = (uint16_t)(duty + 0.5);
+}
+
+void uStepper::pwmD3(int mode)
+{
+	if(mode == PWM)
+	{
+		if(!(TCCR2A & (1 << COM2B1)))
+		{
+			pinMode(3,OUTPUT);
+			TCCR2A |= (1 << COM2B1);
+		}
+	}
+	else
+	{
+		pinMode(3,INPUT);
+		TCCR2A &= ~(1 << COM2B1);
+	}
 }
 
 void uStepper::updateSetPoint(float setPoint)
@@ -1472,8 +1513,6 @@ void uStepper::pidDropIn(void)
 	uint8_t data[2];
 	uint16_t curAngle;
 	int16_t deltaAngle;
-	static uint16_t oldAngle = 0;
-	static int16_t revolutions = 0;
 	float error;
 	static uint32_t speed = 10000;
 	static uint32_t oldMicros = 0;
@@ -1505,22 +1544,22 @@ void uStepper::pidDropIn(void)
 		curAngle -= 61440;
 	}
 
-	deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+	deltaAngle = (int16_t)this->encoder.oldAngle - (int16_t)curAngle;
 
 	if(deltaAngle < -2047)
 	{
-		revolutions--;
+		this->encoder.revolutions--;
 		deltaAngle += 4096;
 	}
 	
 	else if(deltaAngle > 2047)
 	{
-		revolutions++;
+		this->encoder.revolutions++;
 		deltaAngle -= 4096;
 	}
 
-	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
-	oldAngle = curAngle;
+	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)this->encoder.revolutions);
+	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
 
@@ -1619,8 +1658,6 @@ void uStepper::pid(void)
 	uint8_t data[2];
 	uint16_t curAngle;
 	int16_t deltaAngle;
-	static uint16_t oldAngle = 0;
-	static int16_t revolutions = 0;
 	float error;
 	static uint32_t speed = 10000;
 	static uint32_t oldMicros = 0;
@@ -1645,22 +1682,22 @@ void uStepper::pid(void)
 		curAngle -= 61440;
 	}
 
-	deltaAngle = (int16_t)oldAngle - (int16_t)curAngle;
+	deltaAngle = (int16_t)this->encoder.oldAngle - (int16_t)curAngle;
 
 	if(deltaAngle < -2047)
 	{
-		revolutions--;
+		this->encoder.revolutions--;
 		deltaAngle += 4096;
 	}
 	
 	else if(deltaAngle > 2047)
 	{
-		revolutions++;
+		this->encoder.revolutions++;
 		deltaAngle -= 4096;
 	}
 
-	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)revolutions);
-	oldAngle = curAngle;
+	this->encoder.angleMoved = (int32_t)curAngle + (4096*(int32_t)this->encoder.revolutions);
+	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
 
@@ -1769,16 +1806,25 @@ void uStepper::pid(void)
 	}
 }
 
-void i2cMaster::cmd(uint8_t cmd)
+bool i2cMaster::cmd(uint8_t cmd)
 {
 	uint16_t i = 0;
 	// send command
 	TWCR = cmd;
 	// wait for command to complete
-	while (!(TWCR & (1 << TWINT)));
+	while (!(TWCR & (1 << TWINT)))
+	{
+		i++;
+		if(i == 65000)
+		{
+			return false;
+		}
+	}
 	
 	// save status bits
 	status = TWSR & 0xF8;	
+
+	return true;
 }
 
 bool i2cMaster::read(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, uint8_t *data)
@@ -1787,18 +1833,38 @@ bool i2cMaster::read(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, uin
 
 	TIMSK1 &= ~(1 << OCIE1A);
 
-	I2C.start(slaveAddr, WRITE);
+	if(I2C.start(slaveAddr, WRITE) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
-	I2C.writeByte(regAddr);
+	if(I2C.writeByte(regAddr) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
-	I2C.restart(slaveAddr, READ);
+	if(I2C.restart(slaveAddr, READ) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
 	for(i = 0; i < (numOfBytes - 1); i++)
 	{
-		I2C.readByte(ACK, &data[i]);
+		if(I2C.readByte(ACK, &data[i]) == false)
+		{
+			I2C.stop();
+			return false;
+		}	
 	}
 
-	I2C.readByte(NACK, &data[numOfBytes-1]);
+	if(I2C.readByte(NACK, &data[numOfBytes-1]) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 
 	I2C.stop();
 
@@ -1813,12 +1879,25 @@ bool i2cMaster::write(uint8_t slaveAddr, uint8_t regAddr, uint8_t numOfBytes, ui
 
 	TIMSK1 &= ~(1 << OCIE1A);
 
-	I2C.start(slaveAddr, WRITE);
-	I2C.writeByte(regAddr);
+	if(I2C.start(slaveAddr, WRITE) == false)
+	{
+		I2C.stop();
+		return false;
+	}
+
+	if(I2C.writeByte(regAddr) == false)
+	{
+		I2C.stop();
+		return false;
+	}
 	
 	for(i = 0; i < numOfBytes; i++)
 	{
-		I2C.writeByte(*(data + i));
+		if(I2C.writeByte(*(data + i)) == false)
+		{
+			I2C.stop();
+			return false;
+		}
 	}
 	I2C.stop();
 
@@ -1831,17 +1910,24 @@ bool i2cMaster::readByte(bool ack, uint8_t *data)
 {
 	if(ack)
 	{
-		this->cmd((1 << TWINT) | (1 << TWEN) | (1 << TWEA));
+		if(this->cmd((1 << TWINT) | (1 << TWEN) | (1 << TWEA)) == false)
+		{
+			return false;
+		}
+
 	}
 	
 	else
 	{
-		this->cmd((1 << TWINT) | (1 << TWEN));
+		if(this->cmd((1 << TWINT) | (1 << TWEN)) == false)
+		{
+			return false;
+		}
 	}
 
 	*data = TWDR;
 
-	return 1;
+	return true;
 }
 
 bool i2cMaster::start(uint8_t addr, bool RW)
@@ -1860,6 +1946,7 @@ bool i2cMaster::start(uint8_t addr, bool RW)
 	
 	if (RW == READ) 
 	{
+
 		return this->getStatus() == RXADDRACK;
 	} 
 

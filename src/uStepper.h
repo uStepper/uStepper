@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.0.0                                           						*
-*      	date: 		October 13th, 2016	                                    				*
+*		Version:    1.1.0                                           						*
+*      	date: 		December 10, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -108,6 +108,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+*	\version 1.1.0:
+*	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
+*	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
+*	- Added overloaded function to pwmD8() and pwmD3(), in order to be able to revert the function of these to pins, back to normal IO mode
 *	\version 1.0.0:
 *	- Added PID functionality to drop-in Feature
 *	- Added PID functionality to regular movement functions
@@ -179,6 +183,7 @@
 #define SIXTEEN 16						/**< Sixteenth step definition*/	
 
 #define NORMAL 	0						/**< Value defining normal mode*/	
+#define PWM 	1						/**< Value defining PWM mode of corresponding IO pin. Used to switch pin D3 and D8 between pwm or normal IO mode*/
 #define DROPIN 	1						/**< Value defining dropin mode for 3d printer/CNC controller boards*/
 #define PID 	2						/**< Value defining PID mode for normal library functions*/
 
@@ -373,11 +378,19 @@ private:
 class uStepperEncoder
 {
 public:
-	volatile int32_t angleMoved;			/**< Variable used to store that measured angle moved from the reference position */
-	uint16_t encoderOffset;				/**< Angle of the shaft at the reference position. */
-	volatile float oldAngle;			/**< Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position */
-	volatile uint16_t angle;
-	volatile float curSpeed;			/**< Variable used to store the last measured rotational speed of the motor shaft */ 	
+	volatile int32_t angleMoved;		/** < Variable used to store that measured angle moved from the
+	                            		 * reference position */
+	uint16_t encoderOffset;				/** < Angle of the shaft at the reference position. */
+	volatile uint16_t oldAngle;			/** < Used to stored the previous measured angle for the speed
+	                           			 * measurement, and the calculation of angle moved from reference
+	                           			 * position */
+	volatile uint16_t angle;			/** < This variable always contain the current rotor angle, relative
+	                        			 * to a single revolution */
+	volatile int16_t revolutions;		/** < This variable contains the number of revolutions in either
+	                             		 * direction, since last home position was set. negative numbers
+	                             		 * corresponds to CCW turns, and positive to CW turns */
+	volatile float curSpeed;			/** < Variable used to store the last measured rotational speed of
+	                        			 * the motor shaft */ 	
 	/**
 	 * @brief      Constructor
 	 *
@@ -916,7 +929,17 @@ public:
 	 * @param      duty  - Desired duty cycle of PWM signal. range: 0.0 to
 	 *                   100.0.
 	 */
-	void pwmD8(float duty);
+	void pwmD8(double duty);
+
+	/**
+	 * @brief      Sets the mode of digital pin D8
+	 * 
+	 * 			   This function changes digital pin D8 between PWM mode and normal I/O mode. 
+	 *
+	 * @param[in]  mode  By supplying 'PWM' as argument, the digital pin acts as a PWM pin.
+	 * 				     By supplying 'NORMAL' as argument, the digital pin acts as a normal I/O pin.
+	 */
+	void pwmD8(int mode);
 	
 	/**
 	 * @brief      Generate PWM signal on digital output 3
@@ -929,7 +952,18 @@ public:
 	 * @param      duty  - Desired duty cycle of PWM signal. range: 0.0 to
 	 *                   100.0.
 	 */
-	void pwmD3(float duty);
+	void pwmD3(double duty);
+
+
+	/**
+	 * @brief      Sets the mode of digital pin D3
+	 * 
+	 * 			   This function changes digital pin D3 between PWM mode and normal I/O mode. 
+	 *
+	 * @param[in]  mode  By supplying 'PWM' as argument, the digital pin acts as a PWM pin.
+	 * 				     By supplying 'NORMAL' as argument, the digital pin acts as a normal I/O pin.
+	 */
+	void pwmD3(int mode);
 
 	/**
 	 * @brief      Updates setpoint for the motor
@@ -978,7 +1012,7 @@ class i2cMaster
 		 *
 		 * @param      cmd   - Command to be send over the I2C bus.
 		 */
-		void cmd(uint8_t cmd);
+		bool cmd(uint8_t cmd);
 
 	public:
 

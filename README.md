@@ -38,6 +38,12 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+1.1.0:
+
+- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
+- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
+- Added overloaded function to pwmD8() and pwmD3(), in order to be able to revert the function of these to pins, back to normal IO mode
+
 1.0.0:
 
 - Added PID functionality to drop-in Feature

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['cmd',['cmd',['../classi2cMaster.html#af74990f278bc2f34fed0bc25a17f31be',1,'i2cMaster']]]
+  ['cmd',['cmd',['../classi2cMaster.html#a57b0b97be6a40d9a26a9f3e17cd42a80',1,'i2cMaster']]]
 ];

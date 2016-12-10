@@ -47,3 +47,5 @@ write 		KEYWORD2
 stop 	KEYWORD2
 getStatus 	KEYWORD2
 begin 	KEYWORD2
+pwmD8	KEYWORD2
+pwmD3	KEYWORD2
