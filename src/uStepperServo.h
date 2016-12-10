@@ -35,21 +35,31 @@
 #include <Arduino.h>
 #include <inttypes.h>
 
+#define NO_ANGLE (0xff)
+
 /**
  * @brief      Prototype of class for ustepper servo.
  */
 class uStepperServo
 {
   private:
-    uint8_t pin;        /** < Digital output pin connected to servo input terminal */
-    uint8_t angle;      /** < Current angle in degrees */
-    uint16_t pulse;     /** < Pulse width in timer0 ticks (1 tick = 16us) */
-    uint8_t min16;      /** < Minimum pulse width in timer0 ticks (default = 92 = 1.472ms) */
-    uint8_t max16;      /** < Maximum pulse width in timer0 ticks (default = 150 = 2.4ms) */
+    /** Digital output pin connected to servo input terminal */
+    uint8_t pin;        
+    /** Current angle in degrees */
+    uint8_t angle;      
+    /** Pulse width in timer0 ticks (1 tick = 16us) */
+    uint16_t pulse;     
+    /** Minimum pulse width in timer0 ticks (default = 92 = 1.472ms) */
+    uint8_t min16;      
+    /** Maximum pulse width in timer0 ticks (default = 150 = 2.4ms) */
+    uint8_t max16;      
 
-    class uStepperServo *next;      /** < Pointer to hold address of next servo in chain, if multiple
-                                     * servos are connected */
-    static uStepperServo* first;    /** < Pointer to hold address of first servo in chain */
+    /** Pointer to hold address of next servo in chain, if multiple
+    * servos are connected */
+    class uStepperServo *next;      
+    
+    /** Pointer to hold address of first servo in chain */
+    static uStepperServo* first;    
   public:
 
     /**

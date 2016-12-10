@@ -105,8 +105,7 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a0156342c81b94ab3f7ef176494205f65"><td class="memItemLeft" align="right" valign="top"><a id="a0156342c81b94ab3f7ef176494205f65"></a>
-volatile int32_t&#160;</td><td class="memItemRight" valign="bottom"><b>angleMoved</b></td></tr>
+<tr class="memitem:a0156342c81b94ab3f7ef176494205f65"><td class="memItemLeft" align="right" valign="top">volatile int32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepperEncoder.html#a0156342c81b94ab3f7ef176494205f65">angleMoved</a></td></tr>
 <tr class="separator:a0156342c81b94ab3f7ef176494205f65"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a602c25ed26a1d3b48ba2215a40b0edd8"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepperEncoder.html#a602c25ed26a1d3b48ba2215a40b0edd8">encoderOffset</a></td></tr>
 <tr class="separator:a602c25ed26a1d3b48ba2215a40b0edd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -132,7 +131,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 <div class="textblock"><p>Prototype of class for the AS5600 encoder. </p>
 <p>This class enables the user of the library to access the AS5600 encoder on the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> board. This class can be instantiated as a standalone object if all the features of the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a> is not needed by the programmers specific application. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00378">378</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00415">415</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="ab9c80a99fca938eeb490e4ed8d109f04"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab9c80a99fca938eeb490e4ed8d109f04">&sect;&nbsp;</a></span>uStepperEncoder()</h2>
@@ -151,7 +150,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor. </p>
-<p>&lt; Variable used to store the last measured rotational speed of the motor shaft This is the constructor of the <a class="el" href="classuStepperEncoder.html" title="Prototype of class for the AS5600 encoder. ">uStepperEncoder</a> class. </p>
+<p>This is the constructor of the <a class="el" href="classuStepperEncoder.html" title="Prototype of class for the AS5600 encoder. ">uStepperEncoder</a> class. </p>
 
 <p>Definition at line <a class="el" href="uStepper_8cpp_source.html#l00805">805</a> of file <a class="el" href="uStepper_8cpp_source.html">uStepper.cpp</a>.</p>
 
@@ -403,9 +402,26 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>&lt; Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position </p>
+<p>This variable always contain the current rotor angle, relative to a single revolution </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00387">387</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00432">432</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+
+</div>
+</div>
+<a id="a0156342c81b94ab3f7ef176494205f65"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0156342c81b94ab3f7ef176494205f65">&sect;&nbsp;</a></span>angleMoved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">volatile int32_t uStepperEncoder::angleMoved</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Variable used to store that measured angle moved from the reference position </p>
+
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00420">420</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -420,9 +436,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>&lt; This variable contains the number of revolutions in either direction, since last home position was set. negative numbers corresponds to CCW turns, and positive to CW turns </p>
+<p>Variable used to store the last measured rotational speed of the motor shaft </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00392">392</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00441">441</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -437,9 +453,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>&lt; Variable used to store that measured angle moved from the reference position </p>
+<p>Angle of the shaft at the reference position. </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00383">383</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00423">423</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -454,9 +470,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>&lt; Angle of the shaft at the reference position. </p>
+<p>Used to stored the previous measured angle for the speed measurement, and the calculation of angle moved from reference position </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00384">384</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00428">428</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -471,9 +487,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>&lt; This variable always contain the current rotor angle, relative to a single revolution </p>
+<p>This variable contains the number of revolutions in either direction, since last home position was set. negative numbers corresponds to CCW turns, and positive to CW turns </p>
 
-<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00389">389</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepper_8h_source.html#l00437">437</a> of file <a class="el" href="uStepper_8h_source.html">uStepper.h</a>.</p>
 
 </div>
 </div>
@@ -484,7 +500,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>used</b></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Dec 10 2016 15:07:15 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Dec 10 2016 15:53:08 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

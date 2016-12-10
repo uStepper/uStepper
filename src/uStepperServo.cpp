@@ -97,7 +97,7 @@
 
 uStepperServo *uStepperServo::first;
 
-#define NO_ANGLE (0xff)
+
 
 uStepperServo::uStepperServo() : pin(0),angle(NO_ANGLE),pulse(0),min16(92),max16(150),next(0)
 {
