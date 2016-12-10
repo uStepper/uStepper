@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.0.0                                           						*
-*      	date: 		October 13th, 2016	                                    				*
+*		Version:    1.1.0                                           						*
+*      	date: 		December 10, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -108,9 +108,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
- *	\version 1.1.0:
- *	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
- *	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
+*	\version 1.1.0:
+*	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
+*	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
+*	- Added overloaded function to pwmD8() and pwmD3(), in order to be able to revert the function of these to pins, back to normal IO mode
 *	\version 1.0.0:
 *	- Added PID functionality to drop-in Feature
 *	- Added PID functionality to regular movement functions
@@ -182,6 +183,7 @@
 #define SIXTEEN 16						/**< Sixteenth step definition*/	
 
 #define NORMAL 	0						/**< Value defining normal mode*/	
+#define PWM 	1						/**< Value defining PWM mode of corresponding IO pin. Used to switch pin D3 and D8 between pwm or normal IO mode*/
 #define DROPIN 	1						/**< Value defining dropin mode for 3d printer/CNC controller boards*/
 #define PID 	2						/**< Value defining PID mode for normal library functions*/
 
@@ -927,7 +929,17 @@ public:
 	 * @param      duty  - Desired duty cycle of PWM signal. range: 0.0 to
 	 *                   100.0.
 	 */
-	void pwmD8(float duty);
+	void pwmD8(double duty);
+
+	/**
+	 * @brief      Sets the mode of digital pin D8
+	 * 
+	 * 			   This function changes digital pin D8 between PWM mode and normal I/O mode. 
+	 *
+	 * @param[in]  mode  By supplying 'PWM' as argument, the digital pin acts as a PWM pin.
+	 * 				     By supplying 'NORMAL' as argument, the digital pin acts as a normal I/O pin.
+	 */
+	void pwmD8(int mode);
 	
 	/**
 	 * @brief      Generate PWM signal on digital output 3
@@ -940,7 +952,18 @@ public:
 	 * @param      duty  - Desired duty cycle of PWM signal. range: 0.0 to
 	 *                   100.0.
 	 */
-	void pwmD3(float duty);
+	void pwmD3(double duty);
+
+
+	/**
+	 * @brief      Sets the mode of digital pin D3
+	 * 
+	 * 			   This function changes digital pin D3 between PWM mode and normal I/O mode. 
+	 *
+	 * @param[in]  mode  By supplying 'PWM' as argument, the digital pin acts as a PWM pin.
+	 * 				     By supplying 'NORMAL' as argument, the digital pin acts as a normal I/O pin.
+	 */
+	void pwmD3(int mode);
 
 	/**
 	 * @brief      Updates setpoint for the motor

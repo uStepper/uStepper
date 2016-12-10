@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.0.0             	                             						*
-*      	date: 		October 13th, 2016	                                    				*
+*		Version:    1.1.0             	                             						*
+*      	date: 		December 10, 2016	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -73,6 +73,7 @@
 
 uStepper *pointer;
 volatile int32_t *p __attribute__((used));
+
 
 i2cMaster I2C;
 
@@ -1358,6 +1359,7 @@ void uStepper::setup(	uint8_t mode,
 	TCCR2B |= (1 << CS21)| (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
 	TCCR2A |= (1 << WGM21) | (1 << WGM20);				//Switch timer 2 to Fast PWM mode, to enable adjustment of interrupt frequency, while being able to use PWM
 	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
+	OCR2B = 70;
 	this->enableMotor();
 	this->encoder.setup(mode);
 	
@@ -1414,10 +1416,13 @@ int64_t uStepper::getStepsSinceReset(void)
 	}
 }
 
-void uStepper::pwmD8(float duty)
+void uStepper::pwmD8(double duty)
 {
-	pinMode(8,OUTPUT);
-	TCCR1A |= (1 << COM1B1);
+	if(!(TCCR1A & (1 << COM1B1)))
+	{
+		pinMode(8,OUTPUT);
+		TCCR1A |= (1 << COM1B1);
+	}
 
 	if(duty > 100.0)
 	{
@@ -1433,10 +1438,30 @@ void uStepper::pwmD8(float duty)
 	OCR1B = (uint16_t)(duty + 0.5);
 }
 
-void uStepper::pwmD3(float duty)
+void uStepper::pwmD8(int mode)
 {
-	pinMode(3,OUTPUT);
-	TCCR2A |= (1 << COM2B1);
+	if(mode == PWM)
+	{
+		if(!(TCCR1A & (1 << COM1B1)))
+		{
+			pinMode(8,OUTPUT);
+			TCCR1A |= (1 << COM1B1);
+		}
+	}
+	else
+	{
+		pinMode(8,INPUT);
+		TCCR1A &= ~(1 << COM1B1);
+	}
+}
+
+void uStepper::pwmD3(double duty)
+{
+	if(!(TCCR2A & (1 << COM2B1)))
+	{
+		pinMode(3,OUTPUT);
+		TCCR2A |= (1 << COM2B1);
+	}
 
 	if(duty > 100.0)
 	{
@@ -1450,6 +1475,23 @@ void uStepper::pwmD3(float duty)
 	duty *= 0.7;
 
 	OCR2B = (uint16_t)(duty + 0.5);
+}
+
+void uStepper::pwmD3(int mode)
+{
+	if(mode == PWM)
+	{
+		if(!(TCCR2A & (1 << COM2B1)))
+		{
+			pinMode(3,OUTPUT);
+			TCCR2A |= (1 << COM2B1);
+		}
+	}
+	else
+	{
+		pinMode(3,INPUT);
+		TCCR2A &= ~(1 << COM2B1);
+	}
 }
 
 void uStepper::updateSetPoint(float setPoint)

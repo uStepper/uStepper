@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['velocity',['velocity',['../classuStepper.html#a67ab99136fae0691ed3ab8c9a677e8a5',1,'uStepper']]]
+  ['tolerance',['tolerance',['../classuStepper.html#ac600b79bd974ee1f68dd97c398c6101c',1,'uStepper']]],
+  ['totalsteps',['totalSteps',['../classuStepper.html#a26d4b8c24afb5aaba77daa0d3a95225b',1,'uStepper']]]
 ];

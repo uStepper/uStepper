@@ -121,7 +121,14 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Thomas Hørring Olsen (<a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s@u'+'st'+'epp'+'er'+'.co'+'m'; return false;">thoma<span style="display: none;">.nosp@m.</span>s@us<span style="display: none;">.nosp@m.</span>teppe<span style="display: none;">.nosp@m.</span>r.co<span style="display: none;">.nosp@m.</span>m</a>) </dd></dl>
 <dl class="section user"><dt>Change Log</dt><dd></dd></dl>
-<dl class="section version"><dt>Version</dt><dd>1.0.0:<ul>
+<dl class="section version"><dt>Version</dt><dd>1.1.0:<ul>
+<li>Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees</li>
+<li>Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.</li>
+<li>Added overloaded function to pwmD8() and pwmD3(), in order to be able to revert the function of these to pins, back to normal IO mode </li>
+</ul>
+</dd>
+<dd>
+1.0.0:<ul>
 <li>Added PID functionality to drop-in Feature</li>
 <li>Added PID functionality to regular movement functions</li>
 <li>Added support for servo motors</li>
@@ -189,7 +196,7 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Thu Oct 27 2016 13:27:53 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Dec 10 2016 15:07:16 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>
