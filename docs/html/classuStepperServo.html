@@ -103,8 +103,7 @@ Static Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pri-attribs"></a>
 Private Attributes</h2></td></tr>
-<tr class="memitem:a72e10d31d2497569b375042ee734d620"><td class="memItemLeft" align="right" valign="top"><a id="a72e10d31d2497569b375042ee734d620"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>pin</b></td></tr>
+<tr class="memitem:a72e10d31d2497569b375042ee734d620"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepperServo.html#a72e10d31d2497569b375042ee734d620">pin</a></td></tr>
 <tr class="separator:a72e10d31d2497569b375042ee734d620"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5df754d288da28c01ab6feac6dce6b4"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classuStepperServo.html#ab5df754d288da28c01ab6feac6dce6b4">angle</a></td></tr>
 <tr class="separator:ab5df754d288da28c01ab6feac6dce6b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,7 +124,7 @@ Static Private Attributes</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Prototype of class for ustepper servo. </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00041">41</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00043">43</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a id="a4a7e5ea48796ab435a74e18b5cc601bc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4a7e5ea48796ab435a74e18b5cc601bc">&sect;&nbsp;</a></span>uStepperServo()</h2>
@@ -143,7 +142,7 @@ Static Private Attributes</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Constructor for servo class. </p>
-<p>&lt; Pointer to hold address of first servo in chain This constructor is used to instantiate a new servo class, and should be used for each servo the user wishes to connect to the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a>. </p>
+<p>This constructor is used to instantiate a new servo class, and should be used for each servo the user wishes to connect to the <a class="el" href="classuStepper.html" title="Prototype of class for accessing all features of the uStepper in a single object. ...">uStepper</a>. </p>
 
 <p>Definition at line <a class="el" href="uStepperServo_8cpp_source.html#l00102">102</a> of file <a class="el" href="uStepperServo_8cpp_source.html">uStepperServo.cpp</a>.</p>
 
@@ -339,9 +338,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; Digital output pin connected to servo input terminal </p>
+<p>Current angle in degrees </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00045">45</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00049">49</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 
 </div>
 </div>
@@ -364,9 +363,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; Pointer to hold address of next servo in chain, if multiple servos are connected </p>
+<p>Pointer to hold address of first servo in chain </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00052">52</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00062">62</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 
 </div>
 </div>
@@ -389,9 +388,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; Minimum pulse width in timer0 ticks (default = 92 = 1.472ms) </p>
+<p>Maximum pulse width in timer0 ticks (default = 150 = 2.4ms) </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00048">48</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00055">55</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 
 </div>
 </div>
@@ -414,9 +413,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; Pulse width in timer0 ticks (1 tick = 16us) </p>
+<p>Minimum pulse width in timer0 ticks (default = 92 = 1.472ms) </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00047">47</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00053">53</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 
 </div>
 </div>
@@ -439,9 +438,34 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; Maximum pulse width in timer0 ticks (default = 150 = 2.4ms) </p>
+<p>Pointer to hold address of next servo in chain, if multiple servos are connected </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00050">50</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00059">59</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+
+</div>
+</div>
+<a id="a72e10d31d2497569b375042ee734d620"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a72e10d31d2497569b375042ee734d620">&sect;&nbsp;</a></span>pin</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t uStepperServo::pin</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">private</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>Digital output pin connected to servo input terminal </p>
+
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00047">47</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 
 </div>
 </div>
@@ -464,9 +488,9 @@ Static Private Attributes</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
-<p>&lt; Current angle in degrees </p>
+<p>Pulse width in timer0 ticks (1 tick = 16us) </p>
 
-<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00046">46</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
+<p>Definition at line <a class="el" href="uStepperServo_8h_source.html#l00051">51</a> of file <a class="el" href="uStepperServo_8h_source.html">uStepperServo.h</a>.</p>
 
 </div>
 </div>
@@ -477,7 +501,7 @@ Static Private Attributes</h2></td></tr>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Sat Dec 10 2016 15:07:15 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Sat Dec 10 2016 15:53:08 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

@@ -13,7 +13,7 @@ var searchData=
   ['start',['start',['../classi2cMaster.html#a1f220aa9d4c43c6b6ff53395c76428af',1,'i2cMaster::start()'],['../uStepper_8h.html#a3018c7600b7bb9866400596a56a57af7',1,'START():&#160;uStepper.h']]],
   ['starttimer',['startTimer',['../classuStepper.html#aa3a08ba0871ec3fd1f0deba270d9bacf',1,'uStepper']]],
   ['state',['state',['../classuStepper.html#af406f7f37fadc3ababf95e3bbebb302f',1,'uStepper']]],
-  ['status',['STATUS',['../uStepper_8h.html#a59279bee44f34d08b3cbf3a89fb0d8d9',1,'uStepper.h']]],
+  ['status',['status',['../classi2cMaster.html#a7a51e61bacd034eef996bc5ffccbb75b',1,'i2cMaster::status()'],['../uStepper_8h.html#a59279bee44f34d08b3cbf3a89fb0d8d9',1,'STATUS():&#160;uStepper.h']]],
   ['stepcnt',['stepCnt',['../classuStepper.html#a3377fddee847faec3370d10d2b9689ca',1,'uStepper']]],
   ['stepconversion',['stepConversion',['../classuStepper.html#a51c394e0f436b1052067dd16c17bfe66',1,'uStepper']]],
   ['stepssincereset',['stepsSinceReset',['../classuStepper.html#a98db94619cc110a32ea57f8cbbd97cb1',1,'uStepper']]],
