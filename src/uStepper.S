@@ -144,16 +144,16 @@ std z+CURRENTSTEP,r19
 std z+CURRENTSTEP+1,r20
 std z+CURRENTSTEP+2,r21
 std z+CURRENTSTEP+3,r22
-
+/*
 ldi r19,37
 add r30,r19
 clr r19
-adc r31,r19
+adc r31,r19*/
 
-ldd r19,z+42				
-ldd r20,z+43
-ldd r21,z+44
-ldd r22,z+45
+ldd r19,z+STEPSSINCERESET				
+ldd r20,z+STEPSSINCERESET+1
+ldd r21,z+STEPSSINCERESET+2
+ldd r22,z+STEPSSINCERESET+3
 
 ldd r18,z+0
 cpi r18,0
@@ -174,13 +174,14 @@ sbci r21,0
 sbci r22,0
 
 _storeStepCnt:
-std z+42,r19
-std z+43,r20
-std z+44,r21
-std z+45,r22
-subi r30,37
-sbci r31,0
+std z+STEPSSINCERESET,r19
+std z+STEPSSINCERESET+1,r20
+std z+STEPSSINCERESET+2,r21
+std z+STEPSSINCERESET+3,r22
 
+/*subi r30,37
+sbci r31,0
+*/
 ;
 ;72 clock cycles has been used to reach this point !
 ;
@@ -195,72 +196,6 @@ rjmp _accelAlgorithm		;If state variable is equal to ACCEL, we should jump to th
 rjmp _cruiseAlgorithm		;If state variable is not equal to any of the above states, the state has to be equal to CRUISE
 
 _stopMotor:					;Motor should stand still
-/*ldd r15,z+STEPSSINCERESET	;Load the four lower bytes of stepsSinceReset variable
-ldd r16,z+STEPSSINCERESET+1
-ldd r17,z+STEPSSINCERESET+2
-ldd r18,z+STEPSSINCERESET+3
-
-ldd r19,z+CURRENTSTEP		;Load the four lower bytes of currentStep variable
-ldd r20,z+CURRENTSTEP+1
-ldd r21,z+CURRENTSTEP+2
-ldd r22,z+CURRENTSTEP+3
-
-ldd r23,z+DIRECTION			;Load the direction variable
-cpi r23,_CW 				;If the direction is set to clockwise, we should add the currentStep variable to the stepsSinceReset variable
-brne _subtractSteps			;If the direction is set to counterclockwise, we should subtract the currentStep variable to the stepsSinceReset variable
-
-;Add currentSteps variable to stepsSinceReset variable
-ldi r23,0
-add r15,r19
-adc r16,r20
-adc r17,r21
-adc r18,r22
-
-;Load upper four bytes of stepsSinceReset variable
-ldd r19,z+STEPSSINCERESET+4
-ldd r20,z+STEPSSINCERESET+5
-ldd r21,z+STEPSSINCERESET+6
-ldd r22,z+STEPSSINCERESET+7
-
-;Add any overflows that might have happened
-adc r19,r23
-adc r20,r23
-adc r21,r23
-adc r22,r23
-rjmp _storeSteps			;Store back into ram
-
-_subtractSteps:
-
-;Subtract currentSteps variable from stepsSinceReset variable
-ldi r23,0
-sub r15,r19
-sbc r16,r20
-sbc r17,r21
-sbc r18,r22
-
-;Load upper four bytes of stepsSinceReset variable
-ldd r19,z+STEPSSINCERESET+4
-ldd r20,z+STEPSSINCERESET+5
-ldd r21,z+STEPSSINCERESET+6
-ldd r22,z+STEPSSINCERESET+7
-
-;Subtract any overflows that might have happened
-sbc r19,r23
-sbc r20,r23
-sbc r21,r23
-sbc r22,r23
-
-_storeSteps:
-;Store stepsSinceReset variable back into ram
-std z+STEPSSINCERESET,r15
-std z+STEPSSINCERESET+1,r16
-std z+STEPSSINCERESET+2,r17
-std z+STEPSSINCERESET+3,r18
-std z+STEPSSINCERESET+4,r19
-std z+STEPSSINCERESET+5,r20
-std z+STEPSSINCERESET+6,r21
-std z+STEPSSINCERESET+7,r22
-*/
 ;clear currentSteps variable and store this back into ram
 clr r15
 std z+CURRENTSTEP,r15
