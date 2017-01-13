@@ -876,7 +876,7 @@ uint8_t uStepperEncoder::getAgc()
 {
 	uint8_t data;
 
-	I2C.read(ENCODERADDR, MAGNITUDE, 1, &data);
+	I2C.read(ENCODERADDR, AGC, 1, &data);
 
 	return data;
 }
@@ -885,7 +885,7 @@ uint8_t uStepperEncoder::detectMagnet()
 {
 	uint8_t data;
 
-	I2C.read(ENCODERADDR, AGC, 1, &data);
+	I2C.read(ENCODERADDR, STATUS, 1, &data);
 
 	data &= 0x38;					//For some reason the encoder returns random values on reserved bits. Therefore we make sure reserved bits are cleared before checking the reply !
 
@@ -1404,15 +1404,15 @@ bool uStepper::getMotorState(void)
 	return 0;			//Motor not running
 }
 
-int64_t uStepper::getStepsSinceReset(void)
+int32_t uStepper::getStepsSinceReset(void)
 {
 	if(this->direction == CW)
 	{
-		return this->stepsSinceReset + this->currentStep;
+		return this->stepsSinceReset;
 	}
 	else
 	{
-		return this->stepsSinceReset - this->currentStep;
+		return this->stepsSinceReset;
 	}
 }
 
@@ -1670,7 +1670,7 @@ void uStepper::pid(void)
 	
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	cli();
-		error = (float)this->stepCnt;
+		error = (float)this->stepsSinceReset;
 		speed = (uint32_t)(this->exactDelay.getFloatValue() * INTPERIOD);
 	sei();
 	

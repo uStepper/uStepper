@@ -108,6 +108,11 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+* 	\version 1.1.1:
+*  	- Fixed Bug with encoder.getStrength and encoder.getAgc functions not reading the correct registers in the encoder
+*   - Changed getStepsSinceReset() to return a 32 bit signed integer, instead of a 64 bit signed integer, which is just overkill, and doesn't really play well with arduino
+*   - Changed some minor things in the assembly code to optimise stuff with regards to the PID mode	
+*   - Fixed a typo in the documentation of the getCurrentDirection() function, to state the correct return values
 *	\version 1.1.0:
 *	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
 *	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
@@ -626,7 +631,11 @@ private:
 	 * value represents a rotation in the counter clock wise direction
 	 * and a positive value corresponds to a rotation in the clock wise
 	 * direction. */
-	int64_t stepsSinceReset;		
+	volatile int32_t stepsSinceReset;
+
+	/** Dummy variable, to make variable addresses fit with algorithm
+	 *	After the stepsSinceReset has been changed to int32_t */
+	int32_t dummy;		
 	
 	//Address offset: 46
 	/** This variable contains the exact delay (in number of
@@ -981,8 +990,8 @@ public:
 	 *             This function checks the last configured direction of
 	 *             rotation and returns this.
 	 *
-	 * @return     0 - Counter clockwise
-	 * @return     1 - Clockwise
+	 * @return     0 - Clockwise
+	 * @return     1 - Counter Clockwise
 	 */
 	bool getCurrentDirection(void);
 	
@@ -1020,7 +1029,7 @@ public:
 	 * @return     positive value - number of steps the motor should have rotated in
 	 *             the clockwise direction, with respect to the initial position.
 	 */
-	int64_t getStepsSinceReset(void);
+	int32_t getStepsSinceReset(void);
 
 	/**
 	 * @brief      Generate PWM signal on digital output 8
