@@ -16,7 +16,7 @@ var searchData=
   ['status',['status',['../classi2cMaster.html#a7a51e61bacd034eef996bc5ffccbb75b',1,'i2cMaster::status()'],['../uStepper_8h.html#a59279bee44f34d08b3cbf3a89fb0d8d9',1,'STATUS():&#160;uStepper.h']]],
   ['stepcnt',['stepCnt',['../classuStepper.html#a3377fddee847faec3370d10d2b9689ca',1,'uStepper']]],
   ['stepconversion',['stepConversion',['../classuStepper.html#a51c394e0f436b1052067dd16c17bfe66',1,'uStepper']]],
-  ['stepssincereset',['stepsSinceReset',['../classuStepper.html#a98db94619cc110a32ea57f8cbbd97cb1',1,'uStepper']]],
+  ['stepssincereset',['stepsSinceReset',['../classuStepper.html#a9a70af359c4ca7f430600e874f95e63a',1,'uStepper']]],
   ['stop',['stop',['../classi2cMaster.html#aa3b88864e9b2b6a864c48721b34e206e',1,'i2cMaster::stop()'],['../uStepper_8h.html#ae19b6bb2940d2fbe0a79852b070eeafd',1,'STOP():&#160;uStepper.h']]],
   ['stoptimer',['stopTimer',['../classuStepper.html#a8e795410f167d9473ea871ee31f9e5f4',1,'uStepper']]]
 ];

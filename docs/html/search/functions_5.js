@@ -9,7 +9,7 @@ var searchData=
   ['getmotorstate',['getMotorState',['../classuStepper.html#abf677a4d4dd2902c55295fdb4b91bd3f',1,'uStepper']]],
   ['getspeed',['getSpeed',['../classuStepperEncoder.html#a8812beadc9bec6f4e321d281d9b6ea79',1,'uStepperEncoder']]],
   ['getstatus',['getStatus',['../classi2cMaster.html#a20091cd125f847e2cf50d0c7373adaa0',1,'i2cMaster']]],
-  ['getstepssincereset',['getStepsSinceReset',['../classuStepper.html#aeb787bb58affb568cc583dd19fb7e5f8',1,'uStepper']]],
+  ['getstepssincereset',['getStepsSinceReset',['../classuStepper.html#abb67ce145e7b5a016261b3666e972381',1,'uStepper']]],
   ['getstrength',['getStrength',['../classuStepperEncoder.html#a26b81725b7a995fed98de0fcdd614b1f',1,'uStepperEncoder']]],
   ['gettemp',['getTemp',['../classuStepperTemp.html#a9ddadd3aadbd94e0f0290ebccf05ae2d',1,'uStepperTemp']]]
 ];

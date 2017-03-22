@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.1.0                                           						*
-*      	date: 		December 10, 2016	                                    				*
+*		Version:    1.2.0                                           						*
+*      	date: 		March 22, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -99,7 +99,6 @@
 *	\par To do list
 *	- Clean out in unused variables
 *	- Update comments
-*	- Implement multiaxis feature between multiple uSteppers
 *	- Add support for limit switches
 *	- Split the library into multiple files
 *
@@ -108,11 +107,15 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
-* 	\version 1.1.1:
+* 	\version 1.2.0:
+*  	- Adjusted the code related to the PID closed loop position control. Now it actually works as intended!
 *  	- Fixed Bug with encoder.getStrength and encoder.getAgc functions not reading the correct registers in the encoder
 *   - Changed getStepsSinceReset() to return a 32 bit signed integer, instead of a 64 bit signed integer, which is just overkill, and doesn't really play well with arduino
 *   - Changed some minor things in the assembly code to optimise stuff with regards to the PID mode	
+*   - Fixed a bug in the assembly code causing the StepsSinceReset variable to always decrease regardless of the direction of rotation. This resulted in the number of steps moved since reset, always being negative
 *   - Fixed a typo in the documentation of the getCurrentDirection() function, to state the correct return values
+*   - Added several keywords to the library
+*   - Added Example to demonstrate the use of PID closed loop position control 
 *	\version 1.1.0:
 *	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
 *	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  

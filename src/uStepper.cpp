@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.1.0             	                             						*
-*      	date: 		December 10, 2016	                                    				*
+*		Version:    1.2.0             	                             						*
+*      	date: 		March 22, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -267,131 +267,6 @@ extern "C" {
 		asm volatile("pop r16 \n\t");	
 		asm volatile("reti \n\t");
 	}
-
-	/*
-	void TIMER2_COMPA_vect(void)
-	{	
-		
-		asm volatile("push r16 \n\t");
-		asm volatile("in r16,0x3F \n\t");
-		asm volatile("push r16 \n\t");
-		asm volatile("push r30 \n\t");
-		asm volatile("push r31 \n\t");
-		asm volatile("lds r30,pointer \n\t");
-		asm volatile("lds r31,pointer+1 \n\t");
-		asm volatile("ldd r16,z+56 \n\t");
-		asm volatile("sbrs r16,0 \n\t");
-		asm volatile("jmp _AccelerationAlgorithm \n\t");	//Execute the acceleration profile algorithm
-
-		asm volatile("push r17 \n\t");
-		asm volatile("push r18 \n\t");
-		asm volatile("push r19 \n\t");
-		asm volatile("push r20 \n\t");
-
-		asm volatile("ldi r16,54 \n\t");	//Offset pointer to point to delay variable as first address
-		asm volatile("add r30,r16 \n\t");	
-		asm volatile("clr r16 \n\t");
-		asm volatile("adc r31,r16 \n\t");
-		asm volatile("ldd r16,z+0 \n\t");			//Load delay variable
-		asm volatile("ldd r17,z+1 \n\t");			//load delay variable
-		asm volatile("ldd r18,z+22 \n\t");		//load counter
-		asm volatile("ldd r19,z+23 \n\t");
-		
-		asm volatile("cpse r17,r19 \n\t");			//if high nibble of counter and delay variable is equal, it could be time to step.
-		asm volatile("rjmp _notRdyTimer2 \n\t");	//if not, it certainly is not time
-		asm volatile("cpse r16,r18 \n\t");			//if low nibble of counter and delay variable is equal, it is time to step.
-		asm volatile("rjmp _notRdyTimer2 \n\t");	//if not, it is not time yet
-		asm volatile("sbi 0x05,5 \n\t");
-		asm volatile("sbi 0x0B,4 \n\t");				//PORTD |= (1 << 4);
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("nop \n\t");
-		asm volatile("cbi 0x0B,4 \n\t");				//PORTD &= ~(1 << 4);	
-
-		asm volatile("clr r17 \n\t");
-		asm volatile("std z+22,r17 \n\t");
-		asm volatile("std z+23,r17 \n\t");
-	
-		asm volatile("ldd r16,z+28 \n\t");			//Load high nibble of control variable
-		asm volatile("ldd r17,z+29 \n\t");			//Load high nibble of control variable
-		asm volatile("ldd r18,z+30 \n\t");			//Load high nibble of control variable
-		asm volatile("ldd r19,z+31 \n\t");			//Load high nibble of control variable
-		asm volatile("cpi r16,0x00 \n\t");
-		asm volatile("brne _adjustControl \n\t");
-		asm volatile("cpi r17,0x00 \n\t");
-		asm volatile("brne _adjustControl \n\t");
-		asm volatile("cpi r18,0x00 \n\t");
-		asm volatile("brne _adjustControl \n\t");
-		asm volatile("cpi r19,0x00 \n\t");
-		asm volatile("brne _adjustControl \n\t");
-		asm volatile("lds r16,0x0070 \n\t");		//load contents of TIMSK2
-		asm volatile("andi r16,0xFD \n\t");			//Clear bit 1 (OCIE2A) of TIMSK2 in order to stop timer 2
-		asm volatile("sts 0x0070,r16 \n\t");		//Store new TIMSK2 value into TIMSK2 register
-
-		asm volatile("rjmp _endTimer2 \n\t");
-
-		asm volatile("_adjustControl: \n\t");
-		asm volatile("cpi r19,0x80 \n\t");
-		asm volatile("brlo _subtractControl \n\t");
-
-		asm volatile("ldi r20,0x01\n\t");
-		asm volatile("add r16,r20 \n\t");
-		asm volatile("clr r20 \n\t");
-		asm volatile("adc r17,r20 \n\t");
-		asm volatile("adc r18,r20 \n\t");
-		asm volatile("adc r19,r20 \n\t");
-		asm volatile("rjmp _endStepTimer2 \n\t");
-
-		asm volatile("_subtractControl: \n\t");
-		asm volatile("brlo _subtractControl \n\t");
-		asm volatile("subi r16,0x01 \n\t");
-		asm volatile("sbci r17,0x00 \n\t");
-		asm volatile("sbci r18,0x00 \n\t");
-		asm volatile("sbci r19,0x00 \n\t");
-		asm volatile("rjmp _endStepTimer2 \n\t");
-
-		asm volatile("_notRdyTimer2: \n\t");
-		asm volatile("inc r18 \n\t");
-		asm volatile("clr r16 \n\t");
-		asm volatile("adc r19,r16 \n\t");
-		asm volatile("std z+38,r18 \n\t");
-		asm volatile("std z+39,r19 \n\t");
-		asm volatile("rjmp _endTimer2 \n\t");
-
-		asm volatile("_endStepTimer2: \n\t");
-		asm volatile("std z+4,r16 \n\t");
-		asm volatile("std z+5,r17 \n\t");
-		asm volatile("std z+6,r18 \n\t");
-		asm volatile("std z+7,r19 \n\t");
-
-		asm volatile("_endTimer2: \n\t");
-
-		asm volatile("pop r20 \n\t");
-		asm volatile("pop r19 \n\t");
-		asm volatile("pop r18 \n\t");
-		asm volatile("pop r17 \n\t");
-		asm volatile("pop r31 \n\t");
-		asm volatile("pop r30 \n\t");
-		asm volatile("pop r16 \n\t");
-		asm volatile("out 0x3F,r16 \n\t");
-		asm volatile("pop r16 \n\t");	
-		asm volatile("cbi 0x05,5 \n\t");	
-		asm volatile("reti \n\t");
-	}*/
 
 	void TIMER1_COMPA_vect(void)
 	{
@@ -1671,7 +1546,19 @@ void uStepper::pid(void)
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	cli();
 		error = (float)this->stepsSinceReset;
-		speed = (uint32_t)(this->exactDelay.getFloatValue() * INTPERIOD);
+		if(this->exactDelay.getFloatValue() >= 1.0)
+		{
+			speed = (uint32_t)((this->exactDelay.getFloatValue() * INTPERIOD));
+		}
+		else
+		{
+			speed = 10000;
+		}
+
+		if(speed > 10000)
+		{
+			speed = 10000;
+		}
 	sei();
 	
 	curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];

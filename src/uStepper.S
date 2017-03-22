@@ -1,7 +1,7 @@
 /********************************************************************************************
 *    	File: 		uStepper.S 																*
-*		Version:    1.1.0                                          						*
-*      	date: 		December 10, 2016	                                    				*
+*		Version:    1.2.0                                          						*
+*      	date: 		March 22, 2017	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -155,7 +155,7 @@ ldd r20,z+STEPSSINCERESET+1
 ldd r21,z+STEPSSINCERESET+2
 ldd r22,z+STEPSSINCERESET+3
 
-ldd r18,z+0
+ldd r18,z+DIRECTION
 cpi r18,0
 brne _subStepCnt
 
