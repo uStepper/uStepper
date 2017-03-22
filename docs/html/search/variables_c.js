@@ -5,5 +5,5 @@ var searchData=
   ['status',['status',['../classi2cMaster.html#a7a51e61bacd034eef996bc5ffccbb75b',1,'i2cMaster']]],
   ['stepcnt',['stepCnt',['../classuStepper.html#a3377fddee847faec3370d10d2b9689ca',1,'uStepper']]],
   ['stepconversion',['stepConversion',['../classuStepper.html#a51c394e0f436b1052067dd16c17bfe66',1,'uStepper']]],
-  ['stepssincereset',['stepsSinceReset',['../classuStepper.html#a98db94619cc110a32ea57f8cbbd97cb1',1,'uStepper']]]
+  ['stepssincereset',['stepsSinceReset',['../classuStepper.html#a9a70af359c4ca7f430600e874f95e63a',1,'uStepper']]]
 ];

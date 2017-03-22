@@ -38,6 +38,18 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+
+1.2.0:
+
+- Adjusted the code related to the PID closed loop position control. Now it actually works as intended!
+- Fixed Bug with encoder.getStrength and encoder.getAgc functions not reading the correct registers in the encoder
+- Changed getStepsSinceReset() to return a 32 bit signed integer, instead of a 64 bit signed integer, which is just overkill, and doesn't really play well with arduino
+- Changed some minor things in the assembly code to optimise stuff with regards to the PID mode	
+- Fixed a bug in the assembly code causing the StepsSinceReset variable to always decrease regardless of the direction of rotation. This resulted in the number of steps moved since reset, always being negative
+- Fixed a typo in the documentation of the getCurrentDirection() function, to state the correct return values
+- Added several keywords to the library
+- Added Example to demonstrate the use of PID closed loop position control 
+
 1.1.0:
 
 - Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
