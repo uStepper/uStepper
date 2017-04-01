@@ -1619,7 +1619,7 @@ void uStepper::pid(void)
 
 	    if(output < cruiseDelay)
 	    {
-	      accumError -= 0.1*(cruiseDelay-output);
+	      accumError -= cruiseDelay-output;
 	      output = cruiseDelay;
 	    }
 	    
@@ -1653,7 +1653,7 @@ void uStepper::pid(void)
 
 	    if(output < cruiseDelay)
 	    {
-	      accumError -= 0.1*(cruiseDelay-output);
+	      accumError -= cruiseDelay-output;
 	      output = cruiseDelay;
 	    }
 	    
