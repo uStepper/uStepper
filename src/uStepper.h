@@ -737,6 +737,7 @@ private:
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 	friend void interrupt1(void);
+	friend void uStepperEncoder::setHome(void);
 
 	/**
 	 * @brief      Starts timer for stepper algorithm
