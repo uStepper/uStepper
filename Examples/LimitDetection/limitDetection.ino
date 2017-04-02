@@ -56,3 +56,22 @@ float limit()
   }  
   stepper.hardStop(SOFT);//stop
   stepper.moveSteps(5*STEPPRMM, CCW, SOFT);//back off with 5 mm
+  while(stepper.getMotorState())//wait for motor to finish move
+  {
+    delay(1);//because Arduino does not accept the empty while loop for some reason....
+  }
+  pos = stepper.encoder.getAngleMoved();//read current position
+  stepper.moveSteps((pos*RES)/2, CCW, SOFT);//go to center
+  while(stepper.getMotorState())//wait for motor to finish move
+  {
+    delay(1);//because Arduino does not accept the empty while loop for some reason....
+  }
+  return pos;//return max position
+}
+
+void loop() {
+  Serial.println(limit()*MMPRDEG);//find end positions and read out the recorded end position
+  stepper.setup(PID,SIXTEEN,10,6,1,0.2,0.006);//enable PID
+  stepper.pwmD8(50.0);//use software current setting
+  while(1);
+}
