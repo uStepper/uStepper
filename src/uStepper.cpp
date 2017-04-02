@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.2.0             	                             						*
-*      	date: 		March 22, 2017	 	                                    				*
+*		Version:    1.2.1             	                             						*
+*      	date: 		April 2, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -726,6 +726,7 @@ void uStepperEncoder::setHome(void)
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 
+	pointer->stepsSinceReset = 0;
 	this->angle = 0;
 	this->oldAngle = 0;
 	this->angleMoved = 0;
@@ -1224,11 +1225,11 @@ void uStepper::setup(	uint8_t mode,
 		this->angleToStep = ((float)(200*microStepping))/360.0;	//Calculate conversion coefficient from angle to corresponding number of steps
 		
 		//Scale supplied controller coefficents. This is done to enable the user to use easier to manage numbers for these coefficients.
-		this->pTerm = pTerm/10000.0;	  
-		this->iTerm = iTerm/10000.0;
-		this->dTerm = dTerm/10000.0;
+	    this->pTerm = pTerm/10000.0;    
+	    this->iTerm = iTerm/(10000.0*500.0);
+	    this->dTerm = dTerm/(10000.0/500.0);
 	}
-
+	this->stepsSinceReset=0;
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
 	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));
 	TCCR2B |= (1 << CS21)| (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
@@ -1493,21 +1494,23 @@ void uStepper::pidDropIn(void)
 		oldError = error;
 		
 		PORTD |= (1 << 7);				//change direction to CCW
-		output *= (float)speed;
-		
-		if(output < 54.0)
-		{
-			output = 54.0;
-			accumError -= integral;
-		}
-		
-		cli();
-			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-		sei();
+		                  			
+	    output *= (float)speed;
+	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 
-		this->startTimer();	
-		PORTB &= ~(1 << 0);
-	}
+	    if(output < cruiseDelay)
+	    {
+	      output = cruiseDelay;
+	      accumError -= integral;
+	    }
+	    
+	    cli();
+	      this->delay = output;
+	    sei();
+
+			this->startTimer();	
+			PORTB &= ~(1 << 0);
+		}
 	
 	else
 	{
@@ -1611,17 +1614,18 @@ void uStepper::pid(void)
 
 		PORTD &= ~(1 << 7);		//change direction to CW
 		
-		output *= (float)speed;	//Calculate stepSpeed
+	    output *= (float)speed;
+	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 
-		if(output < 54.0)		//If stepSpeed is lower than possible
-		{
-			output = 54.0;		//Set stepSpeed to lowest possible
-			accumError -= integral;	//and subtract current integral part from accumerror (anti-windup)
-		}
-		
-		cli();		//Atomic copy
-			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
-		sei();
+	    if(output < cruiseDelay)
+	    {
+	      accumError -= cruiseDelay-output;
+	      output = cruiseDelay;
+	    }
+	    
+	    cli();
+	      this->delay = output;
+	    sei();
 
 		this->startTimer();	
 		PORTB &= ~(1 << 0);
@@ -1643,17 +1647,19 @@ void uStepper::pid(void)
 		oldError = error;
 		
 		PORTD |= (1 << 7);				//change direction to CCW
-		output *= (float)speed;
-		
-		if(output < 54.0)
-		{
-			output = 54.0;
-			accumError -= integral;
-		}
-		
-		cli();
-			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-		sei();
+
+	    output *= (float)speed;
+	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+
+	    if(output < cruiseDelay)
+	    {
+	      accumError -= cruiseDelay-output;
+	      output = cruiseDelay;
+	    }
+	    
+	    cli();
+	      this->delay = output;
+	    sei();
 
 		this->startTimer();	
 		PORTB &= ~(1 << 0);
