@@ -120,7 +120,14 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </dd></dl>
 <dl class="section author"><dt>Author</dt><dd>Thomas Hørring Olsen (<a href="#" onclick="location.href='mai'+'lto:'+'tho'+'ma'+'s@u'+'st'+'epp'+'er'+'.co'+'m'; return false;">thoma<span style="display: none;">.nosp@m.</span>s@us<span style="display: none;">.nosp@m.</span>teppe<span style="display: none;">.nosp@m.</span>r.co<span style="display: none;">.nosp@m.</span>m</a>) </dd></dl>
 <dl class="section user"><dt>Change Log</dt><dd></dd></dl>
-<dl class="section version"><dt>Version</dt><dd>1.2.0:<ul>
+<dl class="section version"><dt>Version</dt><dd>1.2.1:<ul>
+<li>Fixed a bug in the implementation of the standalone PID controller, primarily anti windup</li>
+<li>Added example to show how limit detection can be implemented without the use of limit switches</li>
+<li>Adjusted encoder.setHome() function to also reset the stepsSinceReset variable </li>
+</ul>
+</dd>
+<dd>
+1.2.0:<ul>
 <li>Adjusted the code related to the PID closed loop position control. Now it actually works as intended!</li>
 <li>Fixed Bug with encoder.getStrength and encoder.getAgc functions not reading the correct registers in the encoder</li>
 <li>Changed getStepsSinceReset() to return a 32 bit signed integer, instead of a 64 bit signed integer, which is just overkill, and doesn't really play well with arduino</li>
@@ -207,7 +214,7 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 </div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Wed Mar 22 2017 22:19:53 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Apr 3 2017 00:02:57 for uStepper by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.12
 </small></address>

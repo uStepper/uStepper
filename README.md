@@ -39,6 +39,11 @@ This is not a problem for windows/linux users, as these drivers come with the ar
 
 ## Change Log
 
+1.2.1:
+- Fixed a bug in the implementation of the standalone PID controller, primarily anti windup
+- Added example to show how limit detection can be implemented without the use of limit switches
+- Adjusted encoder.setHome() function to also reset the stepsSinceReset variable
+
 1.2.0:
 
 - Adjusted the code related to the PID closed loop position control. Now it actually works as intended!

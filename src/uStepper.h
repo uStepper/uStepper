@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.2.0                                           						*
-*      	date: 		March 22, 2017	 	                                    				*
+*		Version:    1.2.1                                           						*
+*      	date: 		April 2, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -107,6 +107,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+* 	\version 1.2.1:
+*  	- Fixed a bug in the implementation of the standalone PID controller, primarily anti windup
+*  	- Added example to show how limit detection can be implemented without the use of limit switches
+*   - Adjusted encoder.setHome() function to also reset the stepsSinceReset variable
 * 	\version 1.2.0:
 *  	- Adjusted the code related to the PID closed loop position control. Now it actually works as intended!
 *  	- Fixed Bug with encoder.getStrength and encoder.getAgc functions not reading the correct registers in the encoder
