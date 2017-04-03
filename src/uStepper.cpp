@@ -1495,22 +1495,21 @@ void uStepper::pidDropIn(void)
 		
 		PORTD |= (1 << 7);				//change direction to CCW
 		                  			
-	    output *= (float)speed;
-	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+		output *= (float)speed;	//Calculate stepSpeed
 
-	    if(output < cruiseDelay)
-	    {
-	      output = cruiseDelay;
-	      accumError -= integral;
-	    }
-	    
-	    cli();
-	      this->delay = output;
-	    sei();
-
-			this->startTimer();	
-			PORTB &= ~(1 << 0);
+		if(output < 54.0)		//If stepSpeed is lower than possible
+		{
+			output = 54.0;		//Set stepSpeed to lowest possible
+			accumError -= integral;	//and subtract current integral part from accumerror (anti-windup)
 		}
+		
+		cli();		//Atomic copy
+			this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);	//calculate Number of interrupt Timer 2 should do before generating step pulse
+		sei();
+
+		this->startTimer();	
+		PORTB &= ~(1 << 0);
+	}
 	
 	else
 	{
@@ -1614,12 +1613,18 @@ void uStepper::pid(void)
 
 		PORTD &= ~(1 << 7);		//change direction to CW
 		
-	    output *= (float)speed;
+		output *= (float)speed;
+
+	    if(output < 54.0)
+	    {
+	    	accumError -= integral;
+	    	output = 54.0;
+	    }
+
 	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 
 	    if(output < cruiseDelay)
 	    {
-	      accumError -= cruiseDelay-output;
 	      output = cruiseDelay;
 	    }
 	    
@@ -1648,12 +1653,19 @@ void uStepper::pid(void)
 		
 		PORTD |= (1 << 7);				//change direction to CCW
 
-	    output *= (float)speed;
+		output *= (float)speed;
+
+	    if(output < 54.0)
+	    {
+	    	accumError -= integral;
+	    	output = 54.0;
+
+	    }
+
 	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 
 	    if(output < cruiseDelay)
 	    {
-	      accumError -= cruiseDelay-output;
 	      output = cruiseDelay;
 	    }
 	    
