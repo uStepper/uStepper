@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.2.1                                           						*
-*      	date: 		April 2, 2017	 	                                    				*
+*		Version:    1.2.2                                           						*
+*      	date: 		April 5, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -107,6 +107,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+* 	\version 1.2.2:
+*  	- Adjusted parameters in limitDetection example, and dropin example
+*  	- Added setCurrent() function to the uStepper object, for the user to easily change current setting
+*   - Minor corrections in PID algorithms
 * 	\version 1.2.1:
 *  	- Fixed a bug in the implementation of the standalone PID controller, primarily anti windup
 *  	- Added example to show how limit detection can be implemented without the use of limit switches
@@ -1050,7 +1054,18 @@ public:
 	 * @param      duty  - Desired duty cycle of PWM signal. range: 0.0 to
 	 *                   100.0.
 	 */
-	void pwmD8(double duty);
+	void pwmD8(double current);
+
+	/**
+	 * @brief      Set motor output current
+	 *
+	 *             This function allows the user to change the current setting of the motor
+	 *             driver. In order to utilize this feature, the current jumper should be 
+	 *             placed in the "I-PWM" position on the uStepper board.
+	 *
+	 * @param[in]      current Desired current setting in percent (0% - 100%)
+	 */
+	void setCurrent(double duty);
 
 	/**
 	 * @brief      Sets the mode of digital pin D8

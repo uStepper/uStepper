@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.2.1             	                             						*
-*      	date: 		April 2, 2017	 	                                    				*
+*		Version:    1.2.2             	                             						*
+*      	date: 		April 5, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -1292,6 +1292,11 @@ int32_t uStepper::getStepsSinceReset(void)
 	}
 }
 
+void uStepper::setCurrent(double current)
+{
+	this->pwmD8(current);
+}
+
 void uStepper::pwmD8(double duty)
 {
 	if(!(TCCR1A & (1 << COM1B1)))
@@ -1620,16 +1625,9 @@ void uStepper::pid(void)
 	    	accumError -= integral;
 	    	output = 54.0;
 	    }
-
-	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-
-	    if(output < cruiseDelay)
-	    {
-	      output = cruiseDelay;
-	    }
 	    
 	    cli();
-	      this->delay = output;
+	      this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 	    sei();
 
 		this->startTimer();	
@@ -1661,16 +1659,9 @@ void uStepper::pid(void)
 	    	output = 54.0;
 
 	    }
-
-	    output = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
-
-	    if(output < cruiseDelay)
-	    {
-	      output = cruiseDelay;
-	    }
 	    
 	    cli();
-	      this->delay = output;
+	      this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
 	    sei();
 
 		this->startTimer();	

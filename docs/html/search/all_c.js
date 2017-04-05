@@ -7,5 +7,5 @@ var searchData=
   ['pulse',['pulse',['../classuStepperServo.html#ae5134b8075617d90449f56014273ebeb',1,'uStepperServo']]],
   ['pwm',['PWM',['../uStepper_8h.html#a538e3ec60828cfabae7e3011d73d2093',1,'uStepper.h']]],
   ['pwmd3',['pwmD3',['../classuStepper.html#a5fe24f0caf11c65fadb19b3fdc04b7dd',1,'uStepper::pwmD3(double duty)'],['../classuStepper.html#a18f1acd8738727b0c2294851cf233fa6',1,'uStepper::pwmD3(int mode)']]],
-  ['pwmd8',['pwmD8',['../classuStepper.html#a9ea158e53ab288575fd4bc129410288c',1,'uStepper::pwmD8(double duty)'],['../classuStepper.html#aea090ff9603447221e65684ac5bc0e48',1,'uStepper::pwmD8(int mode)']]]
+  ['pwmd8',['pwmD8',['../classuStepper.html#ad66dcac045dd83610cff7d8c6b87248a',1,'uStepper::pwmD8(double current)'],['../classuStepper.html#aea090ff9603447221e65684ac5bc0e48',1,'uStepper::pwmD8(int mode)']]]
 ];

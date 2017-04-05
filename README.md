@@ -38,6 +38,10 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+1.2.2:
+- Adjusted parameters in limitDetection example, and dropin example
+- Added setCurrent() function to the uStepper object, for the user to easily change current setting
+- Minor corrections in PID algorithms
 
 1.2.1:
 - Fixed a bug in the implementation of the standalone PID controller, primarily anti windup

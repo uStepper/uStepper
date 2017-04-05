@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['setcurrent',['setCurrent',['../classuStepper.html#a34dfc1319482b6405ddca6c409eac520',1,'uStepper']]],
   ['sethome',['setHome',['../classuStepperEncoder.html#abf3fc82540c092e8a6c68d4580bedbf9',1,'uStepperEncoder']]],
   ['setmaxacceleration',['setMaxAcceleration',['../classuStepper.html#a97998e6f4b3f6eac8226d4670548edf0',1,'uStepper']]],
   ['setmaximumpulse',['setMaximumPulse',['../classuStepperServo.html#ac652e02642d454decf639fa4610dac2c',1,'uStepperServo']]],

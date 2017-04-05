@@ -10,7 +10,7 @@ uStepper stepper;
 void setup() {
   // put your setup code here, to run once:
   stepper.setup();
-  stepper.pwmD8(15.0);//use software current setting
+  stepper.setCurrent(15.0);//use software current setting
   stepper.setMaxAcceleration(20000);
   stepper.setMaxVelocity(4000);
   Serial.begin(115200);
@@ -71,7 +71,7 @@ float limit()
 
 void loop() {
   Serial.println(limit()*MMPRDEG);//find end positions and read out the recorded end position
-  stepper.setup(PID,SIXTEEN,10,6,1,0.2,0.006);//enable PID
-  stepper.pwmD8(50.0);//use software current setting
+  stepper.setup(PID,SIXTEEN,10,5,2.0,2.0,0.6);//enable PID
+  stepper.setCurrent(100.0);//use software current setting
   while(1);
 }
