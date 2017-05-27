@@ -189,6 +189,7 @@
 
 #include <inttypes.h>
 #include <avr/io.h>
+#include <avr/delay.h>
 #include <Arduino.h>
 #include <uStepperServo.h>
 
@@ -1111,6 +1112,17 @@ public:
 	 * @param[in]  setPoint  The setpoint in degrees
 	 */
 	void updateSetPoint(float setPoint);
+
+	/**
+	 * @brief      	Moves the motor to its physical limit, without limit switch
+	 *
+	 *              This function, makes the motor run continously, untill the
+	 *				encoder detects a stall, at which point the motor is assumed
+	 *				to be at it's limit.
+	 *
+	 * @param[in]  	dir  Direction to search for limit
+	 */
+	void moveToEnd(bool dir);
 };
 
 /**
