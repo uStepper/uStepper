@@ -1123,6 +1123,8 @@ public:
 	 * @param[in]  	dir  Direction to search for limit
 	 */
 	void moveToEnd(bool dir);
+
+	void moveToAngle(float angle, bool holdMode);
 };
 
 /**

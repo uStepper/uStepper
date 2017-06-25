@@ -1229,7 +1229,10 @@ void uStepper::setup(	uint8_t mode,
 	    this->iTerm = iTerm/(10000.0*500.0);
 	    this->dTerm = dTerm/(10000.0/500.0);
 	}
+	this->encoder.setup(mode);
 	this->stepsSinceReset=0;
+	this->encoder.setHome();
+	_delay_ms(1000);
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
 	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));
 	TCCR2B |= (1 << CS21)| (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
@@ -1237,8 +1240,6 @@ void uStepper::setup(	uint8_t mode,
 	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
 	OCR2B = 70;
 	this->enableMotor();
-	this->encoder.setup(mode);
-	
 }
 
 void uStepper::startTimer(void)
@@ -1406,7 +1407,31 @@ void uStepper::moveToEnd(bool dir)
 
   	this->hardStop(SOFT);//stop motor without brake
   	
+	this->moveSteps(20, !dir, SOFT);
+	while(this->getMotorState())
+	{
+		_delay_ms(1);
+	}
+	_delay_ms(100);
   	this->encoder.setHome();//set new home position
+}
+
+void uStepper::moveToAngle(float angle, bool holdMode)
+{
+	float diff;
+	uint32_t steps;
+
+	diff = angle - this->encoder.getAngleMoved();
+	steps = abs(diff)*angleToStep;
+
+	if(diff < 0.0)
+	{
+		this->moveSteps(steps, CCW, holdMode);
+	}
+	else
+	{
+		this->moveSteps(steps, CW, holdMode);
+	}
 }
 
 void uStepper::pidDropIn(void)
