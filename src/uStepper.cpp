@@ -1219,6 +1219,11 @@ void uStepper::setup(	uint8_t mode,
 	{
 		this->encoder.setHome();	
 	}
+	else
+	{
+		pointer->stepsSinceReset = ((float)this->encoder.angleMoved * this->stepConversion) + 0.5;
+	}
+
 	_delay_ms(1000);
 
 	if(this->mode)
@@ -1723,7 +1728,7 @@ void uStepper::pid(void)
 		if(error >= -this->hysteresis && error <= this->hysteresis)	//If error is less than 1 step
 		{
 			cli();
-			if(this->hold || this->state)
+			if(this->hold || this->state!=STOP)
 			{
 				PORTB &= ~(1 << 0);
 			}
