@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.2.2             	                             						*
-*      	date: 		April 5, 2017	 	                                    				*
+*		Version:    1.2.3             	                             						*
+*      	date: 		July 27th, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -1399,36 +1399,6 @@ void uStepper::updateSetPoint(float setPoint)
 	}
 
 	this->stepCnt = (int32_t)(setPoint*this->angleToStep);
-}
-
-void uStepper::moveToEnd(bool dir)
-{
-	uint8_t checks = 0;
-  	float pos = 0.0;
-  	this->runContinous(dir);
-	while(checks < 1)//allows for 2 checks on movement error
-	{
-		pos = abs(this->encoder.getAngleMoved() - (this->getStepsSinceReset()*0.1125));//see current position error
-		Serial.println(pos);
-		if(pos < 5.0)//if position error is less than 5 steps it is okay...
-		{
-			checks = 0;
-		}
-		else //if position error is 5 steps or more, count up checks
-		{
-	  		checks++;
-		}
-	}
-
-  	this->hardStop(SOFT);//stop motor without brake
-  	
-	this->moveSteps(20, !dir, SOFT);
-	while(this->getMotorState())
-	{
-		_delay_ms(1);
-	}
-	_delay_ms(100);
-  	this->encoder.setHome();//set new home position
 }
 
 void uStepper::moveToAngle(float angle, bool holdMode)
