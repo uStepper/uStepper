@@ -1,9 +1,18 @@
 # uStepper
 
 The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library.
-The library is supported in Arduino IDE 1.6.7, 1.6.8, 1.6.9, 1.6.10, 1.6.11, 1.6.12.
+The library is supported in Arduino IDE 1.6.7, 1.6.8, 1.6.9, 1.6.10, 1.6.11, 1.6.12, 1.8.3.
 
 For more information, visit www.ustepper.com
+
+## News!
+This version of the library adds two new functions to the library:
+
+moveToAngle()   - 	This makes it possible to specify a desired angle to reach, with respect to the last reset of home position
+MoveAngle() 	- 	This makes it posible to move the motor an angle relative to its current position, without having to calculate
+					the steps required, and manually call moveSteps();
+
+For more information about the use of these functions, see the documentation page.
 
 ## Closed loop is now implemented !
 We have (for quite some time now) been working on closed loop control of the uStepper motors, and we have finally made it work ! Two modes of control has been implemented.
@@ -38,6 +47,10 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+1.2.3:
+- Added moveAngle() and MoveToAngle() functions
+- Minor adjustments in setup routines
+
 1.2.2:
 - Adjusted parameters in limitDetection example, and dropin example
 - Added setCurrent() function to the uStepper object, for the user to easily change current setting

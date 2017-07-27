@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.cpp 															*
-*		Version:    1.2.2             	                             						*
-*      	date: 		April 5, 2017	 	                                    				*
+*		Version:    1.2.3             	                             						*
+*      	date: 		July 27th, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -710,11 +710,6 @@ void uStepperEncoder::setup(uint8_t mode)
 	TIMSK1 = (1 << OCIE1A);
 	TCCR1A = (1 << WGM11);
 	TCCR1B = (1 << WGM12) | (1 << WGM13) | (1 << CS10);
-	I2C.read(ENCODERADDR, ANGLE, 2, data);
-	this->encoderOffset = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
-	this->oldAngle = 0;
-	this->angleMoved = 0;
-	this->revolutions = 0;
 
 	sei();
 }
@@ -962,13 +957,26 @@ void uStepper::runContinous(bool dir)
 	this->enableMotor();																			//Enable motor
 }
 
-void uStepper::moveSteps(uint32_t steps, bool dir, bool holdMode)
+void uStepper::moveSteps(int32_t steps, bool dir, bool holdMode)
 {
 	float curVel;
 
 	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
+	}
+
+	if(steps < 1)
+	{
+		if(holdMode == HARD)
+		{
+			this->enableMotor();
+		}
+		else if(holdMode == SOFT)
+		{
+			this->disableMotor();
+		}
+		return;
 	}
 
 	this->stopTimer();					//Stop interrupt timer so we dont fuck stuff up !
@@ -1200,13 +1208,29 @@ void uStepper::setup(	uint8_t mode,
 						float faultHysteresis, 
 						float pTerm, 
 						float iTerm, 
-						float dterm)
+						float dterm,
+						bool setHome)
 {
 	this->mode = mode;
+	
+	this->encoder.setup(mode);
+
+	if(setHome)
+	{
+		this->encoder.setHome();	
+	}
+	else
+	{
+		pointer->stepsSinceReset = ((float)this->encoder.angleMoved * this->stepConversion) + 0.5;
+	}
+
+	_delay_ms(1000);
+
 	if(this->mode)
 	{
 		if(this->mode == DROPIN)
 		{
+			_delay_ms(4000);
 			//Set Enable, Step and Dir signal pins from 3dPrinter controller as inputs
 			pinMode(2,INPUT);		
 			pinMode(3,INPUT);
@@ -1217,19 +1241,18 @@ void uStepper::setup(	uint8_t mode,
 			digitalWrite(4,HIGH);
 			attachInterrupt(digitalPinToInterrupt(2), interrupt0, CHANGE);
 			attachInterrupt(digitalPinToInterrupt(3), interrupt1, FALLING);
-		}
-
-		this->stepConversion = ((float)(200*microStepping))/4096.0;	//Calculate conversion coefficient from raw encoder data, to actual moved steps
+		}		
 		this->tolerance = faultTolerance;		//Number of steps missed before controller kicks in
 		this->hysteresis = faultHysteresis;
-		this->angleToStep = ((float)(200*microStepping))/360.0;	//Calculate conversion coefficient from angle to corresponding number of steps
 		
 		//Scale supplied controller coefficents. This is done to enable the user to use easier to manage numbers for these coefficients.
 	    this->pTerm = pTerm/10000.0;    
 	    this->iTerm = iTerm/(10000.0*500.0);
 	    this->dTerm = dTerm/(10000.0/500.0);
 	}
-	this->stepsSinceReset=0;
+
+	this->stepConversion = ((float)(200*microStepping))/4096.0;	//Calculate conversion coefficient from raw encoder data, to actual moved steps
+	this->angleToStep = ((float)(200*microStepping))/360.0;	//Calculate conversion coefficient from angle to corresponding number of steps
 	TCCR2B &= ~((1 << CS20) | (1 << CS21) | (1 << CS22) | (1 << WGM22));
 	TCCR2A &= ~((1 << WGM20) | (1 << WGM21));
 	TCCR2B |= (1 << CS21)| (1 << WGM22);				//Enable timer with prescaler 8 - interrupt base frequency ~ 2MHz
@@ -1237,8 +1260,6 @@ void uStepper::setup(	uint8_t mode,
 	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
 	OCR2B = 70;
 	this->enableMotor();
-	this->encoder.setup(mode);
-	
 }
 
 void uStepper::startTimer(void)
@@ -1383,6 +1404,40 @@ void uStepper::updateSetPoint(float setPoint)
 	}
 
 	this->stepCnt = (int32_t)(setPoint*this->angleToStep);
+}
+
+void uStepper::moveToAngle(float angle, bool holdMode)
+{
+	float diff;
+	uint32_t steps;
+
+	diff = angle - this->encoder.getAngleMoved();
+	steps = (uint32_t)((abs(diff)*angleToStep) + 0.5);
+	
+	if(diff < 0.0)
+	{
+		this->moveSteps(steps, CCW, holdMode);
+	}
+	else
+	{
+		this->moveSteps(steps, CW, holdMode);
+	}
+}
+
+void uStepper::moveAngle(float angle, bool holdMode)
+{
+	int32_t steps;
+
+	if(angle < 0.0)
+	{
+		steps = (int32_t)((angle*angleToStep) - 0.5);
+		this->moveSteps(steps, CCW, holdMode);
+	}
+	else
+	{
+		steps = (int32_t)((angle*angleToStep) + 0.5);
+		this->moveSteps(steps, CW, holdMode);
+	}
 }
 
 void uStepper::pidDropIn(void)
@@ -1673,7 +1728,7 @@ void uStepper::pid(void)
 		if(error >= -this->hysteresis && error <= this->hysteresis)	//If error is less than 1 step
 		{
 			cli();
-			if(this->hold || this->state)
+			if(this->hold || this->state!=STOP)
 			{
 				PORTB &= ~(1 << 0);
 			}
