@@ -1,7 +1,7 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.2.2                                           						*
-*      	date: 		April 5, 2017	 	                                    				*
+*		Version:    1.2.3                                           						*
+*      	date: 		July 27th, 2017	 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -25,6 +25,12 @@
 *	
 *	This is the uStepper Arduino library, providing software functions for the different features of the uStepper board.
 *	
+*	\par News!
+*	This version of the library adds two new functions to the library:
+*	moveToAngle()   - 	This makes it possible to specify a desired angle to reach, with respect to the last reset of home position
+*	MoveAngle() 	- 	This makes it posible to move the motor an angle relative to its current position, without having to calculate
+*						the steps required, and manually call moveSteps();
+*
 *	\par Features
 *	The uStepper library contains the following features:
 *	
@@ -107,6 +113,9 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+* 	\version 1.2.3:
+*  	- Added moveAngle() and MoveToAngle() functions
+*  	- Minor adjustments in setup routines
 * 	\version 1.2.2:
 *  	- Adjusted parameters in limitDetection example, and dropin example
 *  	- Added setCurrent() function to the uStepper object, for the user to easily change current setting
@@ -1059,7 +1068,7 @@ public:
 	 * @param      duty  - Desired duty cycle of PWM signal. range: 0.0 to
 	 *                   100.0.
 	 */
-	void pwmD8(double current);
+	void pwmD8(double duty);
 
 	/**
 	 * @brief      Set motor output current
@@ -1068,9 +1077,9 @@ public:
 	 *             driver. In order to utilize this feature, the current jumper should be 
 	 *             placed in the "I-PWM" position on the uStepper board.
 	 *
-	 * @param[in]      current Desired current setting in percent (0% - 100%)
+	 * @param[in]  current Desired current setting in percent (0% - 100%)
 	 */
-	void setCurrent(double duty);
+	void setCurrent(double current);
 
 	/**
 	 * @brief      Sets the mode of digital pin D8
@@ -1116,26 +1125,17 @@ public:
 	 * @param[in]  setPoint  The setpoint in degrees
 	 */
 	void updateSetPoint(float setPoint);
-
-	/**
-	 * @brief      	Moves the motor to its physical limit, without limit switch
-	 *
-	 *              This function, makes the motor run continously, untill the
-	 *				encoder detects a stall, at which point the motor is assumed
-	 *				to be at it's limit.
-	 *
-	 * @param[in]  	dir  Direction to search for limit
-	 */
-	void moveToEnd(bool dir);
-
+	
 	/**
 	 * @brief      	Moves the motor to an absolute angle
 	 *
-	 * @param[in]  	angle  Absolute angle from last reset of home position, desired to reach
+	 * @param[in]  	angle  Absolute angle. A positive angle makes
+	 *				the motor turn clockwise, and a negative angle, counterclockwise.
 	 *
 	 * @param[in]  	holdMode can be set to "HARD" for brake mode or "SOFT" for
-	 *                       freewheel mode (without the quotes).
+	 *              freewheel mode (without the quotes).
 	 */
+
 	void moveToAngle(float angle, bool holdMode);
 
 	/**
@@ -1145,7 +1145,7 @@ public:
 	 *				the motor turn clockwise, and a negative angle, counterclockwise.
 	 *
 	 * @param[in]  	holdMode can be set to "HARD" for brake mode or "SOFT" for
-	 *                       freewheel mode (without the quotes).
+	 *              freewheel mode (without the quotes).
 	 */
 	void moveAngle(float angle, bool holdMode);
 };
