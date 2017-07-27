@@ -919,7 +919,7 @@ public:
 	 * @param      holdMode  -	can be set to "HARD" for brake mode or "SOFT" for
 	 *                       freewheel mode (without the quotes).
 	 */
-	void moveSteps(uint32_t steps, bool dir, bool holdMode);
+	void moveSteps(int32_t steps, bool dir, bool holdMode);
 	
 
 	/**
@@ -987,6 +987,9 @@ public:
 	 *                              controller
 	 * @param[in]  dterm            The differential coefficent of the PID
 	 *                              controller
+	 * @param[in]  setHome          When set to true, the encoder position is
+	 *								Reset. When set to false, the encoder
+	 *								position is not reset.
 	 */
 	void setup(	uint8_t mode = NORMAL, 
 				uint8_t microStepping = SIXTEEN, 
@@ -994,7 +997,8 @@ public:
 				float faultHysteresis = 5.0, 
 				float pTerm = 1.0, 
 				float iTerm = 0.02, 
-				float dterm = 0.006);	
+				float dterm = 0.006,
+				bool setHome = true);	
 
 	/**
 	 * @brief      Returns the direction the motor is currently configured to
@@ -1124,7 +1128,26 @@ public:
 	 */
 	void moveToEnd(bool dir);
 
+	/**
+	 * @brief      	Moves the motor to an absolute angle
+	 *
+	 * @param[in]  	angle  Absolute angle from last reset of home position, desired to reach
+	 *
+	 * @param[in]  	holdMode can be set to "HARD" for brake mode or "SOFT" for
+	 *                       freewheel mode (without the quotes).
+	 */
 	void moveToAngle(float angle, bool holdMode);
+
+	/**
+	 * @brief      	Moves the motor to a relative angle
+	 *
+	 * @param[in]  	angle  Relative angle from current position. A positive angle makes
+	 *				the motor turn clockwise, and a negative angle, counterclockwise.
+	 *
+	 * @param[in]  	holdMode can be set to "HARD" for brake mode or "SOFT" for
+	 *                       freewheel mode (without the quotes).
+	 */
+	void moveAngle(float angle, bool holdMode);
 };
 
 /**
