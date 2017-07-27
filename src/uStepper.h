@@ -1127,6 +1127,17 @@ public:
 	void updateSetPoint(float setPoint);
 	
 	/**
+	 * @brief      	Moves the motor to its physical limit, without limit switch
+	 *
+	 *              This function, makes the motor run continously, untill the
+	 *				encoder detects a stall, at which point the motor is assumed
+	 *				to be at it's limit.
+	 *
+	 * @param[in]  	dir  Direction to search for limit
+	 */
+	void moveToEnd(bool dir);
+
+	/**
 	 * @brief      	Moves the motor to an absolute angle
 	 *
 	 * @param[in]  	angle  Absolute angle. A positive angle makes
