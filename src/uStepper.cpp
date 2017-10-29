@@ -1410,7 +1410,7 @@ void uStepper::moveToEnd(bool dir)
 	uint8_t checks = 0;
   	float pos = 0.0;
   	this->runContinous(dir);
-	while(checks < 1)//allows for 2 checks on movement error
+	while(checks < 5)//allows for 2 checks on movement error
 	{
 		pos = abs(this->encoder.getAngleMoved() - (this->getStepsSinceReset()*0.1125));//see current position error
 		Serial.println(pos);
@@ -1627,6 +1627,7 @@ void uStepper::pid(void)
 	float error;
 	static uint32_t speed = 10000;
 	static uint32_t oldMicros = 0;
+	static uint8_t stallCounter = 0;
 
 	sei();
 	if(I2C.getStatus() != I2CFREE)
@@ -1696,7 +1697,25 @@ void uStepper::pid(void)
 		//between each step, the we need to multiply with a number < 1 to increase speed
 		output -= this->pTerm*error;		
 		output -= accumError;
-		output -= this->dTerm*(error - oldError);
+		oldError = error - oldError;
+		output -= this->dTerm*oldError;
+
+		if(oldError < 10.0 && oldError > -10.0)
+		{
+			if(stallCounter >= 10)
+			{
+				this->stall = 1;
+			}
+			else
+			{
+				stallCounter++;
+			}
+		}
+		else
+		{
+			stallCounter = 0;
+			this->stall = 0;
+		}
 
 		oldError = error;		//Save current error for next sample, for use in differential part
 
@@ -1729,7 +1748,25 @@ void uStepper::pid(void)
 
 		output -= this->pTerm*error;
 		output -= accumError;
+		oldError = error - oldError;
 		output -= this->dTerm*(error - oldError);
+
+		if(oldError < 10.0 && oldError > -10.0)
+		{
+			if(stallCounter >= 10)
+			{
+				this->stall = 1;
+			}
+			else
+			{
+				stallCounter++;
+			}
+		}
+		else
+		{
+			stallCounter = 0;
+			this->stall = 0;
+		}
 
 		oldError = error;
 		
@@ -1756,6 +1793,8 @@ void uStepper::pid(void)
 	{
 		if(error >= -this->hysteresis && error <= this->hysteresis)	//If error is less than 1 step
 		{
+			stallCounter = 0;
+			this->stall = 0;
 			cli();
 			if(this->hold || this->state!=STOP)
 			{
@@ -1784,6 +1823,11 @@ void uStepper::pid(void)
 			}
 		}
 	}
+}
+
+bool uStepper::isStalled(void)
+{
+	return this->stall;
 }
 
 bool i2cMaster::cmd(uint8_t cmd)

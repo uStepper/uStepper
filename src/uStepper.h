@@ -750,7 +750,11 @@ private:
 
 	/** This variable converts an angle in degrees into a corresponding
 	 * number of steps*/
-	float angleToStep;				
+	float angleToStep;		
+
+	/** This variable holds information on wether the motor is stalled or not.
+	0 = OK, 1 = stalled */
+	volatile bool stall;
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
@@ -1159,6 +1163,15 @@ public:
 	 *              freewheel mode (without the quotes).
 	 */
 	void moveAngle(float angle, bool holdMode);
+
+	/**
+	 * @brief      This method handles the actual PID controller calculations,
+	 *             if enabled.
+	 *
+	 * @return     This method returns a bool variable indicating wether the motor
+	 *				is stalled or not (0 = not stalled, 1 = stalled)
+	 */
+	bool isStalled(void);
 };
 
 /**
