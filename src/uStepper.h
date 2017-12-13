@@ -113,6 +113,10 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+* 	\version 1.3.0:
+*  	- Changed MoveToAngle() function, to support update of angle setpoint in PID mode
+*  	- Changed getMotorState() function, to support update of angle setpoint in PID mode
+*	- Fixed bug in moveAngle() function, where negative inputs had no effect
 * 	\version 1.2.3:
 *  	- Added moveAngle() and MoveToAngle() functions
 *  	- Minor adjustments in setup routines
@@ -756,6 +760,8 @@ private:
 	0 = OK, 1 = stalled */
 	volatile bool stall;
 
+	volatile bool invertDir;
+
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
 	friend void interrupt1(void);
@@ -1165,13 +1171,14 @@ public:
 	void moveAngle(float angle, bool holdMode);
 
 	/**
-	 * @brief      This method handles the actual PID controller calculations,
-	 *             if enabled.
+	 * @brief      	This method returns a bool variable indicating wether the motor
+	 *				is stalled or not
 	 *
-	 * @return     This method returns a bool variable indicating wether the motor
-	 *				is stalled or not (0 = not stalled, 1 = stalled)
+	 * @return     	0 = not stalled, 1 = stalled
 	 */
 	bool isStalled(void);
+
+	bool detectStall(float diff, bool running);
 };
 
 /**
