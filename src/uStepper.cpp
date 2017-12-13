@@ -980,15 +980,6 @@ void uStepper::moveSteps(int32_t steps, bool dir, bool holdMode)
 	}
 
 	this->stopTimer();					//Stop interrupt timer so we dont fuck stuff up !
-	if(this->direction == dir)
-	{
-		if(this->state == ACCEL || this->state == INITDECEL || this->state == CRUISE)
-		{
-			this->cruiseSteps += steps;
-			this->startTimer();
-			return;
-		}	
-	}
 	
 	steps--;
 	if(this->invertDir)
