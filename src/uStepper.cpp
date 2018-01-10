@@ -990,8 +990,9 @@ void uStepper::moveSteps(int32_t steps, bool dir, bool holdMode)
 	else
 	{
 		this->direction = dir;				//Set direction variable to the desired direction of rotation for the interrupt routine
-	}
-	*/
+	}*/
+	this->direction = dir;				//Set direction variable to the desired direction of rotation for the interrupt routine
+
 	this->hold = holdMode;				//Set the hold variable to desired hold mode (block motor or release motor after end movement) for the interrupt routine
 	this->totalSteps = steps;			//Load the desired number of steps into the totalSteps variable for the interrupt routine
 	this->continous = 0;				//Set continous variable to 0, since the motor should not run continous

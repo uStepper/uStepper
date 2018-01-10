@@ -9,8 +9,9 @@ uStepper stepper;
 
 void setup() {
   // put your setup code here, to run once:
-  stepper.setup();
-  stepper.setCurrent(15.0);//use software current setting
+ //stepper.setup();
+  stepper.setup(PID,SIXTEEN,10,5,2.0,2.0,0.6);//enable PID
+  stepper.setCurrent(50.0);//use software current setting
   stepper.setMaxAcceleration(20000);
   stepper.setMaxVelocity(4000);
   Serial.begin(115200);
@@ -20,11 +21,10 @@ void loop() {
   float railLength;
 
   stepper.moveToEnd(CW);      //Reset to CW endpoint
-  railLength = stepper.moveToEnd(CCW);    //Go to CCW end
-
   Serial.println(railLength*MMPRDEG);//find end positions and read out the recorded end position
-  stepper.setup(PID,SIXTEEN,10,5,2.0,2.0,0.6);//enable PID
-  stepper.setCurrent(100.0);//use software current setting
-  stepper.moveSteps((pos*RES)/2, CW, SOFT); //Move to center
+  railLength = stepper.moveToEnd(CCW);    //Go to CCW end
+  Serial.println(railLength*MMPRDEG);//find end positions and read out the recorded end position
+  stepper.moveToAngle(railLength/2, HARD); //Move to center
+  
   while(1);
 }
