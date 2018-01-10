@@ -1457,25 +1457,34 @@ float uStepper::moveToEnd(bool dir)
   	float lengthMoved;
 
   	lengthMoved = this->encoder.getAngleMoved();
-
+  	
   	this->hardStop(HARD);
 	_delay_ms(50);
   	this->runContinous(dir);
-	while(checks < 5)//allows for 2 checks on movement error
-	{
-		pos = abs(this->encoder.getAngleMoved() - (this->getStepsSinceReset()*0.1125));//see current position error
-		Serial.println(pos);
-		if(pos < 2.0)//if position error is less than 5 steps it is okay...
-		{
-			checks = 0;
-		}
-		else //if position error is 5 steps or more, count up checks
-		{
-	  		checks++;
-		}
-	}
 
-  	this->hardStop(SOFT);//stop motor without brake
+  	if(this->mode == PID)
+  	{
+  		while(!this->isStalled());
+  		this->hardStop(SOFT);//stop motor without brake
+  	}
+  	else
+  	{
+  		
+		while(checks < 5)//allows for 2 checks on movement error
+		{
+			pos = abs(this->encoder.getAngleMoved() - (this->getStepsSinceReset()*0.1125));//see current position error
+			if(pos < 5.0)//if position error is less than 5 steps it is okay...
+			{
+				checks = 0;
+			}
+			else //if position error is 5 steps or more, count up checks
+			{
+		  		checks++;
+			}
+		}
+
+	  	this->hardStop(SOFT);//stop motor without brake
+  	}
   	
 	this->moveSteps(20, !dir, SOFT);
 	while(this->getMotorState())
@@ -1485,7 +1494,7 @@ float uStepper::moveToEnd(bool dir)
 	_delay_ms(100);
 	if(dir == CW)
 	{
-		lengthMoved = this->encoder.getAngleMoved() - lengthMoved();
+		lengthMoved = this->encoder.getAngleMoved() - lengthMoved;
 	}
 	else
 	{
@@ -1894,7 +1903,7 @@ bool uStepper::detectStall(float diff, bool running)
 		{
 			temp *= 0.1;
 
-			if(temp < 10.0 && temp > -10.0)
+			if(temp < 5.0 && temp > -5.0)
 			{
 				this->stall = 1;
 			}
