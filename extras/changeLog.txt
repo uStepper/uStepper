@@ -1,10 +1,78 @@
 Changelog - uStepper library
 ----------------------------
 
-0.1.0:
-	- Initial release!
+Version 1.3.0:
+	- Changed MoveToAngle() function, to support update of angle setpoint in PID mode
+  	- Changed getMotorState() function, to support update of angle setpoint in PID mode
+	- Fixed bug in moveAngle() function, where negative inputs had no effect
+	- Changed the "LimitDetection" example to make use of the new moveToEnd() function
 
-0.2.0:
+Version 1.2.3:
+  	- Added moveAngle() and MoveToAngle() functions
+  	- Minor adjustments in setup routines
+
+Version 1.2.2:
+  	- Adjusted parameters in limitDetection example, and dropin example
+  	- Added setCurrent() function to the uStepper object, for the user to easily change current setting
+	- Minor corrections in PID algorithms
+ 	
+Version 1.2.1:
+  	- Fixed a bug in the implementation of the standalone PID controller, primarily anti windup
+  	- Added example to show how limit detection can be implemented without the use of limit switches
+    - Adjusted encoder.setHome() function to also reset the stepsSinceReset variable
+
+Version 1.2.0:
+	- Adjusted the code related to the PID closed loop position control. Now it actually works as intended!
+  	- Fixed Bug with encoder.getStrength and encoder.getAgc functions not reading the correct registers in the encoder
+   	- Changed getStepsSinceReset() to return a 32 bit signed integer, instead of a 64 bit signed integer, which is just overkill, and doesn't really play well with arduino
+   	- Changed some minor things in the assembly code to optimise stuff with regards to the PID mode	
+   	- Fixed a bug in the assembly code causing the StepsSinceReset variable to always decrease regardless of the direction of rotation. This resulted in the number of steps moved since reset, always 	being negative
+   - Fixed a typo in the documentation of the getCurrentDirection() function, to state the correct return values
+   - Added several keywords to the library
+   - Added Example to demonstrate the use of PID closed loop position control 
+	
+Version 1.1.0:
+	- Fixed bug with encoder.setHome() function, where number of revolutions was never reset, resulting in the angle being reset to the number of revolutions times 360 degrees, instead of 0 degrees
+	- Implemented Timeout in I2C functions. This ensures that the program will not lock up if access to a non-existing I2C address is attempted.  
+	- Added overloaded function to pwmD8() and pwmD3(), in order to be able to revert the function of these to pins, back to normal IO mode
+
+Version 1.0.0:
+	- Added PID functionality to drop-in Feature
+	- Added PID functionality to regular movement functions
+	- Added support for servo motors
+	- Added two new examples
+
+Version 0.4.5:
+	- Changed setup of Timer1 and Timer2, to allow for PWM generation on D3 and D8. See documentation of "pwmD3()" and "pwmD8()" functions in class "uStepper", for instructions.
+	- Changed setup of external interrupts for dropin feature, to be able to compile with arduino IDE 1.6.10.
+	- Updated board installation package to version 1.1.0, to be compliant with arduino IDE 1.6.10. Update uStepper board using package manager in Arduino IDE ("Tools->Board->Board Manager", scroll down to the uStepper board and choose update or install).
+	
+Version 0.4.4:
+	- Added the attribute "used" to declarations of interrupt routines. This enables the library to be compiled in Arduino IDE 1.6.10 
+	- Updated documentation of "uStepper::setup()"
+
+Version 0.4.3:
+	- Fixed bug where initial deceleration phase (used when changing speed setting or changing direction while motor is moving), would never be entered, causing motor to accelerate
+
+Version 0.4.2:
+	- Fixed bug with setHome() causing getAngleMoved() to return alternating values (offset by exactly 180 degrees) between resets.
+	- Fixed bug in runContinous(), where direction of the motor did not get updated if the function was called with the motor standing still.
+
+Version 0.4.1:
+	- Fixed bug with getAngleMoved() returning alternating values (offset by exactly 180 degrees) between resets.
+	- Added keywords
+	- Updated pin connection description for Drop-in example 
+
+Version 0.4.0:
+	- Added Drop-in feature to replace stepsticks with uStepper for error correction
+	- Fixed bug in stepper acceleration algorithm, making the motor spin extremely slow at certain accelerations. Also this fix reduced the motor resonance
+	- Implemented an IIR filter on the speed measurement, to smooth this out a bit.
+
+Version 0.3.0:
+	- Added support for speed readout
+	- Added support for measuring the shaft position with respect to a zero reference. (absolute within multiple revolutions)
+
+Version 0.2.0:
 	- Complete rewrite of the stepper algorithm in assembler
 	- Changed from fixed point to floating point variables, due to the need for more precision
 	- Removed the getSpeed() method, as it didn't work, and therefore it would make more sense to remove it
@@ -12,4 +80,7 @@ Changelog - uStepper library
 	- Added a few doxygen comments
 	- Added a new method (getStepsSinceReset()), which returns all steps performed since reset of the uStepper.
 	  positive values corresponds to steps in clockwise direction, while negative values corresponds to steps
-	  in counterclockwise direction.
+	  in counterclockwise direction.	
+
+Version 0.1.0:	
+	- Initial release

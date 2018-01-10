@@ -1,23 +1,23 @@
 #######################################
-# Syntax Coloring Map For AccelStepper
+# Syntax Coloring Map For uStepper
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-uStepper	KEYWORD1
-uStepperTemp KEYWORD1
-uStepperEncoder KEYWORD1
-float2		KEYWORD1
+uStepper 	KEYWORD1
+uStepperTemp	KEYWORD1
+uStepperEncoder	KEYWORD1
+float2	KEYWORD1
 i2cMaster	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-getFloatValue KEYWORD2
-getRawValue  KEYWORD2
-setValue	 KEYWORD2
+getFloatValue	KEYWORD2
+getRawValue	KEYWORD2
+setValue	KEYWORD2
 getTemp	KEYWORD2
 getAngle	KEYWORD2
 getSpeed	KEYWORD2
@@ -36,32 +36,33 @@ hardStop	KEYWORD2
 softStop	KEYWORD2
 setup	KEYWORD2
 getCurrentDirection	KEYWORD2	
-getMotorState KEYWORD2
-getStepsSinceReset KEYWORD2
+getMotorState	KEYWORD2
+getStepsSinceReset	KEYWORD2
 readByte	KEYWORD2
-read		KEYWORD2
-start 		KEYWORD2
-restart 	KEYWORD2
-writeByte  	KEYWORD2
-write 		KEYWORD2
-stop 	KEYWORD2
-getStatus 	KEYWORD2
-begin 	KEYWORD2
+read	KEYWORD2
+start	KEYWORD2
+restart	KEYWORD2
+writeByte	KEYWORD2
+write	KEYWORD2
+stop	KEYWORD2
+getStatus	KEYWORD2
+begin	KEYWORD2
 pwmD8	KEYWORD2
 pwmD3	KEYWORD2
 getStepsSinceReset	KEYWORD2
 encoder	KEYWORD2
 temp	KEYWORD2
-PID		KEYWORD2
+PID	KEYWORD2
 DROPIN	KEYWORD2
-NORMAL KEYWORD2
-CW KEYWORD2
-CCW KEYWORD2
-SIXTEEN KEYWORD2
-EIGHT KEYWORD2
-QUARTER KEYWORD2
-HALF KEYWORD2
-FULL KEYWORD2
-setCurrent KEYWORD2
-moveToAngle KEYWORD2
-moveAngle KEYWORD2
+NORMAL	KEYWORD2
+CW	KEYWORD2
+CCW	KEYWORD2
+SIXTEEN	KEYWORD2
+EIGHT	KEYWORD2
+QUARTER	KEYWORD2
+HALF	KEYWORD2
+FULL	KEYWORD2
+setCurrent	KEYWORD2
+moveToAngle	KEYWORD2
+moveAngle	KEYWORD2
+moveToEnd	KEYWORD2

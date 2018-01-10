@@ -11,6 +11,7 @@ var searchData=
   ['soft',['SOFT',['../uStepper_8h.html#a1b44ecf82561bec987fa3c07632335a4',1,'uStepper.h']]],
   ['softstop',['softStop',['../classuStepper.html#af5715f56bed814257f496150e032b41c',1,'uStepper']]],
   ['speedvalue',['speedValue',['../classuStepper.html#adb545697344fe53451c2e33f503c4ec9',1,'uStepper']]],
+  ['stall',['stall',['../classuStepper.html#a8deb59ec6c859578ff4586ba81956d7c',1,'uStepper']]],
   ['start',['start',['../classi2cMaster.html#a1f220aa9d4c43c6b6ff53395c76428af',1,'i2cMaster::start()'],['../uStepper_8h.html#a3018c7600b7bb9866400596a56a57af7',1,'START():&#160;uStepper.h']]],
   ['starttimer',['startTimer',['../classuStepper.html#aa3a08ba0871ec3fd1f0deba270d9bacf',1,'uStepper']]],
   ['state',['state',['../classuStepper.html#af406f7f37fadc3ababf95e3bbebb302f',1,'uStepper']]],
