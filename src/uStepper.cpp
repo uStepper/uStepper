@@ -1,7 +1,7 @@
 /********************************************************************************************
-* 	 	File: 		uStepper.cpp 															*
-*		Version:    1.2.3             	                             						*
-*      	date: 		July 27th, 2017	 	                                    				*
+* 	 	File: 		uStepper.cpp															*
+*		Version:    1.3.0                                           						*
+*      	date: 		January 10th, 2018 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
@@ -44,18 +44,18 @@
 *	After this, the library is ready to control the motor!									*
 *																							*
 *********************************************************************************************
-*	(C) 2016																				*
+*	(C) 2018																				*
 *																							*
-*	ON Development IVS																		*
-*	www.on-development.com 																	*
-*	administration@on-development.com 														*
+*	uStepper ApS																			*
+*	www.ustepper.com 																		*
+*	administration@ustepper.com 															*
 *																							*
 *	The code contained in this file is released under the following open source license:	*
 *																							*
 *			Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International			*
 * 																							*
 * 	The code in this file is provided without warranty of any kind - use at own risk!		*
-* 	neither ON Development IVS nor the author, can be held responsible for any damage		*
+* 	neither uStepper ApS nor the author, can be held responsible for any damage				*
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
@@ -980,8 +980,19 @@ void uStepper::moveSteps(int32_t steps, bool dir, bool holdMode)
 	}
 
 	this->stopTimer();					//Stop interrupt timer so we dont fuck stuff up !
+	
 	steps--;
+	/*if(this->invertDir)
+	{
+		this->direction = !dir;				//Set direction variable to the desired direction of rotation for the interrupt routine	
+		dir = !dir;
+	}
+	else
+	{
+		this->direction = dir;				//Set direction variable to the desired direction of rotation for the interrupt routine
+	}*/
 	this->direction = dir;				//Set direction variable to the desired direction of rotation for the interrupt routine
+
 	this->hold = holdMode;				//Set the hold variable to desired hold mode (block motor or release motor after end movement) for the interrupt routine
 	this->totalSteps = steps;			//Load the desired number of steps into the totalSteps variable for the interrupt routine
 	this->continous = 0;				//Set continous variable to 0, since the motor should not run continous
@@ -1130,13 +1141,14 @@ void uStepper::hardStop(bool holdMode)
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
 	}
 
+	this->stepsSinceReset = (int32_t)(this->encoder.getAngleMoved()*this->angleToStep);
+	this->control = 0;
+
 	this->stopTimer();			//Stop interrupt timer, since we shouldn't perform more steps
 	this->hold = holdMode;
-
-	if(state != STOP)
+	
+	if(state != STOP && this->mode == NORMAL)
 	{
-		this->state = STOP;			//Set current state to STOP
-
 		this->startTimer();
 	}
 
@@ -1152,6 +1164,7 @@ void uStepper::hardStop(bool holdMode)
 			this->enableMotor();
 		}
 	}
+	this->state = STOP;			//Set current state to STOP
 }
 
 void uStepper::softStop(bool holdMode)
@@ -1161,6 +1174,11 @@ void uStepper::softStop(bool holdMode)
 	if(this->mode == DROPIN)
 	{
 		return;		//Drop in feature is activated. just return since this function makes no sense with drop in activated!
+	}
+	if(this->mode == PID && this->control)
+	{
+		this->hardStop(holdMode);
+		return;
 	}
 
 	this->stopTimer();			//Stop interrupt timer, since we shouldn't perform more steps
@@ -1223,7 +1241,6 @@ void uStepper::setup(	uint8_t mode,
 	{
 		pointer->stepsSinceReset = ((float)this->encoder.angleMoved * this->stepConversion) + 0.5;
 	}
-
 	_delay_ms(1000);
 
 	if(this->mode)
@@ -1259,7 +1276,20 @@ void uStepper::setup(	uint8_t mode,
 	TCCR2A |= (1 << WGM21) | (1 << WGM20);				//Switch timer 2 to Fast PWM mode, to enable adjustment of interrupt frequency, while being able to use PWM
 	OCR2A = 70;											//Change top value to 70 in order to obtain an interrupt frequency of 28.571kHz
 	OCR2B = 70;
-	this->enableMotor();
+	/*this->enableMotor();
+	this->moveSteps(10,CW,SOFT);
+	while(this->getMotorState())
+	{
+		_delay_ms(1);
+	}
+	if(this->encoder.getAngleMoved() < 0.0)
+	{
+		this->invertDir = 1;
+	}
+	else
+	{
+		this->invertDir = 0;
+	}*/
 }
 
 void uStepper::startTimer(void)
@@ -1293,12 +1323,27 @@ bool uStepper::getCurrentDirection(void)
 
 bool uStepper::getMotorState(void)
 {
-	if(this->state != STOP)
+	if(this->mode == PID)
 	{
-		return 1;		//Motor running
+		if(this->control)
+		{
+			return 1;
+		}
+		else if(this->state != STOP)
+		{
+			return 1;		//Motor running
+		}
+		return 0;
 	}
+	else
+	{
+		if(this->state != STOP)
+		{
+			return 1;		//Motor running
+		}
 
-	return 0;			//Motor not running
+		return 0;			//Motor not running
+	}
 }
 
 int32_t uStepper::getStepsSinceReset(void)
@@ -1406,22 +1451,78 @@ void uStepper::updateSetPoint(float setPoint)
 	this->stepCnt = (int32_t)(setPoint*this->angleToStep);
 }
 
+float uStepper::moveToEnd(bool dir)
+{
+	uint8_t checks = 0;
+  	float pos = 0.0;
+  	float lengthMoved;
+
+  	lengthMoved = this->encoder.getAngleMoved();
+  	
+  	this->hardStop(HARD);
+	_delay_ms(50);
+  	this->runContinous(dir);
+
+  	if(this->mode == PID)
+  	{
+  		while(!this->isStalled());
+  		this->hardStop(SOFT);//stop motor without brake
+  	}
+  	else
+  	{
+  		
+		while(checks < 5)//allows for 2 checks on movement error
+		{
+			pos = abs(this->encoder.getAngleMoved() - (this->getStepsSinceReset()*0.1125));//see current position error
+			if(pos < 5.0)//if position error is less than 5 steps it is okay...
+			{
+				checks = 0;
+			}
+			else //if position error is 5 steps or more, count up checks
+			{
+		  		checks++;
+			}
+		}
+
+	  	this->hardStop(SOFT);//stop motor without brake
+  	}
+  	
+	this->moveSteps(20, !dir, SOFT);
+	while(this->getMotorState())
+	{
+		_delay_ms(1);
+	}
+	_delay_ms(100);
+	if(dir == CW)
+	{
+		lengthMoved = this->encoder.getAngleMoved() - lengthMoved;
+	}
+	else
+	{
+		lengthMoved -= this->encoder.getAngleMoved();
+	}
+  	this->encoder.setHome();//set new home position
+
+  	return lengthMoved;
+}
+
 void uStepper::moveToAngle(float angle, bool holdMode)
 {
 	float diff;
 	uint32_t steps;
 
-	diff = angle - this->encoder.getAngleMoved();
-	steps = (uint32_t)((abs(diff)*angleToStep) + 0.5);
-	
-	if(diff < 0.0)
-	{
-		this->moveSteps(steps, CCW, holdMode);
-	}
-	else
-	{
-		this->moveSteps(steps, CW, holdMode);
-	}
+		diff = angle - this->encoder.getAngleMoved();
+		steps = (uint32_t)((abs(diff)*angleToStep) + 0.5);
+		
+		if(diff < 0.0)
+		{
+			this->moveSteps(steps, CCW, holdMode);
+		}
+		else
+		{
+			this->moveSteps(steps, CW, holdMode);
+		}
+
 }
 
 void uStepper::moveAngle(float angle, bool holdMode)
@@ -1430,7 +1531,7 @@ void uStepper::moveAngle(float angle, bool holdMode)
 
 	if(angle < 0.0)
 	{
-		steps = (int32_t)((angle*angleToStep) - 0.5);
+		steps = -(int32_t)((angle*angleToStep) - 0.5);
 		this->moveSteps(steps, CCW, holdMode);
 	}
 	else
@@ -1598,6 +1699,8 @@ void uStepper::pid(void)
 	float error;
 	static uint32_t speed = 10000;
 	static uint32_t oldMicros = 0;
+	static uint8_t stallCounter = 0;
+	static bool running = 0;
 
 	sei();
 	if(I2C.getStatus() != I2CFREE)
@@ -1649,6 +1752,20 @@ void uStepper::pid(void)
 	this->encoder.oldAngle = curAngle;
 
 	error = (((float)this->encoder.angleMoved * this->stepConversion) - error); 
+	
+	if(!this->control)
+	{
+		if(this->state != STOP)
+		{
+			running = 1;
+		}
+		else
+		{
+			running = 0;
+		}
+	}
+
+	detectStall((float)deltaAngle, running);
 
 	if(error < -this->tolerance)
 	{
@@ -1667,7 +1784,8 @@ void uStepper::pid(void)
 		//between each step, the we need to multiply with a number < 1 to increase speed
 		output -= this->pTerm*error;		
 		output -= accumError;
-		output -= this->dTerm*(error - oldError);
+		oldError = error - oldError;
+		output -= this->dTerm*oldError;
 
 		oldError = error;		//Save current error for next sample, for use in differential part
 
@@ -1683,6 +1801,10 @@ void uStepper::pid(void)
 	    
 	    cli();
 	      this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+	    if(!running)
+	    {
+	    	this->state = CRUISE;
+	    }
 	    sei();
 
 		this->startTimer();	
@@ -1700,6 +1822,7 @@ void uStepper::pid(void)
 
 		output -= this->pTerm*error;
 		output -= accumError;
+		oldError = error - oldError;
 		output -= this->dTerm*(error - oldError);
 
 		oldError = error;
@@ -1716,7 +1839,11 @@ void uStepper::pid(void)
 	    }
 	    
 	    cli();
-	      this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+	      	this->delay = (uint16_t)((output*INTPIDDELAYCONSTANT) - 0.5);
+	    	if(!running)
+	    	{
+	    		this->state = CRUISE;
+	    	}
 	    sei();
 
 		this->startTimer();	
@@ -1745,6 +1872,10 @@ void uStepper::pid(void)
 			{
 				PORTD &= ~(1 << 7);		//change direction to CW
 			}
+			if(!running)
+	    	{
+	    		this->state = STOP;
+	    	}
 			sei();
 			this->control = 0;			//Set control variable to 0, in order to make sure int0 routine generates step pulses
 			accumError = 0.0;				//Clear accumerror
@@ -1755,6 +1886,47 @@ void uStepper::pid(void)
 			}
 		}
 	}
+}
+
+bool uStepper::detectStall(float diff, bool running)
+{
+	static uint16_t accumDiff = 0; 
+	static uint8_t checks = 0;
+	static float oldDiff = 0.0;
+	static float temp = 0.0;
+
+	if(running)
+	{
+		temp += diff;
+		checks++;
+
+		if( checks == 100)
+		{
+			temp *= 0.1;
+
+			if(temp < 5.0 && temp > -5.0)
+			{
+				this->stall = 1;
+			}
+			else
+			{
+				this->stall = 0;
+			}
+			temp = 0.0;
+			checks = 0;
+		}
+	}
+	else
+	{
+		this->stall = 0;
+		temp = 0.0;
+		checks = 0;
+	}
+}
+
+bool uStepper::isStalled(void)
+{
+	return this->stall;
 }
 
 bool i2cMaster::cmd(uint8_t cmd)

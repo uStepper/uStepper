@@ -10,5 +10,6 @@ var searchData=
   ['intfreq',['INTFREQ',['../uStepper_8h.html#a2d6d8ed93a3b37e34993ff25b5dfa6f3',1,'uStepper.h']]],
   ['intperiod',['INTPERIOD',['../uStepper_8h.html#a3080eb0cc166e7223bbefe11506f1920',1,'uStepper.h']]],
   ['intpiddelayconstant',['INTPIDDELAYCONSTANT',['../uStepper_8h.html#ac5b1500d852f9a821aa8816eb1e89436',1,'uStepper.h']]],
+  ['isstalled',['isStalled',['../classuStepper.html#afba47de14c32c2fe6037f2b22b4cf90c',1,'uStepper']]],
   ['iterm',['iTerm',['../classuStepper.html#a531a34b1df2a630226ce589630b2c32d',1,'uStepper']]]
 ];

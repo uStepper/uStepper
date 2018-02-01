@@ -1,22 +1,22 @@
 /********************************************************************************************
 * 	 	File: 		uStepper.h 																*
-*		Version:    1.2.3                                           						*
-*      	date: 		July 27th, 2017	 	                                    				*
+*		Version:    1.3.0                                           						*
+*      	date: 		January 10th, 2018 	                                    				*
 *      	Author: 	Thomas Hørring Olsen                                   					*
 *                                                   										*	
 *********************************************************************************************
-*	(C) 2016																				*
+*	(C) 2018																				*
 *																							*
-*	ON Development IVS																		*
-*	www.on-development.com 																	*
-*	administration@on-development.com 														*
+*	uStepper ApS																			*
+*	www.ustepper.com 																		*
+*	administration@ustepper.com 															*
 *																							*
 *	The code contained in this file is released under the following open source license:	*
 *																							*
 *			Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International			*
 * 																							*
 * 	The code in this file is provided without warranty of any kind - use at own risk!		*
-* 	neither ON Development IVS nor the author, can be held responsible for any damage		*
+* 	neither uStepper ApS nor the author, can be held responsible for any damage				*
 * 	caused by the use of the code contained in this file ! 									*
 *                                                                                           *
 ********************************************************************************************/
@@ -26,10 +26,12 @@
 *	This is the uStepper Arduino library, providing software functions for the different features of the uStepper board.
 *	
 *	\par News!
-*	This version of the library adds two new functions to the library:
-*	moveToAngle()   - 	This makes it possible to specify a desired angle to reach, with respect to the last reset of home position
-*	MoveAngle() 	- 	This makes it posible to move the motor an angle relative to its current position, without having to calculate
-*						the steps required, and manually call moveSteps();
+*	This version of the library adds a new functions to the library:
+*	MoveToEnd()     -   This function makes the motor turn in the specified direction, until an obstacle is detected,
+*                       at which point the motor stops and resets its home position
+*	Changed the "LimitDetection" example to make use of the new moveToEnd() function
+*
+*   Also some adjustments have been made to different functions. See changelog
 *
 *	\par Features
 *	The uStepper library contains the following features:
@@ -61,7 +63,7 @@
 *	- Search for "uStepper", in the top right corner of the "Library Manager" window
 *	- Install uStepper library 
 *	
-*	The library is tested with Arduino IDE 1.6.10
+*	The library is tested with Arduino IDE 1.8.5
 *	
 *	\warning MAC users should be aware, that OSX does NOT include FTDI VCP drivers, needed to upload sketches to the uStepper, by default. This driver should be 
 *	downloaded and installed from FTDI's website:
@@ -113,6 +115,11 @@
 *
 *	\author Thomas Hørring Olsen (thomas@ustepper.com)
 *	\par Change Log
+* 	\version 1.3.0:
+*  	- Changed MoveToAngle() function, to support update of angle setpoint in PID mode
+*  	- Changed getMotorState() function, to support update of angle setpoint in PID mode
+*	- Fixed bug in moveAngle() function, where negative inputs had no effect
+*	- Changed the "LimitDetection" example to make use of the new moveToEnd() function
 * 	\version 1.2.3:
 *  	- Added moveAngle() and MoveToAngle() functions
 *  	- Minor adjustments in setup routines
@@ -750,7 +757,13 @@ private:
 
 	/** This variable converts an angle in degrees into a corresponding
 	 * number of steps*/
-	float angleToStep;				
+	float angleToStep;		
+
+	/** This variable holds information on wether the motor is stalled or not.
+	0 = OK, 1 = stalled */
+	volatile bool stall;
+
+	volatile bool invertDir;
 
 	friend void TIMER2_COMPA_vect(void) __attribute__ ((signal,naked,used));
 	friend void TIMER1_COMPA_vect(void) __attribute__ ((signal,used));
@@ -1127,6 +1140,19 @@ public:
 	void updateSetPoint(float setPoint);
 	
 	/**
+	 * @brief      	Moves the motor to its physical limit, without limit switch
+	 *
+	 *              This function, makes the motor run continously, untill the
+	 *				encoder detects a stall, at which point the motor is assumed
+	 *				to be at it's limit.
+	 *
+	 * @param[in]  	dir  Direction to search for limit
+	 *
+	 * @return 		Degrees turned from calling the function, till end was reached
+	 */
+	float moveToEnd(bool dir);
+
+	/**
 	 * @brief      	Moves the motor to an absolute angle
 	 *
 	 * @param[in]  	angle  Absolute angle. A positive angle makes
@@ -1148,6 +1174,16 @@ public:
 	 *              freewheel mode (without the quotes).
 	 */
 	void moveAngle(float angle, bool holdMode);
+
+	/**
+	 * @brief      	This method returns a bool variable indicating wether the motor
+	 *				is stalled or not
+	 *
+	 * @return     	0 = not stalled, 1 = stalled
+	 */
+	bool isStalled(void);
+
+	bool detectStall(float diff, bool running);
 };
 
 /**
