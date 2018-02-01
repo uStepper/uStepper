@@ -1,9 +1,9 @@
 /********************************************************************************************
-*       File:       uStepperServo.cpp                                                       *
-*       Version:    1.1.0                                                                  *
-*       date:       December 10, 2016                                                       *
+*       File:       uStepper.cpp                                                            *
+*       Version:    1.3.0                                                                   *
+*       date:       January 10th, 2018                                                      *
 *       Author:     Thomas Hørring Olsen                                                    *
-*                                                                                           *  
+*                                                                                           *   
 *********************************************************************************************
 *                       uStepperServo class                                                 *
 *                                                                                           *
@@ -70,17 +70,18 @@
 *   After this, the library is ready to control the Servo!                                  *
 *                                                                                           *
 *********************************************************************************************
-*   (C) 2016                                                                                *
+*   (C) 2018                                                                                *
 *                                                                                           *
-*   ON Development IVS                                                                      *
-*   www.on-development.com                                                                  *
-*   administration@on-development.com                                                       *
+*   uStepper ApS                                                                            *
+*   www.ustepper.com                                                                        *
+*   administration@ustepper.com                                                             *
 *                                                                                           *
-*   The code contained in this file is based on the Arduino Software Servo Library found at *
-*   http://playground.arduino.cc/ComponentLib/Servo                                         *
+*   The code contained in this file is released under the following open source license:    *
+*                                                                                           *
+*           Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International         *
 *                                                                                           *
 *   The code in this file is provided without warranty of any kind - use at own risk!       *
-*   neither ON Development IVS nor the author, can be held responsible for any damage       *
+*   neither uStepper ApS nor the author, can be held responsible for any damage             *
 *   caused by the use of the code contained in this file !                                  *
 *                                                                                           *
 ********************************************************************************************/
