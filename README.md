@@ -47,6 +47,12 @@ The uStepper should NOT be connected to the USB port while installing this drive
 This is not a problem for windows/linux users, as these drivers come with the arduino installation.
 
 ## Change Log
+1.3.0:
+- Changed MoveToAngle() function, to support update of angle setpoint in PID mode
+- Changed getMotorState() function, to support update of angle setpoint in PID mode
+- Fixed bug in moveAngle() function, where negative inputs had no effect
+- Changed the "LimitDetection" example to make use of the new moveToEnd() function
+
 1.2.3:
 - Added moveAngle() and MoveToAngle() functions
 - Minor adjustments in setup routines
