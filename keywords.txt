@@ -66,3 +66,4 @@ setCurrent	KEYWORD2
 moveToAngle	KEYWORD2
 moveAngle	KEYWORD2
 moveToEnd	KEYWORD2
+getLostSteps	KEYWORD2

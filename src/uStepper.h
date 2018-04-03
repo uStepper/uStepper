@@ -1184,6 +1184,8 @@ public:
 	bool isStalled(void);
 
 	bool detectStall(float diff, bool running);
+
+	int32_t getLostSteps(void);
 };
 
 /**

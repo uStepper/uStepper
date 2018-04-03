@@ -1929,6 +1929,11 @@ bool uStepper::isStalled(void)
 	return this->stall;
 }
 
+int32_t uStepper::getLostSteps(void)
+{
+	return this->control;
+}
+
 bool i2cMaster::cmd(uint8_t cmd)
 {
 	uint16_t i = 0;
