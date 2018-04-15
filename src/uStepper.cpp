@@ -1348,14 +1348,7 @@ bool uStepper::getMotorState(void)
 
 int32_t uStepper::getStepsSinceReset(void)
 {
-	if(this->direction == CW)
-	{
-		return this->stepsSinceReset;
-	}
-	else
-	{
-		return this->stepsSinceReset;
-	}
+	return this->stepsSinceReset;
 }
 
 void uStepper::setCurrent(double current)
