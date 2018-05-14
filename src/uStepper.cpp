@@ -1509,11 +1509,11 @@ void uStepper::moveToAngle(float angle, bool holdMode)
 		
 		if(diff < 0.0)
 		{
-			this->moveSteps(steps, CCW, holdMode);
+			this->moveSteps(steps, CW, holdMode);
 		}
 		else
 		{
-			this->moveSteps(steps, CW, holdMode);
+			this->moveSteps(steps, CCW, holdMode);
 		}
 
 }
@@ -1525,12 +1525,12 @@ void uStepper::moveAngle(float angle, bool holdMode)
 	if(angle < 0.0)
 	{
 		steps = -(int32_t)((angle*angleToStep) - 0.5);
-		this->moveSteps(steps, CCW, holdMode);
+		this->moveSteps(steps, CW, holdMode);
 	}
 	else
 	{
 		steps = (int32_t)((angle*angleToStep) + 0.5);
-		this->moveSteps(steps, CW, holdMode);
+		this->moveSteps(steps, CCW, holdMode);
 	}
 }
 
