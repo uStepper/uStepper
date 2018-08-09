@@ -1156,7 +1156,7 @@ public:
 	 * @brief      	Moves the motor to an absolute angle
 	 *
 	 * @param[in]  	angle  Absolute angle. A positive angle makes
-	 *				the motor turn clockwise, and a negative angle, counterclockwise.
+	 *				the motor turn counterclockwise, and a negative angle, clockwise.
 	 *
 	 * @param[in]  	holdMode can be set to "HARD" for brake mode or "SOFT" for
 	 *              freewheel mode (without the quotes).
@@ -1168,7 +1168,7 @@ public:
 	 * @brief      	Moves the motor to a relative angle
 	 *
 	 * @param[in]  	angle  Relative angle from current position. A positive angle makes
-	 *				the motor turn clockwise, and a negative angle, counterclockwise.
+	 *				the motor turn counterclockwise, and a negative angle, clockwise.
 	 *
 	 * @param[in]  	holdMode can be set to "HARD" for brake mode or "SOFT" for
 	 *              freewheel mode (without the quotes).
