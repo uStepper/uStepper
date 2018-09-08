@@ -757,7 +757,9 @@ private:
 
 	/** This variable converts an angle in degrees into a corresponding
 	 * number of steps*/
-	float angleToStep;		
+	float angleToStep;	
+
+	uint16_t errorSignalTimeout;	
 
 	/** This variable holds information on wether the motor is stalled or not.
 	0 = OK, 1 = stalled */
@@ -1020,7 +1022,8 @@ public:
 				float pTerm = 1.0, 
 				float iTerm = 0.02, 
 				float dterm = 0.006,
-				bool setHome = true);	
+				bool setHome = true,
+				uint16_t errorSignalTimeout = 10);	
 
 	/**
 	 * @brief      Returns the direction the motor is currently configured to

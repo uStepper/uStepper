@@ -81,6 +81,7 @@ extern "C" {
 
 	void interrupt1(void)
 	{
+		//asm volatile("sbi 0x05,2");		//D8
 		pointer->speedValue[1] = pointer->speedValue[0];
 		pointer->speedValue[0] = micros();
 
@@ -110,6 +111,7 @@ extern "C" {
 			}
 			pointer->stepCnt++;			//DIR is set to CW, therefore we add 1 step to step count (positive values = number of steps in CW direction from initial postion)	
 		}
+		//asm volatile("cbi 0x05,2");		//D8	
 	}
 
 	void interrupt0(void)
@@ -127,6 +129,7 @@ extern "C" {
 
 	void TIMER2_COMPA_vect(void)
 	{	
+		
 		asm volatile("push r16 \n\t");
 		asm volatile("in r16,0x3F \n\t");
 		asm volatile("push r16 \n\t");
@@ -264,7 +267,8 @@ extern "C" {
 		asm volatile("pop r30 \n\t");
 		asm volatile("pop r16 \n\t");
 		asm volatile("out 0x3F,r16 \n\t");
-		asm volatile("pop r16 \n\t");	
+		asm volatile("pop r16 \n\t");
+			
 		asm volatile("reti \n\t");
 	}
 
@@ -276,7 +280,7 @@ extern "C" {
 		float newSpeed;
 		static float deltaSpeedAngle = 0.0;
 		static uint8_t loops = 0;
-
+		//asm volatile("sbi 0x05,3");		//D9	
 		sei();
 		if(I2C.getStatus() != I2CFREE)
 		{
@@ -286,6 +290,7 @@ extern "C" {
 		if(pointer->mode == DROPIN)
 		{
 			pointer->pidDropIn();
+			//asm volatile("cbi 0x05,3");		//D9
 			return;
 		}
 		else if(pointer->mode == PID)
@@ -1227,7 +1232,8 @@ void uStepper::setup(	uint8_t mode,
 						float pTerm, 
 						float iTerm, 
 						float dterm,
-						bool setHome)
+						bool setHome,
+						uint16_t errorSignalTimeout)
 {
 	this->mode = mode;
 	
@@ -1247,6 +1253,8 @@ void uStepper::setup(	uint8_t mode,
 	{
 		if(this->mode == DROPIN)
 		{
+			pinMode(5,OUTPUT);
+			this->errorSignalTimeout = errorSignalTimeout*500;
 			_delay_ms(4000);
 			//Set Enable, Step and Dir signal pins from 3dPrinter controller as inputs
 			pinMode(2,INPUT);		
@@ -1545,14 +1553,15 @@ void uStepper::pidDropIn(void)
 	int16_t deltaAngle;
 	float error;
 	static uint32_t speed = 10000;
-	static uint32_t oldMicros = 0;
-
+	static uint16_t errorIndicationCounter = 0;
+	
 	sei();
 	
 	I2C.read(ENCODERADDR, ANGLE, 2, data);
 	cli();
 		error = (float)this->stepCnt;
-		if(this->speedValue[0] == oldMicros)
+	sei();
+		if(this->speedValue[0] == this->speedValue[1])
 		{
 			speed += 2000;
 			if(speed > 10000)
@@ -1562,9 +1571,11 @@ void uStepper::pidDropIn(void)
 		}
 		else
 		{
+			cli();
 			speed = this->speedValue[0] - this->speedValue[1];
+			sei();
 		} 
-	sei();
+	
 	
 	curAngle = (((uint16_t)data[0]) << 8 ) | (uint16_t)data[1];
 	this->encoder.angle = curAngle;
@@ -1595,6 +1606,7 @@ void uStepper::pidDropIn(void)
 
 	if(error < -this->tolerance)
 	{
+		errorIndicationCounter++;
 		cli(); //Do Atomic copy, in order to not fuck up variables
 			this->control = (int32_t)error;	//Move current error into control variable, for Timer2 and int0 routines to decide who should provide steps
 		sei();
@@ -1634,6 +1646,7 @@ void uStepper::pidDropIn(void)
 
 	else if(error > this->tolerance)
 	{
+		errorIndicationCounter++;
 		cli(); //Do Atomic copy, in order to not fuck up variables
 			this->control = (int32_t)error;		
 		sei();
@@ -1669,6 +1682,8 @@ void uStepper::pidDropIn(void)
 	{
 		if(error >= -this->hysteresis && error <= this->hysteresis)	//If error is less than 1 step
 		{
+			errorIndicationCounter = 0;
+			PORTD &= ~(1 << 6);		//D5
 			PORTB |= (PIND & 0x04) >> 2;	//Set enable pin to whatever is demanded by the 3Dprinter controller
 
 			this->control = 0;			//Set control variable to 0, in order to make sure int0 routine generates step pulses
@@ -1677,6 +1692,12 @@ void uStepper::pidDropIn(void)
 			this->stopTimer();			//Stop timer 2
 		}
 	}	
+
+	if(errorIndicationCounter > this->errorSignalTimeout)	//error for 10 secs or more
+	{
+		PORTD |= (1 << 6);		//D5
+		errorIndicationCounter = this->errorSignalTimeout;
+	}
 }
 
 void uStepper::pid(void)
