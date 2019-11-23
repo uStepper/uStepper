@@ -1,5 +1,7 @@
 # uStepper
 
+# Not for uStepper S or S-lite ! This Repo is for the older uStepper Rev B !
+
 The library contains support for driving the stepper, measuring temperature and reading out encoder data. Two examples are included to show the functionality of the library.
 The library is supported in Arduino IDE 1.6.7, 1.6.8, 1.6.9, 1.6.10, 1.6.11, 1.6.12, 1.8.3.
 
